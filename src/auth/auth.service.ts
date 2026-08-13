@@ -6,12 +6,14 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
+import { OAuth2Client } from 'google-auth-library';
 import type { SignOptions } from 'jsonwebtoken';
-import { User } from '../../generated/prisma/client';
+import { AuthProvider, User } from '../../generated/prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CodePurpose } from './code-purpose.enum';
 import { CodeService } from './code.service';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
+import { GoogleAuthDto } from './dto/google-auth.dto';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
@@ -20,6 +22,7 @@ import { VerifyEmailDto } from './dto/verify-email.dto';
 @Injectable()
 export class AuthService {
   private readonly passwordSaltRounds = 12;
+  private readonly googleClient = new OAuth2Client();
 
   constructor(
     private readonly prisma: PrismaService,
@@ -156,6 +159,81 @@ export class AuthService {
     });
 
     return { success: true };
+  }
+
+  async googleAuth(dto: GoogleAuthDto) {
+    const googleClientId = this.configService.get<string>('GOOGLE_CLIENT_ID');
+    if (!googleClientId) {
+      throw new UnauthorizedException('Google auth is not configured');
+    }
+
+    const ticket = await this.googleClient.verifyIdToken({
+      idToken: dto.idToken,
+      audience: googleClientId,
+    });
+    const payload = ticket.getPayload();
+
+    if (!payload?.sub || !payload.email) {
+      throw new UnauthorizedException('Invalid Google token');
+    }
+
+    const email = payload.email.toLowerCase().trim();
+    const now = new Date();
+
+    const user = await this.prisma.$transaction(async (tx) => {
+      const providerAccount = await tx.providerAccount.findUnique({
+        where: {
+          provider_providerUserId: {
+            provider: AuthProvider.GOOGLE,
+            providerUserId: payload.sub,
+          },
+        },
+        include: { user: true },
+      });
+
+      if (providerAccount) {
+        return tx.user.update({
+          where: { id: providerAccount.userId },
+          data: { lastLoginAt: now },
+        });
+      }
+
+      const existingUser = await tx.user.findUnique({
+        where: { email },
+      });
+
+      const userRecord =
+        existingUser ??
+        (await tx.user.create({
+          data: {
+            email,
+            name: payload.name ?? null,
+            emailVerifiedAt: payload.email_verified ? now : null,
+          },
+        }));
+
+      const updatedUser = await tx.user.update({
+        where: { id: userRecord.id },
+        data: {
+          lastLoginAt: now,
+          emailVerifiedAt:
+            userRecord.emailVerifiedAt ?? (payload.email_verified ? now : null),
+        },
+      });
+
+      await tx.providerAccount.create({
+        data: {
+          provider: AuthProvider.GOOGLE,
+          providerUserId: payload.sub,
+          email,
+          userId: updatedUser.id,
+        },
+      });
+
+      return updatedUser;
+    });
+
+    return this.authResponse(user);
   }
 
   private authResponse(user: User) {
