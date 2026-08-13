@@ -13,6 +13,10 @@ class EnvironmentVariables {
   @IsUrl({ require_tld: false })
   DATABASE_URL!: string;
 
+  @IsOptional()
+  @IsUrl({ require_tld: false })
+  SHADOW_DATABASE_URL?: string;
+
   @IsString()
   @IsNotEmpty()
   JWT_SECRET!: string;
