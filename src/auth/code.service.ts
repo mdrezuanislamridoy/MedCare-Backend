@@ -1,6 +1,6 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
-import { RedisService } from '../redis/redis.service';
+import { RedisService } from '../common/cache/redis/redis.service';
 import { CodePurpose } from './code-purpose.enum';
 
 @Injectable()
