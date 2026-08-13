@@ -1,7 +1,11 @@
 enum UserRole {
+  SUPER_ADMIN
+  ADMIN
   PATIENT
   DOCTOR
-  ADMIN
+  CLINIC_MANAGER
+  RECEPTIONIST
+  SUPPORT_STAFF
 }
 
 model User {

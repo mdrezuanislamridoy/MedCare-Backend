@@ -84,6 +84,15 @@ export class AuthService {
     return this.serializeUser(user);
   }
 
+  async updateUserRole(userId: string, role: User['role']) {
+    const user = await this.prisma.user.update({
+      where: { id: userId },
+      data: { role },
+    });
+
+    return this.serializeUser(user);
+  }
+
   async issueEmailVerificationCode(userId: string) {
     const user = await this.prisma.user.findUniqueOrThrow({
       where: { id: userId },
