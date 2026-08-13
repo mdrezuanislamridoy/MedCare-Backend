@@ -11,8 +11,10 @@ import { User } from '../../generated/prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CodePurpose } from './code-purpose.enum';
 import { CodeService } from './code.service';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 import { VerifyEmailDto } from './dto/verify-email.dto';
 
 @Injectable()
@@ -113,6 +115,47 @@ export class AuthService {
     });
 
     return this.serializeUser(updatedUser);
+  }
+
+  async forgotPassword(dto: ForgotPasswordDto) {
+    const email = dto.email.toLowerCase().trim();
+    const user = await this.prisma.user.findUnique({
+      where: { email },
+    });
+
+    if (!user) {
+      return { expiresInSeconds: 10 * 60 };
+    }
+
+    const issuedCode = await this.codeService.issueCode(
+      CodePurpose.PasswordReset,
+      user.email,
+    );
+
+    return {
+      expiresInSeconds: issuedCode.expiresInSeconds,
+      ...(process.env.NODE_ENV === 'production'
+        ? {}
+        : { code: issuedCode.code }),
+    };
+  }
+
+  async resetPassword(dto: ResetPasswordDto) {
+    const email = dto.email.toLowerCase().trim();
+
+    await this.codeService.verifyCode(
+      CodePurpose.PasswordReset,
+      email,
+      dto.code,
+    );
+
+    const passwordHash = await bcrypt.hash(dto.password, this.passwordSaltRounds);
+    await this.prisma.user.update({
+      where: { email },
+      data: { passwordHash },
+    });
+
+    return { success: true };
   }
 
   private authResponse(user: User) {
