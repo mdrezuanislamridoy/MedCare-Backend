@@ -9,8 +9,11 @@ import * as bcrypt from 'bcrypt';
 import type { SignOptions } from 'jsonwebtoken';
 import { User } from '../../generated/prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
+import { CodePurpose } from './code-purpose.enum';
+import { CodeService } from './code.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
+import { VerifyEmailDto } from './dto/verify-email.dto';
 
 @Injectable()
 export class AuthService {
@@ -20,6 +23,7 @@ export class AuthService {
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
+    private readonly codeService: CodeService,
   ) {}
 
   async register(dto: RegisterDto) {
@@ -73,6 +77,42 @@ export class AuthService {
     });
 
     return this.serializeUser(user);
+  }
+
+  async issueEmailVerificationCode(userId: string) {
+    const user = await this.prisma.user.findUniqueOrThrow({
+      where: { id: userId },
+    });
+    const issuedCode = await this.codeService.issueCode(
+      CodePurpose.EmailVerification,
+      user.email,
+    );
+
+    return {
+      expiresInSeconds: issuedCode.expiresInSeconds,
+      ...(process.env.NODE_ENV === 'production'
+        ? {}
+        : { code: issuedCode.code }),
+    };
+  }
+
+  async verifyEmail(userId: string, dto: VerifyEmailDto) {
+    const user = await this.prisma.user.findUniqueOrThrow({
+      where: { id: userId },
+    });
+
+    await this.codeService.verifyCode(
+      CodePurpose.EmailVerification,
+      user.email,
+      dto.code,
+    );
+
+    const updatedUser = await this.prisma.user.update({
+      where: { id: user.id },
+      data: { emailVerifiedAt: new Date() },
+    });
+
+    return this.serializeUser(updatedUser);
   }
 
   private authResponse(user: User) {

@@ -2,6 +2,7 @@ import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
 import { CurrentUser } from './decorators/current-user.decorator';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
+import { VerifyEmailDto } from './dto/verify-email.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { AuthService } from './auth.service';
 import type { AuthUser } from './types/auth-user.type';
@@ -24,5 +25,17 @@ export class AuthController {
   @Get('me')
   me(@CurrentUser() user: AuthUser) {
     return this.authService.getProfile(user.id);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('email/verification-code')
+  issueEmailVerificationCode(@CurrentUser() user: AuthUser) {
+    return this.authService.issueEmailVerificationCode(user.id);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('email/verify')
+  verifyEmail(@CurrentUser() user: AuthUser, @Body() dto: VerifyEmailDto) {
+    return this.authService.verifyEmail(user.id, dto);
   }
 }
