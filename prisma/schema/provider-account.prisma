@@ -1,0 +1,18 @@
+enum AuthProvider {
+  GOOGLE
+}
+
+model ProviderAccount {
+  id              String       @id @default(cuid())
+  provider        AuthProvider
+  providerUserId  String
+  email           String
+  userId          String
+  user            User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  @@unique([provider, providerUserId])
+  @@index([userId])
+  @@map("provider_accounts")
+}
