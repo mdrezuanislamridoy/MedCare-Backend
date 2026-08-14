@@ -9,16 +9,23 @@ enum UserRole {
 }
 
 model User {
-  id              String            @id @default(cuid())
-  email           String            @unique
-  passwordHash    String?
-  name            String?
-  role            UserRole          @default(PATIENT)
-  emailVerifiedAt DateTime?
-  lastLoginAt     DateTime?
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
-  providerAccounts ProviderAccount[]
+  id                  String               @id @default(cuid())
+  email               String               @unique
+  passwordHash        String?
+  name                String?
+  role                UserRole             @default(PATIENT)
+  emailVerifiedAt     DateTime?
+  lastLoginAt         DateTime?
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+  providerAccounts    ProviderAccount[]
+  doctorProfile       DoctorProfile?
+  patientProfile      PatientProfile?
+  managedClinics      Clinic[]
+  verificationReviews DoctorVerification[]
+  moderatedReviews    DoctorReview[]
+  sentNotifications   Notification[]
 
   @@map("users")
 }
+

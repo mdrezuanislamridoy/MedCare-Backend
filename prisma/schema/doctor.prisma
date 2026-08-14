@@ -1,0 +1,53 @@
+enum VerificationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  DOCUMENTS_REQUESTED
+}
+
+enum AccountStatus {
+  ACTIVE
+  SUSPENDED
+  INACTIVE
+}
+
+model DoctorProfile {
+  id                 String               @id @default(cuid())
+  userId             String               @unique
+  user               User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  specialty          String
+  licenseNumber      String?
+  bio                String?
+  rating             Float                @default(5.0)
+  reviewCount        Int                  @default(0)
+  clinicId           String?
+  clinic             Clinic?              @relation(fields: [clinicId], references: [id])
+  verificationStatus VerificationStatus   @default(PENDING)
+  accountStatus      AccountStatus        @default(ACTIVE)
+  joinedDate         DateTime             @default(now())
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+  verifications      DoctorVerification[]
+  appointments       Appointment[]
+  reviews            DoctorReview[]
+  transactions       Transaction[]
+
+  @@map("doctor_profiles")
+}
+
+model DoctorVerification {
+  id           String             @id @default(cuid())
+  doctorId     String
+  doctor       DoctorProfile      @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+  license      String
+  documentUrls String[]
+  status       VerificationStatus @default(PENDING)
+  notes        String?
+  reviewedById String?
+  reviewedBy   User?              @relation(fields: [reviewedById], references: [id])
+  reviewedAt   DateTime?
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+
+  @@map("doctor_verifications")
+}
