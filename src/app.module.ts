@@ -4,6 +4,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { CommonModule } from './common/common.module';
+import { GatewayModule } from './gateway/gateway.module';
 import { validateEnv } from './common/config/env.validation';
 
 @Module({
@@ -14,6 +15,7 @@ import { validateEnv } from './common/config/env.validation';
     }),
     CommonModule,
     AuthModule,
+    GatewayModule,
   ],
   controllers: [AppController],
   providers: [AppService],
