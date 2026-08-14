@@ -4,11 +4,13 @@ import { DoctorModule } from '../microservices/doctor/doctor.module';
 import { PatientModule } from '../microservices/patient/patient.module';
 import { ClinicModule } from '../microservices/clinic/clinic.module';
 import { AppointmentModule } from '../microservices/appointment/appointment.module';
+import { FinanceModule } from '../microservices/finance/finance.module';
 import { AdminAnalyticsGatewayController } from './admin-analytics.gateway.controller';
 import { AdminDoctorGatewayController } from './admin-doctor.gateway.controller';
 import { AdminPatientGatewayController } from './admin-patient.gateway.controller';
 import { AdminClinicGatewayController } from './admin-clinic.gateway.controller';
 import { AdminAppointmentGatewayController } from './admin-appointment.gateway.controller';
+import { AdminFinanceGatewayController } from './admin-finance.gateway.controller';
 
 @Module({
   imports: [
@@ -17,6 +19,7 @@ import { AdminAppointmentGatewayController } from './admin-appointment.gateway.c
     PatientModule,
     ClinicModule,
     AppointmentModule,
+    FinanceModule,
   ],
   controllers: [
     AdminAnalyticsGatewayController,
@@ -24,6 +27,7 @@ import { AdminAppointmentGatewayController } from './admin-appointment.gateway.c
     AdminPatientGatewayController,
     AdminClinicGatewayController,
     AdminAppointmentGatewayController,
+    AdminFinanceGatewayController,
   ],
 })
 export class GatewayModule {}
