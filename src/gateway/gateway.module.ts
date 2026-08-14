@@ -7,6 +7,7 @@ import { AppointmentModule } from '../microservices/appointment/appointment.modu
 import { FinanceModule } from '../microservices/finance/finance.module';
 import { ReviewModule } from '../microservices/review/review.module';
 import { NotificationModule } from '../microservices/notification/notification.module';
+import { AuditModule } from '../microservices/audit/audit.module';
 import { AdminAnalyticsGatewayController } from './admin-analytics.gateway.controller';
 import { AdminDoctorGatewayController } from './admin-doctor.gateway.controller';
 import { AdminPatientGatewayController } from './admin-patient.gateway.controller';
@@ -15,6 +16,7 @@ import { AdminAppointmentGatewayController } from './admin-appointment.gateway.c
 import { AdminFinanceGatewayController } from './admin-finance.gateway.controller';
 import { AdminReviewGatewayController } from './admin-review.gateway.controller';
 import { AdminNotificationGatewayController } from './admin-notification.gateway.controller';
+import { AdminAuditGatewayController } from './admin-audit.gateway.controller';
 
 @Module({
   imports: [
@@ -26,6 +28,7 @@ import { AdminNotificationGatewayController } from './admin-notification.gateway
     FinanceModule,
     ReviewModule,
     NotificationModule,
+    AuditModule,
   ],
   controllers: [
     AdminAnalyticsGatewayController,
@@ -36,6 +39,7 @@ import { AdminNotificationGatewayController } from './admin-notification.gateway
     AdminFinanceGatewayController,
     AdminReviewGatewayController,
     AdminNotificationGatewayController,
+    AdminAuditGatewayController,
   ],
 })
 export class GatewayModule {}
