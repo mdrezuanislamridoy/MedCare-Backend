@@ -8,6 +8,7 @@ import { FinanceModule } from '../microservices/finance/finance.module';
 import { ReviewModule } from '../microservices/review/review.module';
 import { NotificationModule } from '../microservices/notification/notification.module';
 import { AuditModule } from '../microservices/audit/audit.module';
+import { RbacModule } from '../microservices/rbac/rbac.module';
 import { AdminAnalyticsGatewayController } from './admin-analytics.gateway.controller';
 import { AdminDoctorGatewayController } from './admin-doctor.gateway.controller';
 import { AdminPatientGatewayController } from './admin-patient.gateway.controller';
@@ -17,6 +18,7 @@ import { AdminFinanceGatewayController } from './admin-finance.gateway.controlle
 import { AdminReviewGatewayController } from './admin-review.gateway.controller';
 import { AdminNotificationGatewayController } from './admin-notification.gateway.controller';
 import { AdminAuditGatewayController } from './admin-audit.gateway.controller';
+import { SuperAdminRbacGatewayController } from './super-admin-rbac.gateway.controller';
 
 @Module({
   imports: [
@@ -29,6 +31,7 @@ import { AdminAuditGatewayController } from './admin-audit.gateway.controller';
     ReviewModule,
     NotificationModule,
     AuditModule,
+    RbacModule,
   ],
   controllers: [
     AdminAnalyticsGatewayController,
@@ -40,6 +43,7 @@ import { AdminAuditGatewayController } from './admin-audit.gateway.controller';
     AdminReviewGatewayController,
     AdminNotificationGatewayController,
     AdminAuditGatewayController,
+    SuperAdminRbacGatewayController,
   ],
 })
 export class GatewayModule {}
