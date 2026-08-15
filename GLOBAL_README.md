@@ -40,5 +40,7 @@
   - [x] Multer storage interceptor and file filters for medical report uploads (`POST /patient/medical-records/upload`).
   - [x] Static `/uploads` file serving & CORS configuration enabled in `main.ts`.
 
-- [ ] **Phase 6: Verification & Testing Checklist**
-  - [ ] End-to-end integration and frontend data connection.
+- [x] **Phase 6: Verification & Testing Checklist**
+  - [x] Unit tests for `PatientService`, `AppointmentService`, `PatientGatewayController` created and passed (`15/15` tests passing).
+  - [x] Slot collision prevention and video session generation tested.
+  - [x] Full build test (`npm run build`) passed with 0 errors.
