@@ -115,6 +115,14 @@ export class PatientGatewayController {
     return this.appointmentService.patientGetAppointment(req.user.id, id);
   }
 
+  @Get('appointments/:id/video-session')
+  async getVideoSession(
+    @Req() req: AuthenticatedRequest,
+    @Param('id') id: string,
+  ) {
+    return this.appointmentService.patientGetVideoSession(req.user.id, id);
+  }
+
   @Post('appointments/book')
   async bookAppointment(
     @Req() req: AuthenticatedRequest,
@@ -198,6 +206,14 @@ export class PatientGatewayController {
     @Query() query: { page?: number; limit?: number },
   ) {
     return this.financeService.patientListInvoices(req.user.id, query);
+  }
+
+  @Post('payments/checkout-session')
+  async createCheckoutSession(
+    @Req() req: AuthenticatedRequest,
+    @Body() body: { appointmentId: string; provider?: string; returnUrl?: string },
+  ) {
+    return this.financeService.createCheckoutSession(req.user.id, body);
   }
 
   @Post('payments/pay')

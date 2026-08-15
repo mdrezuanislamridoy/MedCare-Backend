@@ -395,4 +395,59 @@ export class AppointmentService {
       },
     });
   }
+
+  async patientGetVideoSession(userId: string, appointmentId: string) {
+    const patientId = await this.getPatientIdFromUserId(userId);
+    const appointment = await this.prisma.appointment.findUnique({
+      where: { id: appointmentId },
+      include: {
+        patient: { include: { user: { select: { id: true, name: true, email: true } } } },
+        doctor: { include: { user: { select: { id: true, name: true, email: true } }, clinic: true } },
+      },
+    });
+
+    if (!appointment) {
+      throw new NotFoundException('Appointment not found');
+    }
+
+    if (appointment.patientId !== patientId && appointment.doctor.userId !== userId) {
+      throw new ForbiddenException('You are not authorized to join this consultation');
+    }
+
+    if (appointment.status === AppointmentStatus.CANCELLED) {
+      throw new BadRequestException('This appointment has been cancelled');
+    }
+
+    const roomId = `medcare-video-${appointment.id}`;
+    const token = Buffer.from(
+      JSON.stringify({
+        roomId,
+        userId,
+        userName: appointment.patient.user.name,
+        role: 'patient',
+        appointmentId: appointment.id,
+        issuedAt: Date.now(),
+        expiresIn: 3600 * 2, // 2 hours
+      }),
+    ).toString('base64');
+
+    return {
+      roomId,
+      roomName: `Consultation with Dr. ${appointment.doctor.user.name}`,
+      token,
+      provider: 'WebRTC / Agora',
+      type: appointment.type,
+      status: appointment.status,
+      appointment: {
+        id: appointment.id,
+        appointmentNumber: appointment.appointmentNumber,
+        date: appointment.date,
+        time: appointment.time,
+        doctorName: appointment.doctor.user.name,
+        doctorSpecialty: appointment.doctor.specialty,
+        clinicName: appointment.doctor.clinic?.name || 'MedCare Main Clinic',
+      },
+    };
+  }
 }
+

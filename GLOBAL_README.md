@@ -31,9 +31,9 @@
   - [x] Created `src/gateway/patient.gateway.controller.ts` with all `/api/patient/*` routes.
   - [x] Registered in `gateway.module.ts`.
 
-- [ ] **Phase 4: Video Consultation & Third-Party Integrations**
-  - [ ] Telemedicine RTC Token generator.
-  - [ ] Payment gateway integration & webhook handler.
+- [x] **Phase 4: Video Consultation & Third-Party Integrations**
+  - [x] Telemedicine RTC Video Token generator (`GET /patient/appointments/:id/video-session`).
+  - [x] Payment gateway integration & webhook handler (`POST /patient/payments/checkout-session`, `POST /payments/webhook/:provider`).
 
 - [ ] **Phase 5: Security, Guards & File Uploads**
   - [ ] `JwtAuthGuard` & `RolesGuard` for `Role.PATIENT`.

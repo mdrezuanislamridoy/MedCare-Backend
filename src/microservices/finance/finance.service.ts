@@ -263,4 +263,69 @@ export class FinanceService {
       message: 'Payment completed successfully',
     };
   }
+
+  async createCheckoutSession(userId: string, data: { appointmentId: string; provider?: string; returnUrl?: string }) {
+    const patientId = await this.getPatientIdFromUserId(userId);
+    const appointment = await this.prisma.appointment.findUnique({
+      where: { id: data.appointmentId },
+      include: { doctor: { include: { user: true } } },
+    });
+
+    if (!appointment) {
+      throw new NotFoundException('Appointment not found');
+    }
+
+    if (appointment.patientId !== patientId) {
+      throw new ForbiddenException('Access denied to this appointment');
+    }
+
+    const provider = data.provider || 'SSLCommerz';
+    const amount = 50.0; // Standard consultation fee
+    const sessionId = `CS_${Date.now()}_${Math.random().toString(36).substring(7)}`;
+
+    return {
+      sessionId,
+      provider,
+      amount,
+      currency: 'USD',
+      appointmentId: appointment.id,
+      appointmentNumber: appointment.appointmentNumber,
+      doctorName: appointment.doctor.user.name,
+      checkoutUrl: `/api/patient/payments/gateway-redirect?session=${sessionId}&provider=${provider}`,
+      status: 'INITIATED',
+    };
+  }
+
+  async handlePaymentWebhook(provider: string, payload: any) {
+    const appointmentId = payload.appointmentId || payload.tran_id?.replace('TXN-', '');
+    const status = payload.status === 'VALID' || payload.status === 'SUCCESS' ? TransactionStatus.COMPLETED : TransactionStatus.FAILED;
+
+    if (appointmentId) {
+      const appointment = await this.prisma.appointment.findFirst({
+        where: { OR: [{ id: appointmentId }, { appointmentNumber: appointmentId }] },
+      });
+
+      if (appointment && status === TransactionStatus.COMPLETED) {
+        await this.prisma.appointment.update({
+          where: { id: appointment.id },
+          data: { paymentStatus: PaymentStatus.PAID },
+        });
+
+        await this.prisma.transaction.create({
+          data: {
+            transactionNumber: `TXN-${Date.now().toString().slice(-8)}`,
+            patientId: appointment.patientId,
+            doctorId: appointment.doctorId,
+            appointmentId: appointment.id,
+            amount: payload.amount || 50,
+            provider,
+            status: TransactionStatus.COMPLETED,
+          },
+        });
+      }
+    }
+
+    return { received: true, provider, status };
+  }
 }
+

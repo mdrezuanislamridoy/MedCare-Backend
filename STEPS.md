@@ -131,7 +131,7 @@ File: `src/microservices/notification/`
 
 ---
 
-## 🚪 Phase 3: Patient Gateway Controllers & DTOs
+## 🚪 Phase 3: Patient Gateway Controllers & DTOs ✅ (COMPLETED)
 
 Create the Patient Gateway Controller to expose REST endpoints to the frontend.
 
@@ -168,7 +168,7 @@ File: `src/gateway/gateway.module.ts`
 
 ---
 
-## 📹 Phase 4: Video Consultation & Third-Party Integrations
+## 📹 Phase 4: Video Consultation & Third-Party Integrations ✅ (COMPLETED)
 
 ### Step 4.1: Video Call Token Generator
 - Integrate WebRTC / Agora / Twilio / Daily.co for Telemedicine visits.
