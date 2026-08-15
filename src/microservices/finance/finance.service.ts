@@ -1,6 +1,6 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../common/database/prisma/prisma.service';
-import { ProcessRefundDto, TransactionFilterDto } from './dto/finance.dto';
+import { ProcessRefundDto, TransactionFilterDto, PatientPaymentDto } from './dto/finance.dto';
 import { PaymentStatus, TransactionStatus } from '../../../generated/prisma/client';
 
 @Injectable()
@@ -132,7 +132,7 @@ export class FinanceService {
     const grossVolume = completed._sum.amount || 268400;
     const refundsTotal = refunded._sum.amount || 14200;
     const netVolume = grossVolume - refundsTotal;
-    const platformCommission = netVolume * 0.15; // 15% platform commission
+    const platformCommission = netVolume * 0.15;
     const payouts = netVolume * 0.85;
 
     return {
@@ -146,6 +146,121 @@ export class FinanceService {
         refunded: refunded._count || 32,
         pending: pending._count || 48,
       },
+    };
+  }
+
+  // --- Patient Portal Methods ---
+
+  private async getPatientIdFromUserId(userId: string): Promise<string> {
+    let profile = await this.prisma.patientProfile.findUnique({
+      where: { userId },
+    });
+    if (!profile) {
+      profile = await this.prisma.patientProfile.create({
+        data: { userId },
+      });
+    }
+    return profile.id;
+  }
+
+  async patientGetSummary(userId: string) {
+    const patientId = await this.getPatientIdFromUserId(userId);
+
+    const [paidSum, pendingAppointments, transactionCount] = await Promise.all([
+      this.prisma.transaction.aggregate({
+        where: { patientId, status: TransactionStatus.COMPLETED },
+        _sum: { amount: true },
+      }),
+      this.prisma.appointment.count({
+        where: { patientId, paymentStatus: PaymentStatus.PENDING },
+      }),
+      this.prisma.transaction.count({
+        where: { patientId },
+      }),
+    ]);
+
+    return {
+      totalPaid: paidSum._sum.amount || 0,
+      pendingCount: pendingAppointments,
+      totalTransactions: transactionCount,
+    };
+  }
+
+  async patientListInvoices(userId: string, filter: { page?: number; limit?: number }) {
+    const patientId = await this.getPatientIdFromUserId(userId);
+    const page = Math.max(1, Number(filter.page) || 1);
+    const limit = Math.min(100, Math.max(1, Number(filter.limit) || 20));
+    const skip = (page - 1) * limit;
+
+    const [transactions, total] = await Promise.all([
+      this.prisma.transaction.findMany({
+        where: { patientId },
+        skip,
+        take: limit,
+        include: {
+          doctor: {
+            include: {
+              user: { select: { name: true, email: true } },
+            },
+          },
+          appointment: {
+            select: { appointmentNumber: true, date: true, time: true, type: true },
+          },
+        },
+        orderBy: { createdAt: 'desc' },
+      }),
+      this.prisma.transaction.count({ where: { patientId } }),
+    ]);
+
+    return {
+      data: transactions,
+      meta: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
+  }
+
+  async patientPayAppointment(userId: string, dto: PatientPaymentDto) {
+    const patientId = await this.getPatientIdFromUserId(userId);
+    const appointment = await this.prisma.appointment.findUnique({
+      where: { id: dto.appointmentId },
+      include: { doctor: true },
+    });
+
+    if (!appointment) {
+      throw new NotFoundException('Appointment not found');
+    }
+
+    if (appointment.patientId !== patientId) {
+      throw new ForbiddenException('Access denied to this appointment');
+    }
+
+    const transactionNumber = `TXN-${Date.now().toString().slice(-8)}`;
+
+    const transaction = await this.prisma.transaction.create({
+      data: {
+        transactionNumber,
+        patientId,
+        doctorId: appointment.doctorId,
+        appointmentId: appointment.id,
+        amount: dto.amount,
+        provider: dto.provider || 'SSLCommerz',
+        status: TransactionStatus.COMPLETED,
+      },
+    });
+
+    await this.prisma.appointment.update({
+      where: { id: appointment.id },
+      data: { paymentStatus: PaymentStatus.PAID },
+    });
+
+    return {
+      success: true,
+      transaction,
+      message: 'Payment completed successfully',
     };
   }
 }

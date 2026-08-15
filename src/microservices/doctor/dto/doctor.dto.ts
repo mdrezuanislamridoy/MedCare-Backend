@@ -21,3 +21,12 @@ export class UpdateDoctorStatusDto {
   status!: AccountStatus;
   reason?: string;
 }
+
+export class PatientDoctorSearchDto {
+  q?: string;
+  specialty?: string;
+  clinicId?: string;
+  minRating?: number;
+  page?: number;
+  limit?: number;
+}

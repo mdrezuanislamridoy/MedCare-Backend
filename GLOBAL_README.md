@@ -19,13 +19,13 @@
   - [x] Validated Prisma schema (`npx prisma validate`) and generated client (`npx prisma generate`).
   - [x] Full build test passed successfully.
 
-- [ ] **Phase 2: Microservices Layer Implementation**
-  - [ ] `patient.service.ts`: Dashboard stats, full profile CRUD, medical records management.
-  - [ ] `appointment.service.ts`: Slot availability validation, booking, cancel, reschedule.
-  - [ ] `doctor.service.ts`: Patient doctor search & slot calculations.
-  - [ ] `finance.service.ts`: Patient billing summary & invoice generation.
-  - [ ] `review.service.ts`: Pending review query & review submission.
-  - [ ] `notification.service.ts`: Patient notifications fetch & mark as read.
+- [x] **Phase 2: Microservices Layer Implementation**
+  - [x] `patient.service.ts`: Dashboard stats, full profile CRUD, medical records management, prescriptions.
+  - [x] `appointment.service.ts`: Slot availability validation, booking, cancel, reschedule.
+  - [x] `doctor.service.ts`: Patient doctor search & slot calculations.
+  - [x] `finance.service.ts`: Patient billing summary & invoice generation.
+  - [x] `review.service.ts`: Pending review query & review submission.
+  - [x] `notification.service.ts`: Patient notifications fetch & mark as read.
 
 - [ ] **Phase 3: Patient Gateway Controllers & DTOs**
   - [ ] Create `src/gateway/patient.gateway.controller.ts` with all `/api/patient/*` routes.

@@ -17,4 +17,21 @@ export class NotificationController {
   async broadcast(@Payload() payload: { dto: BroadcastNotificationDto; senderId?: string }) {
     return this.notificationService.broadcast(payload.dto, payload.senderId);
   }
+
+  // --- Patient Portal Message Patterns ---
+
+  @MessagePattern(PATTERNS.NOTIFICATION.PATIENT_LIST)
+  async patientList(@Payload() payload: { userId: string }) {
+    return this.notificationService.patientListNotifications(payload.userId);
+  }
+
+  @MessagePattern(PATTERNS.NOTIFICATION.PATIENT_MARK_READ)
+  async patientMarkRead(@Payload() payload: { userId: string; notificationId: string }) {
+    return this.notificationService.patientMarkRead(payload.userId, payload.notificationId);
+  }
+
+  @MessagePattern(PATTERNS.NOTIFICATION.PATIENT_MARK_ALL_READ)
+  async patientMarkAllRead(@Payload() payload: { userId: string }) {
+    return this.notificationService.patientMarkAllRead(payload.userId);
+  }
 }

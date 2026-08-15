@@ -14,3 +14,9 @@ export class ProcessRefundDto {
   amount?: number;
   reason!: string;
 }
+
+export class PatientPaymentDto {
+  appointmentId!: string;
+  amount!: number;
+  provider!: string;
+}

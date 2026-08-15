@@ -26,3 +26,19 @@ export class RescheduleAppointmentDto {
   clinicId?: string;
   reason?: string;
 }
+
+export class BookAppointmentDto {
+  doctorId!: string;
+  clinicId?: string;
+  date!: string;
+  time!: string;
+  type?: AppointmentType;
+  notes?: string;
+}
+
+export class PatientAppointmentFilterDto {
+  tab?: 'upcoming' | 'completed' | 'cancelled' | 'all';
+  type?: AppointmentType;
+  page?: number;
+  limit?: number;
+}

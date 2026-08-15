@@ -14,3 +14,9 @@ export class ModerateReviewDto {
   action!: 'PUBLISH' | 'HIDE' | 'FLAG' | 'DISMISS_FLAG';
   reason?: string;
 }
+
+export class SubmitReviewDto {
+  doctorId!: string;
+  rating!: number;
+  content!: string;
+}

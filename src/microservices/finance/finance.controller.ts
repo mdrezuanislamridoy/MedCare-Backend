@@ -2,7 +2,7 @@ import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { PATTERNS } from '../common/microservices.constants';
 import { FinanceService } from './finance.service';
-import { ProcessRefundDto, TransactionFilterDto } from './dto/finance.dto';
+import { ProcessRefundDto, TransactionFilterDto, PatientPaymentDto } from './dto/finance.dto';
 
 @Controller()
 export class FinanceController {
@@ -19,7 +19,24 @@ export class FinanceController {
   }
 
   @MessagePattern(PATTERNS.FINANCE.GET_REPORT)
-  async getSummary() {
+  async getFinanceSummary() {
     return this.financeService.getFinanceSummary();
+  }
+
+  // --- Patient Portal Message Patterns ---
+
+  @MessagePattern(PATTERNS.FINANCE.PATIENT_SUMMARY)
+  async patientSummary(@Payload() payload: { userId: string }) {
+    return this.financeService.patientGetSummary(payload.userId);
+  }
+
+  @MessagePattern(PATTERNS.FINANCE.PATIENT_INVOICES)
+  async patientInvoices(@Payload() payload: { userId: string; filter: { page?: number; limit?: number } }) {
+    return this.financeService.patientListInvoices(payload.userId, payload.filter);
+  }
+
+  @MessagePattern(PATTERNS.FINANCE.PATIENT_PAY)
+  async patientPay(@Payload() payload: { userId: string; dto: PatientPaymentDto }) {
+    return this.financeService.patientPayAppointment(payload.userId, payload.dto);
   }
 }

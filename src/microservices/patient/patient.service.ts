@@ -1,7 +1,7 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../../common/database/prisma/prisma.service';
-import { AccountStatus } from '../../../generated/prisma/client';
-import { PatientFilterDto } from './dto/patient.dto';
+import { AccountStatus, RecordCategory } from '../../../generated/prisma/client';
+import { PatientFilterDto, UpdatePatientProfileDto, CreateMedicalRecordDto } from './dto/patient.dto';
 
 @Injectable()
 export class PatientService {
@@ -105,5 +105,238 @@ export class PatientService {
     }).catch(() => null);
 
     return updated;
+  }
+
+  // --- Patient Portal Self-Service Methods ---
+
+  private async ensurePatientProfile(userId: string) {
+    let profile = await this.prisma.patientProfile.findUnique({
+      where: { userId },
+      include: { user: { select: { id: true, name: true, email: true } } },
+    });
+
+    if (!profile) {
+      profile = await this.prisma.patientProfile.create({
+        data: { userId },
+        include: { user: { select: { id: true, name: true, email: true } } },
+      });
+    }
+
+    return profile;
+  }
+
+  async getDashboardSummary(userId: string) {
+    const patient = await this.ensurePatientProfile(userId);
+    const now = new Date();
+    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const endOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
+
+    const [
+      upcomingCount,
+      todayAppt,
+      totalVisits,
+      completedVisits,
+      pendingPaymentsCount,
+      nextScheduled,
+      recentPrescriptions,
+    ] = await Promise.all([
+      this.prisma.appointment.count({
+        where: {
+          patientId: patient.id,
+          status: { in: ['CONFIRMED', 'PENDING'] },
+          date: { gte: startOfToday },
+        },
+      }),
+      this.prisma.appointment.findFirst({
+        where: {
+          patientId: patient.id,
+          date: { gte: startOfToday, lte: endOfToday },
+          status: { in: ['IN_PROGRESS', 'CONFIRMED', 'CHECKED_IN'] },
+        },
+        include: {
+          doctor: { include: { user: { select: { name: true } } } },
+          clinic: true,
+        },
+      }),
+      this.prisma.appointment.count({
+        where: { patientId: patient.id },
+      }),
+      this.prisma.appointment.count({
+        where: { patientId: patient.id, status: 'COMPLETED' },
+      }),
+      this.prisma.appointment.count({
+        where: { patientId: patient.id, paymentStatus: 'PENDING' },
+      }),
+      this.prisma.appointment.findFirst({
+        where: {
+          patientId: patient.id,
+          status: { in: ['CONFIRMED', 'PENDING'] },
+          date: { gte: startOfToday },
+        },
+        orderBy: [{ date: 'asc' }, { time: 'asc' }],
+        include: {
+          doctor: {
+            include: {
+              user: { select: { name: true, email: true } },
+              clinic: true,
+            },
+          },
+          clinic: true,
+        },
+      }),
+      this.prisma.prescription.findMany({
+        where: { patientId: patient.id },
+        take: 3,
+        orderBy: { createdAt: 'desc' },
+        include: {
+          doctor: { include: { user: { select: { name: true } } } },
+        },
+      }),
+    ]);
+
+    return {
+      patient: {
+        id: patient.id,
+        name: patient.user.name,
+        email: patient.user.email,
+        phone: patient.phone,
+        bloodGroup: patient.bloodGroup,
+      },
+      stats: {
+        upcoming: upcomingCount,
+        today: todayAppt ? 1 : 0,
+        total: totalVisits,
+        completed: completedVisits,
+        pendingPayments: pendingPaymentsCount,
+      },
+      nextVisit: nextScheduled,
+      todayAppointment: todayAppt,
+      recentPrescriptions,
+    };
+  }
+
+  async getProfile(userId: string) {
+    const profile = await this.ensurePatientProfile(userId);
+    return profile;
+  }
+
+  async updateProfile(userId: string, data: UpdatePatientProfileDto) {
+    const profile = await this.ensurePatientProfile(userId);
+
+    const { name, dateOfBirth, ...patientFields } = data;
+
+    if (name) {
+      await this.prisma.user.update({
+        where: { id: userId },
+        data: { name },
+      });
+    }
+
+    const updated = await this.prisma.patientProfile.update({
+      where: { id: profile.id },
+      data: {
+        ...patientFields,
+        dateOfBirth: dateOfBirth ? new Date(dateOfBirth) : undefined,
+        emergencyContact: patientFields.emergencyContact || patientFields.emergencyPhone,
+      },
+      include: {
+        user: { select: { id: true, name: true, email: true } },
+      },
+    });
+
+    return updated;
+  }
+
+  async listMedicalRecords(userId: string, category?: RecordCategory) {
+    const profile = await this.ensurePatientProfile(userId);
+    const where: any = { patientId: profile.id };
+    if (category) {
+      where.category = category;
+    }
+
+    return this.prisma.medicalRecord.findMany({
+      where,
+      orderBy: { recordDate: 'desc' },
+    });
+  }
+
+  async createMedicalRecord(userId: string, data: CreateMedicalRecordDto) {
+    const profile = await this.ensurePatientProfile(userId);
+    return this.prisma.medicalRecord.create({
+      data: {
+        patientId: profile.id,
+        title: data.title,
+        category: data.category,
+        fileUrl: data.fileUrl,
+        fileType: data.fileType,
+        fileSize: data.fileSize,
+        recordDate: data.recordDate ? new Date(data.recordDate) : new Date(),
+        notes: data.notes,
+      },
+    });
+  }
+
+  async deleteMedicalRecord(userId: string, recordId: string) {
+    const profile = await this.ensurePatientProfile(userId);
+    const record = await this.prisma.medicalRecord.findUnique({
+      where: { id: recordId },
+    });
+
+    if (!record) {
+      throw new NotFoundException(`Medical record not found`);
+    }
+
+    if (record.patientId !== profile.id) {
+      throw new ForbiddenException(`You do not have permission to delete this record`);
+    }
+
+    return this.prisma.medicalRecord.delete({
+      where: { id: recordId },
+    });
+  }
+
+  async listPrescriptions(userId: string) {
+    const profile = await this.ensurePatientProfile(userId);
+    return this.prisma.prescription.findMany({
+      where: { patientId: profile.id },
+      orderBy: { createdAt: 'desc' },
+      include: {
+        doctor: {
+          include: {
+            user: { select: { name: true, email: true } },
+            clinic: true,
+          },
+        },
+        appointment: {
+          select: { appointmentNumber: true, date: true, time: true, type: true },
+        },
+      },
+    });
+  }
+
+  async getPrescriptionById(userId: string, prescriptionId: string) {
+    const profile = await this.ensurePatientProfile(userId);
+    const prescription = await this.prisma.prescription.findUnique({
+      where: { id: prescriptionId },
+      include: {
+        doctor: {
+          include: {
+            user: { select: { name: true, email: true } },
+            clinic: true,
+          },
+        },
+        appointment: true,
+      },
+    });
+
+    if (!prescription) {
+      throw new NotFoundException('Prescription not found');
+    }
+
+    if (prescription.patientId !== profile.id) {
+      throw new ForbiddenException('Access denied to this prescription');
+    }
+
+    return prescription;
   }
 }

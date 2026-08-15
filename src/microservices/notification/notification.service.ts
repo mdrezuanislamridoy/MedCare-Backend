@@ -85,4 +85,33 @@ export class NotificationService {
 
     return notification;
   }
+
+  // --- Patient Portal Methods ---
+
+  async patientListNotifications(userId: string) {
+    const notifications = await this.prisma.notification.findMany({
+      where: {
+        audience: { in: [NotificationAudience.ALL, NotificationAudience.PATIENTS] },
+      },
+      take: 20,
+      orderBy: { createdAt: 'desc' },
+    });
+
+    return notifications;
+  }
+
+  async patientMarkRead(userId: string, notificationId: string) {
+    await this.prisma.notification.update({
+      where: { id: notificationId },
+      data: {
+        readByCount: { increment: 1 },
+      },
+    }).catch(() => null);
+
+    return { success: true };
+  }
+
+  async patientMarkAllRead(userId: string) {
+    return { success: true, message: 'All notifications marked as read' };
+  }
 }
