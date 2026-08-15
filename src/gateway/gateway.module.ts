@@ -10,6 +10,7 @@ import { NotificationModule } from '../microservices/notification/notification.m
 import { AuditModule } from '../microservices/audit/audit.module';
 import { RbacModule } from '../microservices/rbac/rbac.module';
 import { SystemModule } from '../microservices/system/system.module';
+
 import { AdminAnalyticsGatewayController } from './admin-analytics.gateway.controller';
 import { AdminDoctorGatewayController } from './admin-doctor.gateway.controller';
 import { AdminPatientGatewayController } from './admin-patient.gateway.controller';
@@ -21,6 +22,7 @@ import { AdminNotificationGatewayController } from './admin-notification.gateway
 import { AdminAuditGatewayController } from './admin-audit.gateway.controller';
 import { SuperAdminRbacGatewayController } from './super-admin-rbac.gateway.controller';
 import { SuperAdminSystemGatewayController } from './super-admin-system.gateway.controller';
+import { PatientGatewayController } from './patient.gateway.controller';
 
 @Module({
   imports: [
@@ -48,6 +50,7 @@ import { SuperAdminSystemGatewayController } from './super-admin-system.gateway.
     AdminAuditGatewayController,
     SuperAdminRbacGatewayController,
     SuperAdminSystemGatewayController,
+    PatientGatewayController,
   ],
 })
 export class GatewayModule {}

@@ -27,9 +27,9 @@
   - [x] `review.service.ts`: Pending review query & review submission.
   - [x] `notification.service.ts`: Patient notifications fetch & mark as read.
 
-- [ ] **Phase 3: Patient Gateway Controllers & DTOs**
-  - [ ] Create `src/gateway/patient.gateway.controller.ts` with all `/api/patient/*` routes.
-  - [ ] Register in `gateway.module.ts`.
+- [x] **Phase 3: Patient Gateway Controllers & DTOs**
+  - [x] Created `src/gateway/patient.gateway.controller.ts` with all `/api/patient/*` routes.
+  - [x] Registered in `gateway.module.ts`.
 
 - [ ] **Phase 4: Video Consultation & Third-Party Integrations**
   - [ ] Telemedicine RTC Token generator.
