@@ -35,9 +35,10 @@
   - [x] Telemedicine RTC Video Token generator (`GET /patient/appointments/:id/video-session`).
   - [x] Payment gateway integration & webhook handler (`POST /patient/payments/checkout-session`, `POST /payments/webhook/:provider`).
 
-- [ ] **Phase 5: Security, Guards & File Uploads**
-  - [ ] `JwtAuthGuard` & `RolesGuard` for `Role.PATIENT`.
-  - [ ] Multer / Storage interceptor for medical report files.
+- [x] **Phase 5: Security, Guards & File Uploads**
+  - [x] `JwtAuthGuard` & `RolesGuard` for `Role.PATIENT` with IDOR ownership validation.
+  - [x] Multer storage interceptor and file filters for medical report uploads (`POST /patient/medical-records/upload`).
+  - [x] Static `/uploads` file serving & CORS configuration enabled in `main.ts`.
 
 - [ ] **Phase 6: Verification & Testing Checklist**
   - [ ] End-to-end integration and frontend data connection.

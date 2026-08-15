@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -9,13 +10,21 @@ import {
   Put,
   Query,
   Req,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
 import { UserRole, RecordCategory } from '../../generated/prisma/client';
 import type { AuthenticatedRequest } from '../common/types/authenticated-request.type';
+import {
+  medicalRecordStorage,
+  medicalRecordFileFilter,
+  MAX_FILE_SIZE_BYTES,
+} from '../common/utils/file-upload.util';
 
 import { PatientService } from '../microservices/patient/patient.service';
 import { AppointmentService } from '../microservices/appointment/appointment.service';
@@ -182,6 +191,34 @@ export class PatientGatewayController {
     @Body() body: CreateMedicalRecordDto,
   ) {
     return this.patientService.createMedicalRecord(req.user.id, body);
+  }
+
+  @Post('medical-records/upload')
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: medicalRecordStorage,
+      fileFilter: medicalRecordFileFilter,
+      limits: { fileSize: MAX_FILE_SIZE_BYTES },
+    }),
+  )
+  async uploadMedicalRecord(
+    @Req() req: AuthenticatedRequest,
+    @UploadedFile() file: Express.Multer.File,
+    @Body() body: { title?: string; category?: RecordCategory; notes?: string; recordDate?: string },
+  ) {
+    if (!file) {
+      throw new BadRequestException('Please provide a file to upload');
+    }
+    const fileUrl = `/uploads/medical-records/${file.filename}`;
+    return this.patientService.createMedicalRecord(req.user.id, {
+      title: body.title || file.originalname,
+      category: body.category || RecordCategory.LAB_REPORT,
+      fileUrl,
+      fileType: file.mimetype,
+      fileSize: file.size,
+      notes: body.notes,
+      recordDate: body.recordDate,
+    });
   }
 
   @Delete('medical-records/:id')
