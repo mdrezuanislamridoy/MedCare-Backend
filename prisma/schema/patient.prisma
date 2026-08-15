@@ -1,19 +1,29 @@
 model PatientProfile {
-  id               String         @id @default(cuid())
-  userId           String         @unique
-  user             User           @relation(fields: [userId], references: [id], onDelete: Cascade)
-  phone            String?
-  dateOfBirth      DateTime?
-  gender           String?
-  address          String?
-  emergencyContact String?
-  status           AccountStatus  @default(ACTIVE)
-  lastActivity     DateTime       @default(now())
-  createdAt        DateTime       @default(now())
-  updatedAt        DateTime       @updatedAt
-  appointments     Appointment[]
-  reviews          DoctorReview[]
-  transactions     Transaction[]
+  id                    String          @id @default(cuid())
+  userId                String          @unique
+  user                  User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  phone                 String?
+  dateOfBirth           DateTime?
+  gender                String?
+  address               String?
+  emergencyContact      String?
+  emergencyName         String?
+  emergencyRelationship String?
+  emergencyPhone        String?
+  bloodGroup            String?
+  height                Float?
+  weight                Float?
+  allergies             String?
+  chronicConditions     String?
+  status                AccountStatus   @default(ACTIVE)
+  lastActivity          DateTime        @default(now())
+  createdAt             DateTime        @default(now())
+  updatedAt             DateTime        @updatedAt
+  appointments          Appointment[]
+  reviews               DoctorReview[]
+  transactions          Transaction[]
+  prescriptions         Prescription[]
+  medicalRecords        MedicalRecord[]
 
   @@map("patient_profiles")
 }

@@ -39,6 +39,7 @@ model Appointment {
   createdAt          DateTime          @default(now())
   updatedAt          DateTime          @updatedAt
   transactions       Transaction[]
+  prescription       Prescription?
 
   @@map("appointments")
 }
