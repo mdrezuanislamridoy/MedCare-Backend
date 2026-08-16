@@ -66,8 +66,11 @@
   - [x] Registered in `gateway.module.ts`.
   - [x] RBAC Guards (`RECEPTIONIST`, `CLINIC_MANAGER`, `ADMIN`, `SUPER_ADMIN`) applied.
 
-- [ ] **Phase 4: Real-time Live Queue & Notification Stream**
-  - [ ] Real-time queue broadcast events for waiting area lounge monitors.
+- [x] **Phase 4: Real-time Live Queue & Notification Stream**
+  - [x] Implemented `LiveQueueEventService` singleton event bus in `CommonModule`.
+  - [x] Emitting live queue events (`CHECKED_IN`, `CALLED`, `IN_ROOM`, `COMPLETED`, `NO_SHOW`).
+  - [x] Created SSE stream `GET /receptionist/queue/stream` with 15s heartbeat.
+  - [x] Created waiting lobby TV display board endpoint `GET /receptionist/queue/display`.
 
 - [ ] **Phase 5: Security, RBAC & Front-Desk Audit Trail**
   - [ ] `@Roles(UserRole.RECEPTIONIST, UserRole.CLINIC_MANAGER, UserRole.ADMIN, UserRole.SUPER_ADMIN)` guards.

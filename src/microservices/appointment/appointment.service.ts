@@ -1,5 +1,6 @@
-import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable, NotFoundException, Optional } from '@nestjs/common';
 import { PrismaService } from '../../common/database/prisma/prisma.service';
+import { LiveQueueEventService } from '../../common/events/live-queue-event.service';
 import {
   AppointmentFilterDto,
   RescheduleAppointmentDto,
@@ -14,7 +15,10 @@ import { AppointmentStatus, PaymentStatus, AppointmentType, QueueStatus } from '
 
 @Injectable()
 export class AppointmentService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    @Optional() private readonly queueEventService?: LiveQueueEventService,
+  ) {}
 
   async listAppointments(filter: AppointmentFilterDto) {
     const page = Math.max(1, Number(filter.page) || 1);
@@ -616,6 +620,17 @@ export class AppointmentService {
       },
     }).catch(() => null);
 
+    this.queueEventService?.emit({
+      type: 'CHECKED_IN',
+      queueNumber: nextQueueNumber,
+      roomNumber,
+      patientName: appointment.patient.user.name || 'Patient',
+      doctorName: appointment.doctor.user.name || 'Doctor',
+      clinicId: appointment.clinicId || undefined,
+      timestamp: new Date().toISOString(),
+      data: queueEntry,
+    });
+
     return queueEntry;
   }
 
@@ -646,6 +661,7 @@ export class AppointmentService {
       where: { id: queueId },
       include: {
         patient: { include: { user: true } },
+        doctor: { include: { user: true } },
         appointment: true,
       },
     });
@@ -691,6 +707,17 @@ export class AppointmentService {
         result: 'success',
       },
     }).catch(() => null);
+
+    this.queueEventService?.emit({
+      type: status as any,
+      queueNumber: queue.queueNumber,
+      roomNumber: queue.roomNumber || undefined,
+      patientName: queue.patient.user.name || 'Patient',
+      doctorName: queue.doctor.user.name || 'Doctor',
+      clinicId: queue.clinicId || undefined,
+      timestamp: new Date().toISOString(),
+      data: updatedQueue,
+    });
 
     return updatedQueue;
   }

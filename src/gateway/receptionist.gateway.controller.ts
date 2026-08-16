@@ -2,13 +2,16 @@ import {
   Body,
   Controller,
   Get,
+  MessageEvent,
   Param,
   Patch,
   Post,
   Query,
   Req,
+  Sse,
   UseGuards,
 } from '@nestjs/common';
+import { interval, map, merge, Observable } from 'rxjs';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
@@ -19,6 +22,7 @@ import { AppointmentService } from '../microservices/appointment/appointment.ser
 import { DoctorService } from '../microservices/doctor/doctor.service';
 import { PatientService } from '../microservices/patient/patient.service';
 import { AuditService } from '../microservices/audit/audit.service';
+import { LiveQueueEventService } from '../common/events/live-queue-event.service';
 
 import {
   AppointmentFilterDto,
@@ -37,6 +41,7 @@ export class ReceptionistGatewayController {
     private readonly doctorService: DoctorService,
     private readonly patientService: PatientService,
     private readonly auditService: AuditService,
+    private readonly queueEventService: LiveQueueEventService,
   ) {}
 
   // 1. Dashboard Overview
@@ -148,5 +153,50 @@ export class ReceptionistGatewayController {
       limit: limit ? parseInt(limit, 10) : 20,
       q: 'Receptionist',
     });
+  }
+
+  // 13. Real-Time Live Queue Event Stream (SSE for Receptionist & Waiting Room Displays)
+  @Sse('queue/stream')
+  streamQueueEvents(): Observable<MessageEvent> {
+    const queueEvents$ = this.queueEventService.getStream().pipe(
+      map(event => ({
+        data: event,
+        type: 'queue-event',
+      } as MessageEvent)),
+    );
+
+    const heartbeat$ = interval(15000).pipe(
+      map(() => ({
+        data: { type: 'HEARTBEAT', timestamp: new Date().toISOString() },
+        type: 'heartbeat',
+      } as MessageEvent)),
+    );
+
+    return merge(queueEvents$, heartbeat$);
+  }
+
+  // 14. Waiting Lounge TV / Display Board View
+  @Get('queue/display')
+  async getDisplayBoard(@Query('clinicId') clinicId?: string) {
+    const activeQueue = await this.appointmentService.receptionistGetLiveQueue(clinicId);
+    const currentlyCalled = activeQueue.filter(q => q.status === QueueStatus.CALLED || q.status === QueueStatus.IN_ROOM);
+    const waitingList = activeQueue.filter(q => q.status === QueueStatus.WAITING);
+
+    return {
+      activeCount: activeQueue.length,
+      currentlyCalled: currentlyCalled.map(q => ({
+        queueNumber: q.queueNumber,
+        patientName: q.patient.user.name,
+        doctorName: q.doctor.user.name,
+        roomNumber: q.roomNumber || 'Room 101',
+        status: q.status,
+      })),
+      waitingList: waitingList.map(q => ({
+        queueNumber: q.queueNumber,
+        patientName: q.patient.user.name,
+        doctorName: q.doctor.user.name,
+        roomNumber: q.roomNumber || 'Room 101',
+      })),
+    };
   }
 }
