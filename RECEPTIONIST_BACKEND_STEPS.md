@@ -157,10 +157,10 @@ File: `src/gateway/queue.gateway.ts`
 
 ---
 
-## 🧪 Phase 6: Verification & Testing Checklist
+## 🧪 Phase 6: Verification & Testing Checklist ✅ (COMPLETED)
 
-- [ ] Run unit tests for `PatientQueue` state machine transitions.
-- [ ] Test incremental token assignment logic (ensuring daily reset and doctor separation).
-- [ ] Test check-in execution with double check-in prevention.
-- [ ] Test schedule matrix slot conflict validation.
-- [ ] Validate NestJS backend build (`npm run build`).
+- [x] Run unit tests for `PatientQueue` state machine transitions.
+- [x] Test incremental token assignment logic (ensuring daily reset and doctor separation).
+- [x] Test check-in execution with double check-in prevention.
+- [x] Test schedule matrix slot conflict validation.
+- [x] Validate NestJS backend build (`npm run build`).

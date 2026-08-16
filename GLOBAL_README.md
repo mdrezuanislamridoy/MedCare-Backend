@@ -77,6 +77,8 @@
   - [x] Created `@Public()` decorator allowing TV lobby displays seamless access.
   - [x] Front-desk audit trail logging on check-in, queue transitions, and cancellations.
 
-- [ ] **Phase 6: Verification & Testing Checklist**
-  - [ ] Unit tests for check-in token generation and queue state machine transitions.
-  - [ ] Production build verification (`npm run build`).
+- [x] **Phase 6: Verification & Testing Checklist**
+  - [x] Unit tests for `ReceptionistAppointmentService` (`receptionist.service.spec.ts`) created and passed.
+  - [x] Unit tests for `ReceptionistGatewayController` (`receptionist.gateway.controller.spec.ts`) created and passed.
+  - [x] Full test suite passed (`31/31` tests passing across 6 suites).
+  - [x] Production build test (`npm run build`) passed with 0 errors.
