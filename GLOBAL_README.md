@@ -82,3 +82,25 @@
   - [x] Unit tests for `ReceptionistGatewayController` (`receptionist.gateway.controller.spec.ts`) created and passed.
   - [x] Full test suite passed (`31/31` tests passing across 6 suites).
   - [x] Production build test (`npm run build`) passed with 0 errors.
+
+---
+
+## 📖 Swagger OpenAPI Documentation
+
+- **Interactive API Docs URL:** `http://localhost:3000/api/docs`
+- **Security Scheme:** `JWT Bearer Authentication` (`bearerFormat: 'JWT'`)
+- **Tags & Modules Documented:**
+  1. `Patient Portal` – Appointments, Prescriptions, Medical Records (with Multipart file upload), Video Consultations, Invoices, Reviews.
+  2. `Receptionist Portal` – 6-Step Check-in Wizard, Live Token Queue, Doctor Schedule Matrix, Walk-In Bookings, Server-Sent Events (`/queue/stream`), and Lobby Display Screen (`/queue/display`).
+  3. `Admin Analytics` – Platform & clinic metrics overview.
+  4. `Admin Doctor Management` – Verification queue decisions & status.
+  5. `Admin Patient Management` – Patient lookup & account status.
+  6. `Admin Appointments` – Status transitions & rescheduling.
+  7. `Admin Finance & Transactions` – Invoices & refund processing.
+  8. `Admin Clinic Management` – Branch creation & configuration.
+  9. `Admin Reviews & Ratings` – Moderation of patient reviews.
+  10. `Admin Notifications` – Broadcast & targeted notifications.
+  11. `Admin Audit Logs` – Security & operational audit trails.
+  12. `Super Admin & RBAC` – Privilege requests & role-permission matrix.
+  13. `Super Admin System & Health` – Health checks & database backup triggers.
+  14. `Public Payments & Webhooks` – Stripe & SSLCommerz webhooks.

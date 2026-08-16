@@ -14,6 +14,16 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+  ApiQuery,
+  ApiParam,
+  ApiConsumes,
+  ApiBody,
+} from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
@@ -46,6 +56,8 @@ import { PatientDoctorSearchDto } from '../microservices/doctor/dto/doctor.dto';
 import { PatientPaymentDto } from '../microservices/finance/dto/finance.dto';
 import { SubmitReviewDto } from '../microservices/review/dto/review.dto';
 
+@ApiTags('Patient Portal')
+@ApiBearerAuth('JWT-auth')
 @Controller('patient')
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(UserRole.PATIENT, UserRole.ADMIN, UserRole.SUPER_ADMIN)
@@ -62,6 +74,8 @@ export class PatientGatewayController {
   // ==========================================
   // 1. DASHBOARD OVERVIEW
   // ==========================================
+  @ApiOperation({ summary: 'Get patient dashboard summary (stats, upcoming appointment, recent records)' })
+  @ApiResponse({ status: 200, description: 'Dashboard data retrieved successfully' })
   @Get('dashboard')
   async getDashboardSummary(@Req() req: AuthenticatedRequest) {
     return this.patientService.getDashboardSummary(req.user.id);
@@ -70,11 +84,15 @@ export class PatientGatewayController {
   // ==========================================
   // 2. PROFILE & SETTINGS
   // ==========================================
+  @ApiOperation({ summary: 'Get current patient profile details and emergency contact' })
+  @ApiResponse({ status: 200, description: 'Profile details returned' })
   @Get('profile')
   async getProfile(@Req() req: AuthenticatedRequest) {
     return this.patientService.getProfile(req.user.id);
   }
 
+  @ApiOperation({ summary: 'Update patient health metrics, emergency info, and contact details' })
+  @ApiResponse({ status: 200, description: 'Profile successfully updated' })
   @Put('profile')
   async updateProfile(
     @Req() req: AuthenticatedRequest,
@@ -86,16 +104,25 @@ export class PatientGatewayController {
   // ==========================================
   // 3. DOCTORS SEARCH & SLOTS
   // ==========================================
+  @ApiOperation({ summary: 'Search active doctors by name, specialty, clinic, or rating' })
+  @ApiResponse({ status: 200, description: 'Doctor search results returned' })
   @Get('doctors')
   async searchDoctors(@Query() query: PatientDoctorSearchDto) {
     return this.doctorService.patientSearchDoctors(query);
   }
 
+  @ApiOperation({ summary: 'Get comprehensive details, bio, and reviews for a doctor' })
+  @ApiResponse({ status: 200, description: 'Doctor profile returned' })
+  @ApiParam({ name: 'id', description: 'Doctor Profile ID' })
   @Get('doctors/:id')
   async getDoctorDetails(@Param('id') id: string) {
     return this.doctorService.patientGetDoctorDetails(id);
   }
 
+  @ApiOperation({ summary: 'Get available consultation time slots for a doctor on a specific date' })
+  @ApiResponse({ status: 200, description: 'Time slots list returned' })
+  @ApiParam({ name: 'id', description: 'Doctor Profile ID' })
+  @ApiQuery({ name: 'date', required: false, description: 'Target date (YYYY-MM-DD)' })
   @Get('doctors/:id/slots')
   async getDoctorSlots(
     @Param('id') id: string,
@@ -108,6 +135,8 @@ export class PatientGatewayController {
   // ==========================================
   // 4. APPOINTMENTS
   // ==========================================
+  @ApiOperation({ summary: 'List patient appointments by tab (upcoming, completed, cancelled, all)' })
+  @ApiResponse({ status: 200, description: 'Appointments list returned' })
   @Get('appointments')
   async listAppointments(
     @Req() req: AuthenticatedRequest,
@@ -116,6 +145,9 @@ export class PatientGatewayController {
     return this.appointmentService.patientListAppointments(req.user.id, query);
   }
 
+  @ApiOperation({ summary: 'Get single appointment details by ID' })
+  @ApiResponse({ status: 200, description: 'Appointment details returned' })
+  @ApiParam({ name: 'id', description: 'Appointment ID' })
   @Get('appointments/:id')
   async getAppointmentById(
     @Req() req: AuthenticatedRequest,
@@ -124,6 +156,9 @@ export class PatientGatewayController {
     return this.appointmentService.patientGetAppointment(req.user.id, id);
   }
 
+  @ApiOperation({ summary: 'Get WebRTC / Agora video session token and room ID for teleconsultation' })
+  @ApiResponse({ status: 200, description: 'Video session room ID and token generated' })
+  @ApiParam({ name: 'id', description: 'Appointment ID' })
   @Get('appointments/:id/video-session')
   async getVideoSession(
     @Req() req: AuthenticatedRequest,
@@ -132,6 +167,8 @@ export class PatientGatewayController {
     return this.appointmentService.patientGetVideoSession(req.user.id, id);
   }
 
+  @ApiOperation({ summary: 'Book a new doctor appointment' })
+  @ApiResponse({ status: 201, description: 'Appointment booked successfully' })
   @Post('appointments/book')
   async bookAppointment(
     @Req() req: AuthenticatedRequest,
@@ -140,6 +177,9 @@ export class PatientGatewayController {
     return this.appointmentService.patientBookAppointment(req.user.id, body);
   }
 
+  @ApiOperation({ summary: 'Cancel an active appointment' })
+  @ApiResponse({ status: 200, description: 'Appointment cancelled' })
+  @ApiParam({ name: 'id', description: 'Appointment ID' })
   @Post('appointments/:id/cancel')
   async cancelAppointment(
     @Req() req: AuthenticatedRequest,
@@ -149,6 +189,9 @@ export class PatientGatewayController {
     return this.appointmentService.patientCancelAppointment(req.user.id, id, reason);
   }
 
+  @ApiOperation({ summary: 'Reschedule an appointment to a new date and time' })
+  @ApiResponse({ status: 200, description: 'Appointment rescheduled' })
+  @ApiParam({ name: 'id', description: 'Appointment ID' })
   @Post('appointments/:id/reschedule')
   async rescheduleAppointment(
     @Req() req: AuthenticatedRequest,
@@ -161,11 +204,16 @@ export class PatientGatewayController {
   // ==========================================
   // 5. PRESCRIPTIONS
   // ==========================================
+  @ApiOperation({ summary: 'List all digital prescriptions issued for current patient' })
+  @ApiResponse({ status: 200, description: 'Prescriptions list returned' })
   @Get('prescriptions')
   async listPrescriptions(@Req() req: AuthenticatedRequest) {
     return this.patientService.listPrescriptions(req.user.id);
   }
 
+  @ApiOperation({ summary: 'Get digital prescription details with medicines, dosage, and doctor notes' })
+  @ApiResponse({ status: 200, description: 'Prescription details returned' })
+  @ApiParam({ name: 'id', description: 'Prescription ID' })
   @Get('prescriptions/:id')
   async getPrescription(
     @Req() req: AuthenticatedRequest,
@@ -177,6 +225,9 @@ export class PatientGatewayController {
   // ==========================================
   // 6. MEDICAL RECORDS & REPORTS
   // ==========================================
+  @ApiOperation({ summary: 'List patient medical records & lab reports' })
+  @ApiResponse({ status: 200, description: 'Medical records list returned' })
+  @ApiQuery({ name: 'category', enum: RecordCategory, required: false })
   @Get('medical-records')
   async listMedicalRecords(
     @Req() req: AuthenticatedRequest,
@@ -185,6 +236,8 @@ export class PatientGatewayController {
     return this.patientService.listMedicalRecords(req.user.id, category);
   }
 
+  @ApiOperation({ summary: 'Create medical record metadata entry' })
+  @ApiResponse({ status: 201, description: 'Medical record created' })
   @Post('medical-records')
   async createMedicalRecord(
     @Req() req: AuthenticatedRequest,
@@ -193,6 +246,21 @@ export class PatientGatewayController {
     return this.patientService.createMedicalRecord(req.user.id, body);
   }
 
+  @ApiOperation({ summary: 'Upload medical document / lab test file (PDF, JPG, PNG up to 10MB)' })
+  @ApiResponse({ status: 201, description: 'File uploaded and record created' })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        file: { type: 'string', format: 'binary' },
+        title: { type: 'string' },
+        category: { type: 'string', enum: Object.values(RecordCategory) },
+        notes: { type: 'string' },
+        recordDate: { type: 'string' },
+      },
+    },
+  })
   @Post('medical-records/upload')
   @UseInterceptors(
     FileInterceptor('file', {
@@ -221,6 +289,9 @@ export class PatientGatewayController {
     });
   }
 
+  @ApiOperation({ summary: 'Delete a medical record' })
+  @ApiResponse({ status: 200, description: 'Medical record deleted' })
+  @ApiParam({ name: 'id', description: 'Medical Record ID' })
   @Delete('medical-records/:id')
   async deleteMedicalRecord(
     @Req() req: AuthenticatedRequest,
@@ -232,11 +303,17 @@ export class PatientGatewayController {
   // ==========================================
   // 7. PAYMENTS & INVOICES
   // ==========================================
+  @ApiOperation({ summary: 'Get patient financial summary (total spent, pending invoices count)' })
+  @ApiResponse({ status: 200, description: 'Financial summary returned' })
   @Get('payments/summary')
   async getPaymentsSummary(@Req() req: AuthenticatedRequest) {
     return this.financeService.patientGetSummary(req.user.id);
   }
 
+  @ApiOperation({ summary: 'List patient invoices and transaction history' })
+  @ApiResponse({ status: 200, description: 'Invoices list returned' })
+  @ApiQuery({ name: 'page', required: false, default: 1 })
+  @ApiQuery({ name: 'limit', required: false, default: 10 })
   @Get('payments/invoices')
   async listInvoices(
     @Req() req: AuthenticatedRequest,
@@ -245,6 +322,8 @@ export class PatientGatewayController {
     return this.financeService.patientListInvoices(req.user.id, query);
   }
 
+  @ApiOperation({ summary: 'Create online payment checkout session' })
+  @ApiResponse({ status: 201, description: 'Checkout session URL returned' })
   @Post('payments/checkout-session')
   async createCheckoutSession(
     @Req() req: AuthenticatedRequest,
@@ -253,6 +332,8 @@ export class PatientGatewayController {
     return this.financeService.createCheckoutSession(req.user.id, body);
   }
 
+  @ApiOperation({ summary: 'Simulate or complete appointment direct payment' })
+  @ApiResponse({ status: 200, description: 'Payment recorded and appointment marked PAID' })
   @Post('payments/pay')
   async payAppointment(
     @Req() req: AuthenticatedRequest,
@@ -264,16 +345,22 @@ export class PatientGatewayController {
   // ==========================================
   // 8. REVIEWS & RATINGS
   // ==========================================
+  @ApiOperation({ summary: 'List completed appointments pending doctor review' })
+  @ApiResponse({ status: 200, description: 'Pending reviews returned' })
   @Get('reviews/pending')
   async listPendingReviews(@Req() req: AuthenticatedRequest) {
     return this.reviewService.patientListPendingReviews(req.user.id);
   }
 
+  @ApiOperation({ summary: 'List reviews submitted by current patient' })
+  @ApiResponse({ status: 200, description: 'Submitted reviews returned' })
   @Get('reviews/my-reviews')
   async listMyReviews(@Req() req: AuthenticatedRequest) {
     return this.reviewService.patientListMyReviews(req.user.id);
   }
 
+  @ApiOperation({ summary: 'Submit feedback and star rating for a doctor' })
+  @ApiResponse({ status: 201, description: 'Review submitted' })
   @Post('reviews')
   async submitReview(
     @Req() req: AuthenticatedRequest,
@@ -285,11 +372,16 @@ export class PatientGatewayController {
   // ==========================================
   // 9. NOTIFICATIONS
   // ==========================================
+  @ApiOperation({ summary: 'List all notifications for patient' })
+  @ApiResponse({ status: 200, description: 'Notifications list returned' })
   @Get('notifications')
   async listNotifications(@Req() req: AuthenticatedRequest) {
     return this.notificationService.patientListNotifications(req.user.id);
   }
 
+  @ApiOperation({ summary: 'Mark single notification as read' })
+  @ApiResponse({ status: 200, description: 'Notification marked read' })
+  @ApiParam({ name: 'id', description: 'Notification ID' })
   @Patch('notifications/:id/read')
   async markNotificationRead(
     @Req() req: AuthenticatedRequest,
@@ -298,6 +390,8 @@ export class PatientGatewayController {
     return this.notificationService.patientMarkRead(req.user.id, id);
   }
 
+  @ApiOperation({ summary: 'Mark all notifications as read' })
+  @ApiResponse({ status: 200, description: 'All notifications marked read' })
   @Patch('notifications/read-all')
   async markAllNotificationsRead(@Req() req: AuthenticatedRequest) {
     return this.notificationService.patientMarkAllRead(req.user.id);
