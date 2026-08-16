@@ -145,7 +145,7 @@ File: `src/gateway/queue.gateway.ts`
 
 ---
 
-## 🛡️ Phase 5: Security, RBAC & Front-Desk Audit Trail
+## 🛡️ Phase 5: Security, RBAC & Front-Desk Audit Trail ✅ (COMPLETED)
 
 ### Step 5.1: Guards & Roles
 - Apply `@UseGuards(JwtAuthGuard, RolesGuard)`

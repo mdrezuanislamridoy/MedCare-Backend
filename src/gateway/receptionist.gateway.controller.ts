@@ -15,6 +15,7 @@ import { interval, map, merge, Observable } from 'rxjs';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
+import { Public } from '../common/decorators/public.decorator';
 import { UserRole, QueueStatus } from '../../generated/prisma/client';
 import type { AuthenticatedRequest } from '../common/types/authenticated-request.type';
 
@@ -156,6 +157,7 @@ export class ReceptionistGatewayController {
   }
 
   // 13. Real-Time Live Queue Event Stream (SSE for Receptionist & Waiting Room Displays)
+  @Public()
   @Sse('queue/stream')
   streamQueueEvents(): Observable<MessageEvent> {
     const queueEvents$ = this.queueEventService.getStream().pipe(
@@ -176,6 +178,7 @@ export class ReceptionistGatewayController {
   }
 
   // 14. Waiting Lounge TV / Display Board View
+  @Public()
   @Get('queue/display')
   async getDisplayBoard(@Query('clinicId') clinicId?: string) {
     const activeQueue = await this.appointmentService.receptionistGetLiveQueue(clinicId);

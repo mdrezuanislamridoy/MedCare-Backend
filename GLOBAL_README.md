@@ -72,9 +72,10 @@
   - [x] Created SSE stream `GET /receptionist/queue/stream` with 15s heartbeat.
   - [x] Created waiting lobby TV display board endpoint `GET /receptionist/queue/display`.
 
-- [ ] **Phase 5: Security, RBAC & Front-Desk Audit Trail**
-  - [ ] `@Roles(UserRole.RECEPTIONIST, UserRole.CLINIC_MANAGER, UserRole.ADMIN, UserRole.SUPER_ADMIN)` guards.
-  - [ ] Front-desk audit trail logging.
+- [x] **Phase 5: Security, RBAC & Front-Desk Audit Trail**
+  - [x] `@Roles(UserRole.RECEPTIONIST, UserRole.CLINIC_MANAGER, UserRole.ADMIN, UserRole.SUPER_ADMIN)` guards applied.
+  - [x] Created `@Public()` decorator allowing TV lobby displays seamless access.
+  - [x] Front-desk audit trail logging on check-in, queue transitions, and cancellations.
 
 - [ ] **Phase 6: Verification & Testing Checklist**
   - [ ] Unit tests for check-in token generation and queue state machine transitions.
