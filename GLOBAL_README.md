@@ -44,3 +44,34 @@
   - [x] Unit tests for `PatientService`, `AppointmentService`, `PatientGatewayController` created and passed (`15/15` tests passing).
   - [x] Slot collision prevention and video session generation tested.
   - [x] Full build test (`npm run build`) passed with 0 errors.
+
+---
+
+## 🏢 Receptionist Portal Backend Implementation Roadmap
+
+- [x] **Phase 1: Database & Prisma Schema Enhancements**
+  - [x] Created `PatientQueue` schema and `QueueStatus` enum (`prisma/schema/queue.prisma`).
+  - [x] Added `roomNumber`, `isAvailableToday`, and `queues` relation to `DoctorProfile`.
+  - [x] Linked relations in `Appointment`, `PatientProfile`, and `Clinic`.
+  - [x] Validated Prisma schema and generated updated client (`./generated/prisma`).
+
+- [ ] **Phase 2: Microservices Layer Implementation**
+  - [ ] `appointment.service.ts`: Receptionist dashboard KPIs, 6-Step check-in engine, queue token generation, queue status transitions.
+  - [ ] `doctor.service.ts`: Hourly doctor schedule grid matrix (08:00 - 17:00), doctor room status & queue count.
+  - [ ] `patient.service.ts`: Fast receptionist patient search with visit history.
+  - [ ] `audit.service.ts`: Front-desk activity log retrieval.
+
+- [ ] **Phase 3: Receptionist Gateway Controllers & DTOs**
+  - [ ] Create `src/gateway/receptionist.gateway.controller.ts` with all `/receptionist/*` routes.
+  - [ ] Register in `gateway.module.ts`.
+
+- [ ] **Phase 4: Real-time Live Queue & Notification Stream**
+  - [ ] Real-time queue broadcast events for waiting area lounge monitors.
+
+- [ ] **Phase 5: Security, RBAC & Front-Desk Audit Trail**
+  - [ ] `@Roles(UserRole.RECEPTIONIST, UserRole.CLINIC_MANAGER, UserRole.ADMIN, UserRole.SUPER_ADMIN)` guards.
+  - [ ] Front-desk audit trail logging.
+
+- [ ] **Phase 6: Verification & Testing Checklist**
+  - [ ] Unit tests for check-in token generation and queue state machine transitions.
+  - [ ] Production build verification (`npm run build`).

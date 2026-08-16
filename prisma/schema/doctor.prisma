@@ -18,6 +18,8 @@ model DoctorProfile {
   specialty          String
   licenseNumber      String?
   bio                String?
+  roomNumber         String?
+  isAvailableToday   Boolean              @default(true)
   rating             Float                @default(5.0)
   reviewCount        Int                  @default(0)
   clinicId           String?
@@ -32,6 +34,7 @@ model DoctorProfile {
   reviews            DoctorReview[]
   transactions       Transaction[]
   prescriptions      Prescription[]
+  queues             PatientQueue[]
 
   @@map("doctor_profiles")
 }

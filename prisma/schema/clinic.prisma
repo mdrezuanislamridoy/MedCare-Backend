@@ -15,6 +15,7 @@ model Clinic {
   updatedAt    DateTime        @updatedAt
   doctors      DoctorProfile[]
   appointments Appointment[]
+  queues       PatientQueue[]
 
   @@map("clinics")
 }
