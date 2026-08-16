@@ -1,0 +1,108 @@
+services:
+  # ==========================================
+  # MedCare API (NestJS REST API Gateway & Microservices)
+  # ==========================================
+  medcare-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: medcare-api
+    restart: unless-stopped
+    ports:
+      - "${PORT:-3000}:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-medcare}:${POSTGRES_PASSWORD:-medcare_secure_pass}@medcare-postgres:5432/${POSTGRES_DB:-medcare_db}?schema=public
+      - REDIS_URL=redis://medcare-redis:6379
+      - JWT_SECRET=${JWT_SECRET:-medcare_enterprise_super_secret_jwt_key_2026}
+      - JWT_EXPIRES_IN=${JWT_EXPIRES_IN:-1d}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID:-}
+    volumes:
+      - medcare_uploads:/app/uploads
+    depends_on:
+      medcare-postgres:
+        condition: service_healthy
+      medcare-redis:
+        condition: service_healthy
+    networks:
+      - medcare-net
+
+  # ==========================================
+  # PostgreSQL Database (Primary Storage)
+  # ==========================================
+  medcare-postgres:
+    image: postgres:16-alpine
+    container_name: medcare-postgres
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-medcare}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-medcare_secure_pass}
+      POSTGRES_DB: ${POSTGRES_DB:-medcare_db}
+    volumes:
+      - medcare_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-medcare} -d ${POSTGRES_DB:-medcare_db}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    networks:
+      - medcare-net
+
+  # ==========================================
+  # Redis (Cache, Sessions & Real-time Live Queue)
+  # ==========================================
+  medcare-redis:
+    image: redis:7-alpine
+    container_name: medcare-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes
+    volumes:
+      - medcare_redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
+    networks:
+      - medcare-net
+
+  # ==========================================
+  # pgAdmin (Database Web GUI - Optional)
+  # ==========================================
+  medcare-pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: medcare-pgadmin
+    restart: unless-stopped
+    ports:
+      - "5050:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-admin@medcare.local}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin}
+    depends_on:
+      medcare-postgres:
+        condition: service_healthy
+    networks:
+      - medcare-net
+
+# ==========================================
+# Persistent Volumes & Networks
+# ==========================================
+volumes:
+  medcare_pgdata:
+    name: medcare_pgdata
+  medcare_redisdata:
+    name: medcare_redisdata
+  medcare_uploads:
+    name: medcare_uploads
+
+networks:
+  medcare-net:
+    name: medcare-network
+    driver: bridge

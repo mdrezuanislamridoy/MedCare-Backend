@@ -104,3 +104,44 @@
   12. `Super Admin & RBAC` – Privilege requests & role-permission matrix.
   13. `Super Admin System & Health` – Health checks & database backup triggers.
   14. `Public Payments & Webhooks` – Stripe & SSLCommerz webhooks.
+
+---
+
+## 🐳 Docker & Containerization Setup
+
+### 🛠️ 1. Local Development Mode (Database & Redis Only):
+Runs only PostgreSQL, Redis, and pgAdmin in Docker, allowing you to develop and hot-reload the NestJS backend on your local machine.
+
+```bash
+# Start PostgreSQL, Redis & pgAdmin
+npm run docker:dev
+# or: docker compose -f docker-compose.dev.yml up -d
+
+# Start NestJS backend with watch mode
+npm run start:dev
+
+# Stop dev containers
+npm run docker:dev:down
+```
+
+### 🚀 2. Full-Stack Production Mode:
+Runs the entire platform including the NestJS API container.
+
+```bash
+# Build and start all services
+docker compose up -d --build
+
+# View backend logs
+docker compose logs -f medcare-api
+
+# Stop all containers
+docker compose down
+```
+
+### 📦 Services & Ports:
+| Service | Container Name | Port | Purpose |
+| :--- | :--- | :---: | :--- |
+| **PostgreSQL** | `medcare-postgres-dev` | `localhost:5432` | Relational database (`medcare_db`) |
+| **Redis** | `medcare-redis-dev` | `localhost:6379` | Cache & live queue pubsub |
+| **pgAdmin** | `medcare-pgadmin-dev` | `http://localhost:5050` | Database web client (`admin@medcare.local` / `admin`) |
+| **NestJS API** | `medcare-api` | `http://localhost:3000` | REST API Gateway & Swagger (`/api/docs`) |
