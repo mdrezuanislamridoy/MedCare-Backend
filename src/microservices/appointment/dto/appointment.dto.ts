@@ -1,4 +1,4 @@
-import { AppointmentStatus, AppointmentType, PaymentStatus } from '../../../../generated/prisma/client';
+import { AppointmentStatus, AppointmentType, PaymentStatus, QueueStatus } from '../../../../generated/prisma/client';
 
 export class AppointmentFilterDto {
   q?: string;
@@ -41,4 +41,26 @@ export class PatientAppointmentFilterDto {
   type?: AppointmentType;
   page?: number;
   limit?: number;
+}
+
+export class ReceptionistCheckInDto {
+  appointmentId!: string;
+  roomNumber?: string;
+  notes?: string;
+}
+
+export class ReceptionistUpdateQueueDto {
+  status!: QueueStatus;
+}
+
+export class ReceptionistWalkInBookingDto {
+  patientId?: string;
+  patientName?: string;
+  phone?: string;
+  doctorId!: string;
+  clinicId?: string;
+  time?: string;
+  type?: AppointmentType;
+  roomNumber?: string;
+  notes?: string;
 }

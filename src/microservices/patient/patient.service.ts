@@ -339,4 +339,56 @@ export class PatientService {
 
     return prescription;
   }
+
+  // --- Receptionist Portal Methods ---
+
+  async receptionistSearchPatients(q?: string, page = 1, limit = 10) {
+    const skip = (Math.max(1, page) - 1) * limit;
+    const where: any = {};
+    if (q) {
+      where.OR = [
+        { phone: { contains: q, mode: 'insensitive' } },
+        { user: { name: { contains: q, mode: 'insensitive' } } },
+        { user: { email: { contains: q, mode: 'insensitive' } } },
+      ];
+    }
+
+    const [patients, total] = await Promise.all([
+      this.prisma.patientProfile.findMany({
+        where,
+        skip,
+        take: limit,
+        include: {
+          user: { select: { id: true, name: true, email: true } },
+          appointments: {
+            take: 1,
+            orderBy: { date: 'desc' },
+            include: { doctor: { include: { user: { select: { name: true } } } } },
+          },
+          _count: { select: { appointments: true } },
+        },
+        orderBy: { createdAt: 'desc' },
+      }),
+      this.prisma.patientProfile.count({ where }),
+    ]);
+
+    return {
+      data: patients.map(p => ({
+        id: p.id,
+        name: p.user.name || 'Unknown Patient',
+        email: p.user.email,
+        phone: p.phone || 'N/A',
+        avatar: (p.user.name || 'P').split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase(),
+        doctor: p.appointments[0]?.doctor.user.name || 'General Physician',
+        visits: p._count.appointments,
+        lastVisit: p.appointments[0]?.date ? new Date(p.appointments[0].date).toISOString().split('T')[0] : 'None',
+      })),
+      meta: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
+  }
 }

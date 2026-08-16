@@ -303,4 +303,129 @@ export class DoctorService {
       slots,
     };
   }
+
+  // --- Receptionist Portal Methods ---
+
+  async receptionistGetScheduleGrid(dateStr?: string, clinicId?: string) {
+    const targetDate = dateStr ? new Date(dateStr) : new Date();
+    const startOfDay = new Date(targetDate.getFullYear(), targetDate.getMonth(), targetDate.getDate());
+    const endOfDay = new Date(targetDate.getFullYear(), targetDate.getMonth(), targetDate.getDate(), 23, 59, 59);
+
+    const where: any = {
+      accountStatus: AccountStatus.ACTIVE,
+      verificationStatus: VerificationStatus.APPROVED,
+    };
+    if (clinicId) where.clinicId = clinicId;
+
+    const doctors = await this.prisma.doctorProfile.findMany({
+      where,
+      include: {
+        user: { select: { id: true, name: true, email: true } },
+        clinic: { select: { id: true, name: true } },
+      },
+      orderBy: { createdAt: 'asc' },
+    });
+
+    const appointments = await this.prisma.appointment.findMany({
+      where: {
+        date: { gte: startOfDay, lte: endOfDay },
+        status: { in: ['CONFIRMED', 'PENDING', 'CHECKED_IN', 'IN_PROGRESS', 'COMPLETED'] },
+        ...(clinicId && { clinicId }),
+      },
+      include: {
+        patient: { include: { user: { select: { name: true } } } },
+      },
+    });
+
+    const hours = ['08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00'];
+
+    const doctorSchedules = doctors.map(doc => {
+      const docAppointments = appointments.filter(a => a.doctorId === doc.id);
+      const slots = hours.map(hour => {
+        const matchingAppt = docAppointments.find(a => {
+          const apptTime = a.time.toUpperCase();
+          const hour24 = parseInt(hour.split(':')[0], 10);
+          const isPM = apptTime.includes('PM');
+          let [h] = apptTime.replace(/AM|PM/g, '').trim().split(':').map(Number);
+          if (isPM && h !== 12) h += 12;
+          if (!isPM && h === 12) h = 0;
+          return h === hour24;
+        });
+
+        return {
+          hour,
+          booked: !!matchingAppt,
+          appointment: matchingAppt
+            ? {
+                id: matchingAppt.id,
+                appointmentNumber: matchingAppt.appointmentNumber,
+                patientName: matchingAppt.patient.user.name || 'Patient',
+                type: matchingAppt.type,
+                status: matchingAppt.status,
+              }
+            : null,
+        };
+      });
+
+      return {
+        doctorId: doc.id,
+        doctorName: doc.user.name || 'Doctor',
+        specialty: doc.specialty,
+        roomNumber: doc.roomNumber || 'Room 101',
+        slots,
+      };
+    });
+
+    return {
+      date: targetDate.toISOString().split('T')[0],
+      hours,
+      schedules: doctorSchedules,
+    };
+  }
+
+  async receptionistGetDoctorStatusList(clinicId?: string) {
+    const now = new Date();
+    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const endOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
+
+    const where: any = {
+      accountStatus: AccountStatus.ACTIVE,
+      verificationStatus: VerificationStatus.APPROVED,
+    };
+    if (clinicId) where.clinicId = clinicId;
+
+    const doctors = await this.prisma.doctorProfile.findMany({
+      where,
+      include: {
+        user: { select: { id: true, name: true, email: true } },
+        clinic: { select: { id: true, name: true } },
+        queues: {
+          where: {
+            status: { in: ['WAITING', 'CALLED', 'IN_ROOM'] },
+            createdAt: { gte: startOfToday, lte: endOfToday },
+          },
+        },
+        appointments: {
+          where: {
+            date: { gte: startOfToday, lte: endOfToday },
+            status: { in: ['CONFIRMED', 'PENDING'] },
+          },
+          orderBy: [{ time: 'asc' }],
+          take: 1,
+        },
+      },
+      orderBy: { createdAt: 'asc' },
+    });
+
+    return doctors.map(doc => ({
+      id: doc.id,
+      name: doc.user.name || 'Doctor',
+      specialty: doc.specialty,
+      roomNumber: doc.roomNumber || 'Room 101',
+      isAvailableToday: doc.isAvailableToday,
+      activeQueueCount: doc.queues.length,
+      nextAppointment: doc.appointments[0]?.time || 'None',
+      clinicName: doc.clinic?.name || 'MedCare Main Clinic',
+    }));
+  }
 }

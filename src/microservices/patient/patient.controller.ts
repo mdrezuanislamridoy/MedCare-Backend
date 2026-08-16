@@ -65,4 +65,11 @@ export class PatientController {
   async getPrescription(@Payload() payload: { userId: string; prescriptionId: string }) {
     return this.patientService.getPrescriptionById(payload.userId, payload.prescriptionId);
   }
+
+  // --- Receptionist Portal Endpoints ---
+
+  @MessagePattern(PATTERNS.PATIENT.RECEPTIONIST_SEARCH)
+  async receptionistSearch(@Payload() payload: { q?: string; page?: number; limit?: number }) {
+    return this.patientService.receptionistSearchPatients(payload?.q, payload?.page, payload?.limit);
+  }
 }

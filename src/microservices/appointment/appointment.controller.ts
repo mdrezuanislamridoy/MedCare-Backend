@@ -64,4 +64,31 @@ export class AppointmentController {
   async patientReschedule(@Payload() payload: { userId: string; appointmentId: string; dto: RescheduleAppointmentDto }) {
     return this.appointmentService.patientRescheduleAppointment(payload.userId, payload.appointmentId, payload.dto);
   }
+
+  // --- Receptionist Portal Message Patterns ---
+
+  @MessagePattern(PATTERNS.APPOINTMENT.RECEPTIONIST_DASHBOARD)
+  async receptionistDashboard(@Payload() payload: { clinicId?: string }) {
+    return this.appointmentService.receptionistGetDashboardStats(payload?.clinicId);
+  }
+
+  @MessagePattern(PATTERNS.APPOINTMENT.RECEPTIONIST_CHECK_IN)
+  async receptionistCheckIn(@Payload() payload: { dto: any; actorId?: string }) {
+    return this.appointmentService.receptionistCheckIn(payload.dto, payload.actorId);
+  }
+
+  @MessagePattern(PATTERNS.APPOINTMENT.RECEPTIONIST_GET_QUEUE)
+  async receptionistGetQueue(@Payload() payload: { clinicId?: string; doctorId?: string }) {
+    return this.appointmentService.receptionistGetLiveQueue(payload?.clinicId, payload?.doctorId);
+  }
+
+  @MessagePattern(PATTERNS.APPOINTMENT.RECEPTIONIST_UPDATE_QUEUE)
+  async receptionistUpdateQueue(@Payload() payload: { queueId: string; status: any; actorId?: string }) {
+    return this.appointmentService.receptionistUpdateQueueStatus(payload.queueId, payload.status, payload.actorId);
+  }
+
+  @MessagePattern(PATTERNS.APPOINTMENT.RECEPTIONIST_WALK_IN)
+  async receptionistWalkIn(@Payload() payload: { dto: any; actorId?: string }) {
+    return this.appointmentService.receptionistWalkInBooking(payload.dto, payload.actorId);
+  }
 }

@@ -50,4 +50,16 @@ export class DoctorController {
   async patientGetSlots(@Payload() payload: { doctorId: string; date: string }) {
     return this.doctorService.patientGetDoctorSlots(payload.doctorId, payload.date);
   }
+
+  // --- Receptionist Portal Message Patterns ---
+
+  @MessagePattern(PATTERNS.DOCTOR.RECEPTIONIST_SCHEDULE_GRID)
+  async receptionistScheduleGrid(@Payload() payload: { date?: string; clinicId?: string }) {
+    return this.doctorService.receptionistGetScheduleGrid(payload?.date, payload?.clinicId);
+  }
+
+  @MessagePattern(PATTERNS.DOCTOR.RECEPTIONIST_STATUS_LIST)
+  async receptionistDoctorStatusList(@Payload() payload: { clinicId?: string }) {
+    return this.doctorService.receptionistGetDoctorStatusList(payload?.clinicId);
+  }
 }

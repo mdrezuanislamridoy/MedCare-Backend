@@ -72,7 +72,7 @@ npx prisma generate
 
 ---
 
-## ⚙️ Phase 2: Microservices Layer Implementation
+## ⚙️ Phase 2: Microservices Layer Implementation ✅ (COMPLETED)
 
 Update business logic in the microservices layer to handle reception desk operations:
 
@@ -113,7 +113,7 @@ File: `src/microservices/audit/`
 
 ---
 
-## 🚪 Phase 3: Receptionist Gateway Controllers & DTOs
+## 🚪 Phase 3: Receptionist Gateway Controllers & DTOs ✅ (COMPLETED)
 
 Expose clean, secure REST endpoints under the `/receptionist` route prefix.
 

@@ -55,15 +55,16 @@
   - [x] Linked relations in `Appointment`, `PatientProfile`, and `Clinic`.
   - [x] Validated Prisma schema and generated updated client (`./generated/prisma`).
 
-- [ ] **Phase 2: Microservices Layer Implementation**
-  - [ ] `appointment.service.ts`: Receptionist dashboard KPIs, 6-Step check-in engine, queue token generation, queue status transitions.
-  - [ ] `doctor.service.ts`: Hourly doctor schedule grid matrix (08:00 - 17:00), doctor room status & queue count.
-  - [ ] `patient.service.ts`: Fast receptionist patient search with visit history.
-  - [ ] `audit.service.ts`: Front-desk activity log retrieval.
+- [x] **Phase 2: Microservices Layer Implementation**
+  - [x] `appointment.service.ts`: Receptionist dashboard KPIs, 6-Step check-in engine, queue token generation, queue status transitions.
+  - [x] `doctor.service.ts`: Hourly doctor schedule grid matrix (08:00 - 17:00), doctor room status & queue count.
+  - [x] `patient.service.ts`: Fast receptionist patient search with visit history.
+  - [x] `audit.service.ts`: Front-desk activity log retrieval.
 
-- [ ] **Phase 3: Receptionist Gateway Controllers & DTOs**
-  - [ ] Create `src/gateway/receptionist.gateway.controller.ts` with all `/receptionist/*` routes.
-  - [ ] Register in `gateway.module.ts`.
+- [x] **Phase 3: Receptionist Gateway Controllers & DTOs**
+  - [x] Created `src/gateway/receptionist.gateway.controller.ts` with all 12 REST endpoints.
+  - [x] Registered in `gateway.module.ts`.
+  - [x] RBAC Guards (`RECEPTIONIST`, `CLINIC_MANAGER`, `ADMIN`, `SUPER_ADMIN`) applied.
 
 - [ ] **Phase 4: Real-time Live Queue & Notification Stream**
   - [ ] Real-time queue broadcast events for waiting area lounge monitors.

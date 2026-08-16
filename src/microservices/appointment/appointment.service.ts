@@ -6,8 +6,11 @@ import {
   TransitionAppointmentStatusDto,
   BookAppointmentDto,
   PatientAppointmentFilterDto,
+  ReceptionistCheckInDto,
+  ReceptionistUpdateQueueDto,
+  ReceptionistWalkInBookingDto,
 } from './dto/appointment.dto';
-import { AppointmentStatus, PaymentStatus, AppointmentType } from '../../../generated/prisma/client';
+import { AppointmentStatus, PaymentStatus, AppointmentType, QueueStatus } from '../../../generated/prisma/client';
 
 @Injectable()
 export class AppointmentService {
@@ -449,5 +452,313 @@ export class AppointmentService {
       },
     };
   }
+
+  // --- Receptionist Portal Methods ---
+
+  async receptionistGetDashboardStats(clinicId?: string) {
+    const now = new Date();
+    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const endOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
+
+    const baseWhere: any = {
+      date: { gte: startOfToday, lte: endOfToday },
+    };
+    if (clinicId) baseWhere.clinicId = clinicId;
+
+    const [
+      todayTotal,
+      waitingCount,
+      checkedInCount,
+      completedCount,
+      cancelledCount,
+      availableDoctors,
+      todayTimeline,
+      activeQueue,
+    ] = await Promise.all([
+      this.prisma.appointment.count({ where: baseWhere }),
+      this.prisma.patientQueue.count({
+        where: {
+          status: 'WAITING',
+          createdAt: { gte: startOfToday, lte: endOfToday },
+          ...(clinicId && { clinicId }),
+        },
+      }),
+      this.prisma.patientQueue.count({
+        where: {
+          status: { in: ['IN_ROOM', 'CALLED'] },
+          createdAt: { gte: startOfToday, lte: endOfToday },
+          ...(clinicId && { clinicId }),
+        },
+      }),
+      this.prisma.appointment.count({
+        where: { ...baseWhere, status: 'COMPLETED' },
+      }),
+      this.prisma.appointment.count({
+        where: { ...baseWhere, status: { in: ['CANCELLED', 'NO_SHOW'] } },
+      }),
+      this.prisma.doctorProfile.count({
+        where: {
+          isAvailableToday: true,
+          accountStatus: 'ACTIVE',
+          ...(clinicId && { clinicId }),
+        },
+      }),
+      this.prisma.appointment.findMany({
+        where: baseWhere,
+        take: 10,
+        orderBy: [{ time: 'asc' }, { createdAt: 'asc' }],
+        include: {
+          patient: { include: { user: { select: { name: true } } } },
+          doctor: { include: { user: { select: { name: true } } } },
+          queue: true,
+        },
+      }),
+      this.prisma.patientQueue.findMany({
+        where: {
+          status: { in: ['WAITING', 'CALLED', 'IN_ROOM'] },
+          createdAt: { gte: startOfToday, lte: endOfToday },
+          ...(clinicId && { clinicId }),
+        },
+        take: 8,
+        orderBy: { queueNumber: 'asc' },
+        include: {
+          patient: { include: { user: { select: { name: true } } } },
+          doctor: { include: { user: { select: { name: true } } } },
+        },
+      }),
+    ]);
+
+    return {
+      stats: {
+        todayAppointments: todayTotal,
+        waitingPatients: waitingCount,
+        checkedIn: checkedInCount,
+        completedVisits: completedCount,
+        cancelled: cancelledCount,
+        availableDoctors,
+      },
+      timeline: todayTimeline,
+      liveQueue: activeQueue,
+    };
+  }
+
+  async receptionistCheckIn(dto: ReceptionistCheckInDto, actorId?: string) {
+    const appointment = await this.prisma.appointment.findUnique({
+      where: { id: dto.appointmentId },
+      include: {
+        patient: { include: { user: true } },
+        doctor: { include: { user: true } },
+        queue: true,
+      },
+    });
+
+    if (!appointment) {
+      throw new NotFoundException('Appointment not found');
+    }
+
+    if (appointment.status === AppointmentStatus.CANCELLED) {
+      throw new BadRequestException('Cannot check in a cancelled appointment');
+    }
+
+    if (appointment.queue) {
+      return {
+        message: 'Patient is already checked in',
+        queue: appointment.queue,
+      };
+    }
+
+    const now = new Date();
+    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const endOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
+
+    const lastQueue = await this.prisma.patientQueue.findFirst({
+      where: {
+        doctorId: appointment.doctorId,
+        createdAt: { gte: startOfToday, lte: endOfToday },
+      },
+      orderBy: { queueNumber: 'desc' },
+      select: { queueNumber: true },
+    });
+
+    const nextQueueNumber = (lastQueue?.queueNumber || 0) + 1;
+    const roomNumber = dto.roomNumber || appointment.doctor.roomNumber || 'Room 101';
+
+    await this.prisma.appointment.update({
+      where: { id: appointment.id },
+      data: { status: AppointmentStatus.CHECKED_IN },
+    });
+
+    const queueEntry = await this.prisma.patientQueue.create({
+      data: {
+        queueNumber: nextQueueNumber,
+        appointmentId: appointment.id,
+        doctorId: appointment.doctorId,
+        patientId: appointment.patientId,
+        clinicId: appointment.clinicId,
+        roomNumber,
+        status: QueueStatus.WAITING,
+        checkInTime: new Date(),
+      },
+      include: {
+        patient: { include: { user: { select: { name: true, email: true } } } },
+        doctor: { include: { user: { select: { name: true, email: true } } } },
+      },
+    });
+
+    await this.prisma.auditLog.create({
+      data: {
+        actorId,
+        actorName: 'Receptionist',
+        action: `Patient Check-in: Token #${nextQueueNumber}`,
+        resource: `Appointment ${appointment.appointmentNumber} (${appointment.patient.user.name || 'Patient'})`,
+        details: JSON.stringify({ queueNumber: nextQueueNumber, roomNumber }),
+        result: 'success',
+      },
+    }).catch(() => null);
+
+    return queueEntry;
+  }
+
+  async receptionistGetLiveQueue(clinicId?: string, doctorId?: string) {
+    const now = new Date();
+    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const endOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
+
+    const where: any = {
+      createdAt: { gte: startOfToday, lte: endOfToday },
+    };
+    if (clinicId) where.clinicId = clinicId;
+    if (doctorId) where.doctorId = doctorId;
+
+    return this.prisma.patientQueue.findMany({
+      where,
+      orderBy: [{ status: 'asc' }, { queueNumber: 'asc' }],
+      include: {
+        patient: { include: { user: { select: { id: true, name: true, email: true } } } },
+        doctor: { include: { user: { select: { id: true, name: true, email: true } } } },
+        appointment: { select: { appointmentNumber: true, time: true, type: true, paymentStatus: true } },
+      },
+    });
+  }
+
+  async receptionistUpdateQueueStatus(queueId: string, status: QueueStatus, actorId?: string) {
+    const queue = await this.prisma.patientQueue.findUnique({
+      where: { id: queueId },
+      include: {
+        patient: { include: { user: true } },
+        appointment: true,
+      },
+    });
+
+    if (!queue) {
+      throw new NotFoundException('Queue token not found');
+    }
+
+    const updateData: any = { status };
+    let apptStatus: AppointmentStatus | null = null;
+
+    if (status === QueueStatus.CALLED) {
+      updateData.calledAt = new Date();
+    } else if (status === QueueStatus.IN_ROOM) {
+      updateData.inRoomAt = new Date();
+      apptStatus = AppointmentStatus.IN_PROGRESS;
+    } else if (status === QueueStatus.COMPLETED) {
+      updateData.completedAt = new Date();
+      apptStatus = AppointmentStatus.COMPLETED;
+    } else if (status === QueueStatus.NO_SHOW) {
+      apptStatus = AppointmentStatus.NO_SHOW;
+    }
+
+    const updatedQueue = await this.prisma.patientQueue.update({
+      where: { id: queueId },
+      data: updateData,
+    });
+
+    if (apptStatus && queue.appointmentId) {
+      await this.prisma.appointment.update({
+        where: { id: queue.appointmentId },
+        data: { status: apptStatus },
+      }).catch(() => null);
+    }
+
+    await this.prisma.auditLog.create({
+      data: {
+        actorId,
+        actorName: 'Receptionist',
+        action: `Queue Status Updated to ${status}`,
+        resource: `Queue #${queue.queueNumber} (${queue.patient.user.name || 'Patient'})`,
+        details: JSON.stringify({ status }),
+        result: 'success',
+      },
+    }).catch(() => null);
+
+    return updatedQueue;
+  }
+
+  async receptionistWalkInBooking(dto: ReceptionistWalkInBookingDto, actorId?: string) {
+    let patientId = dto.patientId;
+
+    if (!patientId && dto.patientName) {
+      let user = await this.prisma.user.findFirst({
+        where: { email: `walkin-${Date.now()}@medcare.local` },
+      });
+      if (!user) {
+        user = await this.prisma.user.create({
+          data: {
+            email: `walkin-${Date.now()}@medcare.local`,
+            name: dto.patientName,
+            role: 'PATIENT',
+          },
+        });
+      }
+      const profile = await this.prisma.patientProfile.create({
+        data: {
+          userId: user.id,
+          phone: dto.phone,
+        },
+      });
+      patientId = profile.id;
+    }
+
+    if (!patientId) {
+      throw new BadRequestException('Patient information is required for walk-in booking');
+    }
+
+    const doctor = await this.prisma.doctorProfile.findUnique({
+      where: { id: dto.doctorId },
+    });
+    if (!doctor) {
+      throw new NotFoundException('Doctor not found');
+    }
+
+    const now = new Date();
+    const appointmentNumber = `WALK-${Date.now().toString().slice(-6)}`;
+    const time = dto.time || `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+
+    const appointment = await this.prisma.appointment.create({
+      data: {
+        appointmentNumber,
+        patientId,
+        doctorId: dto.doctorId,
+        clinicId: dto.clinicId || doctor.clinicId,
+        date: now,
+        time,
+        type: dto.type || AppointmentType.IN_PERSON,
+        status: AppointmentStatus.CONFIRMED,
+        paymentStatus: PaymentStatus.PENDING,
+        notes: dto.notes || 'Walk-in booking created at reception desk',
+      },
+    });
+
+    return this.receptionistCheckIn(
+      {
+        appointmentId: appointment.id,
+        roomNumber: dto.roomNumber || doctor.roomNumber || 'Room 101',
+        notes: dto.notes,
+      },
+      actorId,
+    );
+  }
 }
+
 

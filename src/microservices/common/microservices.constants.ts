@@ -25,6 +25,8 @@ export const PATTERNS = {
     PATIENT_SEARCH: 'patient.doctors.search',
     PATIENT_GET_DETAILS: 'patient.doctors.details',
     PATIENT_GET_SLOTS: 'patient.doctors.slots',
+    RECEPTIONIST_SCHEDULE_GRID: 'receptionist.doctors.schedule_grid',
+    RECEPTIONIST_STATUS_LIST: 'receptionist.doctors.status_list',
   },
   PATIENT: {
     LIST: 'admin.patients.list',
@@ -38,6 +40,7 @@ export const PATTERNS = {
     DELETE_RECORD: 'patient.medical_records.delete',
     LIST_PRESCRIPTIONS: 'patient.prescriptions.list',
     GET_PRESCRIPTION: 'patient.prescriptions.get',
+    RECEPTIONIST_SEARCH: 'receptionist.patients.search',
   },
   CLINIC: {
     LIST: 'admin.clinics.list',
@@ -55,6 +58,11 @@ export const PATTERNS = {
     PATIENT_BOOK: 'patient.appointments.book',
     PATIENT_CANCEL: 'patient.appointments.cancel',
     PATIENT_RESCHEDULE: 'patient.appointments.reschedule',
+    RECEPTIONIST_DASHBOARD: 'receptionist.appointments.dashboard',
+    RECEPTIONIST_CHECK_IN: 'receptionist.appointments.check_in',
+    RECEPTIONIST_GET_QUEUE: 'receptionist.appointments.queue_list',
+    RECEPTIONIST_UPDATE_QUEUE: 'receptionist.appointments.queue_update',
+    RECEPTIONIST_WALK_IN: 'receptionist.appointments.walk_in',
   },
   FINANCE: {
     LIST_TRANSACTIONS: 'admin.finance.transactions.list',
@@ -81,6 +89,7 @@ export const PATTERNS = {
   AUDIT: {
     LOG_EVENT: 'audit.log.created',
     LIST: 'admin.audit.list',
+    RECEPTIONIST_LOGS: 'receptionist.audit.logs',
   },
   RBAC: {
     LIST_REQUESTS: 'superadmin.access_requests.list',

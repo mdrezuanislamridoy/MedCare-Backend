@@ -17,4 +17,9 @@ export class AuditController {
   async recordLog(@Payload() dto: CreateAuditLogDto) {
     return this.auditService.recordLog(dto);
   }
+
+  @MessagePattern(PATTERNS.AUDIT.RECEPTIONIST_LOGS)
+  async listReceptionistLogs(@Payload() payload: { limit?: number }) {
+    return this.auditService.listLogs({ limit: payload?.limit || 20, q: 'Receptionist' });
+  }
 }
