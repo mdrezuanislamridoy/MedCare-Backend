@@ -35,6 +35,7 @@ model DoctorProfile {
   transactions       Transaction[]
   prescriptions      Prescription[]
   queues             PatientQueue[]
+  complaints         Complaint[]
 
   @@map("doctor_profiles")
 }

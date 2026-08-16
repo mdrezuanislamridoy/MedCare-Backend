@@ -25,7 +25,10 @@ model User {
   verificationReviews DoctorVerification[]
   moderatedReviews    DoctorReview[]
   sentNotifications   Notification[]
+  assignedTickets     SupportTicket[]      @relation("StaffAssignedTickets")
+  ticketMessages      TicketMessage[]
+  assignedComplaints  Complaint[]          @relation("StaffAssignedComplaints")
+  supportActivities   SupportActivity[]
 
   @@map("users")
 }
-

@@ -25,6 +25,8 @@ model PatientProfile {
   prescriptions         Prescription[]
   medicalRecords        MedicalRecord[]
   queues                PatientQueue[]
+  supportTickets        SupportTicket[]
+  complaints            Complaint[]
 
   @@map("patient_profiles")
 }

@@ -1,0 +1,64 @@
+enum TicketStatus {
+  OPEN
+  IN_PROGRESS
+  WAITING_FOR_USER
+  RESOLVED
+  CLOSED
+}
+
+enum TicketPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum TicketCategory {
+  APPOINTMENT
+  PAYMENT
+  ACCOUNT
+  DOCTOR
+  TECHNICAL
+  GENERAL
+}
+
+model SupportTicket {
+  id              String          @id @default(cuid())
+  ticketNumber    String          @unique
+  patientId       String
+  patient         PatientProfile  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  assignedStaffId String?
+  assignedStaff   User?           @relation("StaffAssignedTickets", fields: [assignedStaffId], references: [id])
+  subject         String
+  description     String
+  category        TicketCategory  @default(GENERAL)
+  priority        TicketPriority  @default(MEDIUM)
+  status          TicketStatus    @default(OPEN)
+  resolvedAt      DateTime?
+  closedAt        DateTime?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  messages        TicketMessage[]
+
+  @@index([status, priority])
+  @@index([assignedStaffId])
+  @@index([patientId])
+  @@map("support_tickets")
+}
+
+model TicketMessage {
+  id             String        @id @default(cuid())
+  ticketId       String
+  ticket         SupportTicket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  senderId       String
+  sender         User          @relation(fields: [senderId], references: [id])
+  senderName     String
+  senderRole     UserRole
+  message        String
+  isInternalNote Boolean       @default(false)
+  attachments    String[]      @default([])
+  createdAt      DateTime      @default(now())
+
+  @@index([ticketId, createdAt])
+  @@map("ticket_messages")
+}
