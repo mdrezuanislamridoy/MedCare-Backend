@@ -10,6 +10,7 @@ export const MICROSERVICES = {
   AUDIT: 'AUDIT_SERVICE',
   RBAC: 'RBAC_SERVICE',
   SYSTEM: 'SYSTEM_SERVICE',
+  SUPPORT: 'SUPPORT_SERVICE',
 } as const;
 
 export const PATTERNS = {
@@ -102,5 +103,24 @@ export const PATTERNS = {
     GET_SETTINGS: 'superadmin.settings.get',
     UPDATE_SETTINGS: 'superadmin.settings.update',
     BACKUP: 'superadmin.system.backup',
+  },
+  SUPPORT: {
+    DASHBOARD_STATS: 'support.dashboard.stats',
+    LIST_TICKETS: 'support.tickets.list',
+    GET_TICKET: 'support.tickets.get',
+    CREATE_TICKET: 'support.tickets.create',
+    REPLY_TICKET: 'support.tickets.reply',
+    ASSIGN_TICKET: 'support.tickets.assign',
+    UPDATE_TICKET_STATUS: 'support.tickets.status.update',
+    LIST_COMPLAINTS: 'support.complaints.list',
+    GET_COMPLAINT: 'support.complaints.get',
+    UPDATE_COMPLAINT_STATUS: 'support.complaints.status.update',
+    ESCALATE_COMPLAINT: 'support.complaints.escalate',
+    SEARCH_PATIENTS: 'support.patients.search',
+    RESEND_NOTIFICATION: 'support.patients.resend_notification',
+    LIST_FLAGGED_APPOINTMENTS: 'support.appointments.flagged.list',
+    ASSIST_RESCHEDULE: 'support.appointments.reschedule',
+    CLEAR_APPOINTMENT_FLAG: 'support.appointments.flag.clear',
+    LIST_ACTIVITY_LOGS: 'support.activities.list',
   },
 } as const;

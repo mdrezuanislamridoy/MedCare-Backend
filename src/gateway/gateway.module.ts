@@ -10,6 +10,7 @@ import { NotificationModule } from '../microservices/notification/notification.m
 import { AuditModule } from '../microservices/audit/audit.module';
 import { RbacModule } from '../microservices/rbac/rbac.module';
 import { SystemModule } from '../microservices/system/system.module';
+import { SupportModule } from '../microservices/support/support.module';
 
 import { AdminAnalyticsGatewayController } from './admin-analytics.gateway.controller';
 import { AdminDoctorGatewayController } from './admin-doctor.gateway.controller';
@@ -39,6 +40,7 @@ import { ReceptionistGatewayController } from './receptionist.gateway.controller
     AuditModule,
     RbacModule,
     SystemModule,
+    SupportModule,
   ],
   controllers: [
     AdminAnalyticsGatewayController,
