@@ -60,6 +60,7 @@ Bearer <your-access-token>
     )
     .addTag('Patient Portal', 'Patient self-service, bookings, prescriptions, medical records, and video consultations')
     .addTag('Receptionist Portal', 'Front-desk operations, 6-step check-in wizard, token queues, and doctor schedules')
+    .addTag('Support Staff Portal', 'Helpdesk support tickets, dispute complaints escalation, privacy-safe patient lookup, and appointment assistance')
     .addTag('Admin Analytics', 'Platform-wide analytics, revenue stats, and utilization metrics')
     .addTag('Admin Doctor Management', 'Doctor accounts, verification queue decisions, and specialties')
     .addTag('Admin Patient Management', 'Patient directory and account status management')

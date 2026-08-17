@@ -26,6 +26,7 @@ import { SuperAdminSystemGatewayController } from './super-admin-system.gateway.
 import { PatientGatewayController } from './patient.gateway.controller';
 import { PublicPaymentGatewayController } from './public-payment.gateway.controller';
 import { ReceptionistGatewayController } from './receptionist.gateway.controller';
+import { SupportStaffGatewayController } from './support-staff.gateway.controller';
 
 @Module({
   imports: [
@@ -57,6 +58,7 @@ import { ReceptionistGatewayController } from './receptionist.gateway.controller
     PatientGatewayController,
     PublicPaymentGatewayController,
     ReceptionistGatewayController,
+    SupportStaffGatewayController,
   ],
 })
 export class GatewayModule {}
