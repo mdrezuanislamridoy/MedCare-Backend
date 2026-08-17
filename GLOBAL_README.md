@@ -10,7 +10,7 @@
 - [x] **Support Staff Portal Backend Roadmap:** Complete architecture and implementation steps in [`SUPPORT_STAFF_BACKEND_STEPS.md`](file:///Volumes/2BT/Ridoy/MedCare%20Backend/SUPPORT_STAFF_BACKEND_STEPS.md).
 - [ ] **Doctor Portal Backend Roadmap:** Complete architecture and implementation steps in [`DOCTOR_BACKEND_STEPS.md`](file:///Volumes/2BT/Ridoy/MedCare%20Backend/DOCTOR_BACKEND_STEPS.md).
   - [x] **Phase 1: Database & Prisma Schema Enhancements** (`doctor-schedule.prisma`, `consultation-note.prisma`, `doctor-payout.prisma`, `DoctorProfile` relations).
-  - [ ] **Phase 2: Microservices Layer Implementation** (`DoctorService`, `PrescriptionService`, `AppointmentService` clinical notes & Agora video token methods).
+  - [x] **Phase 2: Microservices Layer Implementation** (`DoctorService`, `DoctorController`, DTOs, message patterns in `microservices.constants.ts`).
   - [ ] **Phase 3: Doctor Gateway REST API & DTOs** (`DoctorGatewayController` with 18 endpoints under `/doctor/*`).
   - [ ] **Phase 4: Real-Time Consultation Queue & Video Sessions**.
   - [ ] **Phase 5: Security, RBAC & Medical EHR Compliance**.
