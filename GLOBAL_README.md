@@ -11,7 +11,7 @@
   - [x] **Phase 1: Database & Prisma Schema Design** (`support-ticket.prisma`, `complaint.prisma`, `support-activity.prisma`, relations updated in `user`, `patient`, `doctor`, `appointment`).
   - [x] **Phase 2: Microservices Layer Implementation** (`SupportService`, `SupportController`, DTOs, message patterns in `microservices.constants.ts`).
   - [x] **Phase 3: Support Staff Gateway REST API & DTOs** (`SupportStaffGatewayController` with all 16 endpoints registered in `GatewayModule` & Swagger).
-  - [ ] **Phase 4: Real-time Live Event Bus & SSE Stream** (`LiveSupportEventService`).
+  - [x] **Phase 4: Real-time Live Event Bus & SSE Stream** (`LiveSupportEventService` singleton event bus & `GET /support-staff/events/stream` with 15s heartbeat).
   - [ ] **Phase 5: Security, RBAC & Privacy Protection**.
   - [ ] **Phase 6: Verification & Automated Testing**.
 

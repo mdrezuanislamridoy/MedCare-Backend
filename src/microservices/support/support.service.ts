@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../common/database/prisma/prisma.service';
+import { LiveSupportEventService } from '../../common/events/live-support-event.service';
 import {
   TicketFilterDto,
   CreateTicketDto,
@@ -22,7 +23,10 @@ import {
 
 @Injectable()
 export class SupportService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly supportEventService: LiveSupportEventService,
+  ) {}
 
   // ==========================================
   // 1. DASHBOARD & KPIS
@@ -205,6 +209,17 @@ export class SupportService {
 
     await this.logActivity(staffId, 'CREATE_TICKET', ticket.id, `Created ticket ${ticketNumber}`);
 
+    // Emit live event
+    this.supportEventService.emit({
+      type: 'NEW_TICKET_CREATED',
+      targetId: ticket.id,
+      referenceNumber: ticketNumber,
+      title: ticket.subject,
+      patientName: ticket.patient?.user?.name || 'Patient',
+      priority: ticket.priority,
+      assignedStaffId: ticket.assignedStaffId || undefined,
+    });
+
     return ticket;
   }
 
@@ -215,7 +230,10 @@ export class SupportService {
     senderRole: UserRole,
     dto: ReplyTicketDto,
   ) {
-    const ticket = await this.prisma.supportTicket.findUnique({ where: { id: ticketId } });
+    const ticket = await this.prisma.supportTicket.findUnique({
+      where: { id: ticketId },
+      include: { patient: { include: { user: { select: { name: true } } } } },
+    });
     if (!ticket) {
       throw new NotFoundException(`Ticket with ID ${ticketId} not found`);
     }
@@ -232,7 +250,6 @@ export class SupportService {
       },
     });
 
-    // If agent replies publicly to patient, update status to IN_PROGRESS if waiting
     if (!dto.isInternalNote && ticket.status === TicketStatus.WAITING_FOR_USER) {
       await this.prisma.supportTicket.update({
         where: { id: ticketId },
@@ -246,6 +263,18 @@ export class SupportService {
       ticketId,
       `Sent ${dto.isInternalNote ? 'internal note' : 'reply'} on ticket ${ticket.ticketNumber}`,
     );
+
+    // Emit live event
+    this.supportEventService.emit({
+      type: 'TICKET_REPLIED',
+      targetId: ticketId,
+      referenceNumber: ticket.ticketNumber,
+      title: `Reply added to ${ticket.ticketNumber}`,
+      patientName: ticket.patient?.user?.name,
+      priority: ticket.priority,
+      assignedStaffId: ticket.assignedStaffId || undefined,
+      data: { isInternalNote: dto.isInternalNote },
+    });
 
     return message;
   }
@@ -265,6 +294,17 @@ export class SupportService {
     });
 
     await this.logActivity(actorId, 'ASSIGN_TICKET', ticketId, `Assigned ticket ${ticket.ticketNumber} to staff`);
+
+    // Emit live event
+    this.supportEventService.emit({
+      type: 'TICKET_ASSIGNED',
+      targetId: ticketId,
+      referenceNumber: ticket.ticketNumber,
+      title: `Ticket ${ticket.ticketNumber} assigned`,
+      assignedStaffId: staffId,
+      assignedStaffName: updated.assignedStaff?.name || undefined,
+      priority: ticket.priority,
+    });
 
     return updated;
   }
@@ -296,6 +336,16 @@ export class SupportService {
       ticketId,
       `Changed ticket ${ticket.ticketNumber} status to ${dto.status}`,
     );
+
+    if (dto.status === TicketStatus.RESOLVED || dto.status === TicketStatus.CLOSED) {
+      this.supportEventService.emit({
+        type: 'TICKET_RESOLVED',
+        targetId: ticketId,
+        referenceNumber: ticket.ticketNumber,
+        title: `Ticket ${ticket.ticketNumber} marked as ${dto.status}`,
+        priority: ticket.priority,
+      });
+    }
 
     return updated;
   }
@@ -394,9 +444,21 @@ export class SupportService {
         priority: dto.priority,
         assignedStaffId: staffId,
       },
+      include: {
+        patient: { include: { user: { select: { name: true } } } },
+      },
     });
 
     await this.logActivity(staffId, 'CREATE_COMPLAINT', complaint.id, `Created complaint ${complaintNumber}`);
+
+    this.supportEventService.emit({
+      type: 'COMPLAINT_CREATED',
+      targetId: complaint.id,
+      referenceNumber: complaintNumber,
+      title: complaint.title,
+      patientName: complaint.patient?.user?.name || 'Patient',
+      priority: complaint.priority,
+    });
 
     return complaint;
   }
@@ -455,6 +517,16 @@ export class SupportService {
       `Escalated complaint ${complaint.complaintNumber} to Administration: ${dto.reason}`,
     );
 
+    // Emit live alert to Super Admins & Managers
+    this.supportEventService.emit({
+      type: 'COMPLAINT_ESCALATED',
+      targetId: complaintId,
+      referenceNumber: complaint.complaintNumber,
+      title: `[ESCALATED] ${complaint.title}`,
+      priority: 'URGENT',
+      data: { reason: dto.reason },
+    });
+
     return updated;
   }
 
@@ -477,7 +549,6 @@ export class SupportService {
       ];
     }
 
-    // Explicitly exclude medical records, prescriptions, and sensitive medical history
     const [items, total] = await Promise.all([
       this.prisma.patientProfile.findMany({
         where,

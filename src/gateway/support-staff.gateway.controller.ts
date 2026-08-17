@@ -2,11 +2,13 @@ import {
   Body,
   Controller,
   Get,
+  MessageEvent,
   Param,
   Patch,
   Post,
   Query,
   Req,
+  Sse,
   UseGuards,
 } from '@nestjs/common';
 import {
@@ -16,7 +18,9 @@ import {
   ApiBearerAuth,
   ApiParam,
 } from '@nestjs/swagger';
+import { Observable, interval, map, merge } from 'rxjs';
 import { SupportService } from '../microservices/support/support.service';
+import { LiveSupportEventService } from '../common/events/live-support-event.service';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
@@ -44,7 +48,10 @@ import {
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(UserRole.SUPPORT_STAFF, UserRole.ADMIN, UserRole.SUPER_ADMIN)
 export class SupportStaffGatewayController {
-  constructor(private readonly supportService: SupportService) {}
+  constructor(
+    private readonly supportService: SupportService,
+    private readonly supportEventService: LiveSupportEventService,
+  ) {}
 
   // ==========================================
   // 1. DASHBOARD & KPIS
@@ -241,5 +248,35 @@ export class SupportStaffGatewayController {
   @Get('activity-logs')
   async listActivityLogs(@Query() query: SupportActivityFilterDto) {
     return this.supportService.listActivityLogs(query);
+  }
+
+  // ==========================================
+  // 7. REAL-TIME LIVE EVENT STREAM (SSE)
+  // ==========================================
+  @ApiOperation({ summary: 'Server-Sent Events (SSE) stream for real-time ticket and escalation alerts' })
+  @ApiResponse({ status: 200, description: 'SSE stream connected' })
+  @Sse('events/stream')
+  streamSupportEvents(): Observable<MessageEvent> {
+    const supportEvents$ = this.supportEventService.getStream().pipe(
+      map(
+        event =>
+          ({
+            data: event,
+            type: 'support-event',
+          }) as MessageEvent,
+      ),
+    );
+
+    const heartbeat$ = interval(15000).pipe(
+      map(
+        () =>
+          ({
+            data: { type: 'HEARTBEAT', timestamp: new Date().toISOString() },
+            type: 'heartbeat',
+          }) as MessageEvent,
+      ),
+    );
+
+    return merge(supportEvents$, heartbeat$);
   }
 }
