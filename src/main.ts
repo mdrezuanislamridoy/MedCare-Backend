@@ -63,6 +63,7 @@ Bearer <your-access-token>
     .addTag('Chat & Real-Time Messaging', 'Bi-directional real-time messaging, WebSocket rooms (/chat), direct patient-doctor threads, file attachments, and unread badges')
     .addTag('Receptionist Portal', 'Front-desk operations, 6-step check-in wizard, token queues, and doctor schedules')
     .addTag('Support Staff Portal', 'Helpdesk support tickets, dispute complaints escalation, privacy-safe patient lookup, and appointment assistance')
+    .addTag('Clinic Manager Portal', 'Clinic branch operations, doctor rosters, staff management, room allocation, appointments, queues, and financial reports')
     .addTag('Admin Analytics', 'Platform-wide analytics, revenue stats, and utilization metrics')
     .addTag('Admin Doctor Management', 'Doctor accounts, verification queue decisions, and specialties')
     .addTag('Admin Patient Management', 'Patient directory and account status management')
