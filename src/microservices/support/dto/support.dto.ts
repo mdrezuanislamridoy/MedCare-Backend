@@ -1,4 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { IsArray, IsBoolean, IsEnum, IsInt, IsNotEmpty, IsOptional, IsString, Min } from 'class-validator';
+import { Type, Transform } from 'class-transformer';
 import {
   TicketCategory,
   TicketPriority,
@@ -11,69 +13,113 @@ import {
 // 1. SUPPORT TICKETS DTOs
 // ==========================================
 export class TicketFilterDto {
-  @ApiPropertyOptional({ description: 'Search term for subject, patient, or ticket number' })
+  @ApiPropertyOptional({ example: 'Billing', description: 'Search term for subject, patient, or ticket number' })
+  @IsOptional()
+  @IsString()
   search?: string;
 
-  @ApiPropertyOptional({ enum: TicketStatus })
+  @ApiPropertyOptional({ enum: TicketStatus, example: TicketStatus.OPEN })
+  @IsOptional()
+  @IsEnum(TicketStatus)
   status?: TicketStatus;
 
-  @ApiPropertyOptional({ enum: TicketPriority })
+  @ApiPropertyOptional({ enum: TicketPriority, example: TicketPriority.HIGH })
+  @IsOptional()
+  @IsEnum(TicketPriority)
   priority?: TicketPriority;
 
-  @ApiPropertyOptional({ enum: TicketCategory })
+  @ApiPropertyOptional({ enum: TicketCategory, example: TicketCategory.PAYMENT })
+  @IsOptional()
+  @IsEnum(TicketCategory)
   category?: TicketCategory;
 
-  @ApiPropertyOptional({ description: 'Filter by assigned staff user ID' })
+  @ApiPropertyOptional({ example: 'staff-1001', description: 'Filter by assigned staff user ID' })
+  @IsOptional()
+  @IsString()
   assignedStaffId?: string;
 
-  @ApiPropertyOptional({ default: 1 })
+  @ApiPropertyOptional({ example: 1, default: 1 })
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
   page?: number;
 
-  @ApiPropertyOptional({ default: 10 })
+  @ApiPropertyOptional({ example: 10, default: 10 })
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
   limit?: number;
 }
 
 export class CreateTicketDto {
-  @ApiProperty({ example: 'pat-cuid-123', description: 'Patient Profile ID' })
+  @ApiProperty({ example: 'pat-1001', description: 'Patient Profile ID' })
+  @IsNotEmpty()
+  @IsString()
   patientId!: string;
 
   @ApiProperty({ example: 'Billing discrepancy on invoice #INV-2091', description: 'Ticket subject' })
+  @IsNotEmpty()
+  @IsString()
   subject!: string;
 
-  @ApiProperty({ example: 'Patient was charged twice for cardiology consultation.', description: 'Detailed issue description' })
+  @ApiProperty({ example: 'Patient was charged twice for cardiology consultation on 15 Aug.', description: 'Detailed issue description' })
+  @IsNotEmpty()
+  @IsString()
   description!: string;
 
-  @ApiPropertyOptional({ enum: TicketCategory, default: TicketCategory.GENERAL })
+  @ApiPropertyOptional({ enum: TicketCategory, example: TicketCategory.PAYMENT, default: TicketCategory.GENERAL })
+  @IsOptional()
+  @IsEnum(TicketCategory)
   category?: TicketCategory;
 
-  @ApiPropertyOptional({ enum: TicketPriority, default: TicketPriority.MEDIUM })
+  @ApiPropertyOptional({ enum: TicketPriority, example: TicketPriority.MEDIUM, default: TicketPriority.MEDIUM })
+  @IsOptional()
+  @IsEnum(TicketPriority)
   priority?: TicketPriority;
 
-  @ApiPropertyOptional({ description: 'Assigned staff user ID' })
+  @ApiPropertyOptional({ example: 'staff-1001', description: 'Assigned staff user ID' })
+  @IsOptional()
+  @IsString()
   assignedStaffId?: string;
 }
 
 export class ReplyTicketDto {
-  @ApiProperty({ example: 'We have processed the refund to your original card.', description: 'Reply content' })
+  @ApiProperty({ example: 'We have processed the refund to your original card. It will appear within 2-3 business days.', description: 'Reply content' })
+  @IsNotEmpty()
+  @IsString()
   message!: string;
 
-  @ApiPropertyOptional({ default: false, description: 'True if internal note visible only to staff' })
+  @ApiPropertyOptional({ example: false, default: false, description: 'True if internal note visible only to staff' })
+  @IsOptional()
+  @Transform(({ value }) => value === 'true' || value === true)
+  @IsBoolean()
   isInternalNote?: boolean;
 
-  @ApiPropertyOptional({ type: [String], description: 'Attachment file URLs' })
+  @ApiPropertyOptional({ type: [String], example: ['/uploads/receipts/refund-ack-9021.pdf'], description: 'Attachment file URLs' })
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
   attachments?: string[];
 }
 
 export class AssignTicketDto {
-  @ApiProperty({ example: 'staff-cuid-456', description: 'Assigned staff user ID' })
+  @ApiProperty({ example: 'staff-1001', description: 'Assigned staff user ID' })
+  @IsNotEmpty()
+  @IsString()
   staffId!: string;
 }
 
 export class UpdateTicketStatusDto {
   @ApiProperty({ enum: TicketStatus, example: TicketStatus.RESOLVED })
+  @IsNotEmpty()
+  @IsEnum(TicketStatus)
   status!: TicketStatus;
 
-  @ApiPropertyOptional({ description: 'Resolution summary or closing notes' })
+  @ApiPropertyOptional({ example: 'Issue resolved: refunded duplicate payment via Stripe.', description: 'Resolution summary or closing notes' })
+  @IsOptional()
+  @IsString()
   notes?: string;
 }
 
@@ -81,55 +127,89 @@ export class UpdateTicketStatusDto {
 // 2. COMPLAINTS DTOs
 // ==========================================
 export class ComplaintFilterDto {
-  @ApiPropertyOptional({ description: 'Search by complaint number, patient, or doctor' })
+  @ApiPropertyOptional({ example: 'delay', description: 'Search by complaint number, patient, or doctor' })
+  @IsOptional()
+  @IsString()
   search?: string;
 
-  @ApiPropertyOptional({ enum: ComplaintStatus })
+  @ApiPropertyOptional({ enum: ComplaintStatus, example: ComplaintStatus.NEW })
+  @IsOptional()
+  @IsEnum(ComplaintStatus)
   status?: ComplaintStatus;
 
-  @ApiPropertyOptional({ enum: TicketPriority })
+  @ApiPropertyOptional({ enum: TicketPriority, example: TicketPriority.HIGH })
+  @IsOptional()
+  @IsEnum(TicketPriority)
   priority?: TicketPriority;
 
-  @ApiPropertyOptional({ enum: ComplaintCategory })
+  @ApiPropertyOptional({ enum: ComplaintCategory, example: ComplaintCategory.WAIT_TIME })
+  @IsOptional()
+  @IsEnum(ComplaintCategory)
   category?: ComplaintCategory;
 
-  @ApiPropertyOptional({ default: 1 })
+  @ApiPropertyOptional({ example: 1, default: 1 })
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
   page?: number;
 
-  @ApiPropertyOptional({ default: 10 })
+  @ApiPropertyOptional({ example: 10, default: 10 })
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
   limit?: number;
 }
 
 export class CreateComplaintDto {
-  @ApiProperty({ example: 'pat-cuid-123', description: 'Patient Profile ID' })
+  @ApiProperty({ example: 'pat-1001', description: 'Patient Profile ID' })
+  @IsNotEmpty()
+  @IsString()
   patientId!: string;
 
-  @ApiPropertyOptional({ example: 'doc-cuid-456', description: 'Related Doctor Profile ID' })
+  @ApiPropertyOptional({ example: 'doc-1001', description: 'Related Doctor Profile ID' })
+  @IsOptional()
+  @IsString()
   relatedDoctorId?: string;
 
-  @ApiProperty({ example: 'Doctor arrived 45 mins late without notice', description: 'Complaint title' })
+  @ApiProperty({ example: 'Doctor arrived 45 mins late without prior notice', description: 'Complaint title' })
+  @IsNotEmpty()
+  @IsString()
   title!: string;
 
-  @ApiProperty({ example: 'Patient waited in Room 101 for over 45 minutes.', description: 'Incident description' })
+  @ApiProperty({ example: 'Patient waited in Room 101 for over 45 minutes past the scheduled appointment time.', description: 'Incident description' })
+  @IsNotEmpty()
+  @IsString()
   description!: string;
 
-  @ApiPropertyOptional({ enum: ComplaintCategory, default: ComplaintCategory.OTHER })
+  @ApiPropertyOptional({ enum: ComplaintCategory, example: ComplaintCategory.WAIT_TIME, default: ComplaintCategory.OTHER })
+  @IsOptional()
+  @IsEnum(ComplaintCategory)
   category?: ComplaintCategory;
 
-  @ApiPropertyOptional({ enum: TicketPriority, default: TicketPriority.MEDIUM })
+  @ApiPropertyOptional({ enum: TicketPriority, example: TicketPriority.HIGH, default: TicketPriority.MEDIUM })
+  @IsOptional()
+  @IsEnum(TicketPriority)
   priority?: TicketPriority;
 }
 
 export class UpdateComplaintStatusDto {
   @ApiProperty({ enum: ComplaintStatus, example: ComplaintStatus.UNDER_INVESTIGATION })
+  @IsNotEmpty()
+  @IsEnum(ComplaintStatus)
   status!: ComplaintStatus;
 
-  @ApiPropertyOptional({ description: 'Staff response or resolution notes' })
+  @ApiPropertyOptional({ example: 'Investigating delay with clinic manager and doctor.', description: 'Staff response or resolution notes' })
+  @IsOptional()
+  @IsString()
   notes?: string;
 }
 
 export class EscalateComplaintDto {
-  @ApiProperty({ example: 'Patient threatening legal action regarding billing overcharge.', description: 'Reason for escalating to Admin/Management' })
+  @ApiProperty({ example: 'Patient dissatisfied with initial response and requesting clinic director review.', description: 'Reason for escalating to Admin/Management' })
+  @IsNotEmpty()
+  @IsString()
   reason!: string;
 }
 
@@ -137,18 +217,30 @@ export class EscalateComplaintDto {
 // 3. PATIENT SUPPORT DTOs (Privacy-Preserved)
 // ==========================================
 export class SupportPatientSearchDto {
-  @ApiPropertyOptional({ description: 'Search by patient name, email, phone, or Patient ID' })
+  @ApiPropertyOptional({ example: 'James', description: 'Search by patient name, email, phone, or Patient ID' })
+  @IsOptional()
+  @IsString()
   search?: string;
 
-  @ApiPropertyOptional({ default: 1 })
+  @ApiPropertyOptional({ example: 1, default: 1 })
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
   page?: number;
 
-  @ApiPropertyOptional({ default: 10 })
+  @ApiPropertyOptional({ example: 10, default: 10 })
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
   limit?: number;
 }
 
 export class ResendNotificationDto {
   @ApiProperty({ enum: ['EMAIL_VERIFICATION', 'PASSWORD_RESET', 'APPOINTMENT_REMINDER'], example: 'EMAIL_VERIFICATION' })
+  @IsNotEmpty()
+  @IsEnum(['EMAIL_VERIFICATION', 'PASSWORD_RESET', 'APPOINTMENT_REMINDER'])
   type!: 'EMAIL_VERIFICATION' | 'PASSWORD_RESET' | 'APPOINTMENT_REMINDER';
 }
 
@@ -157,15 +249,23 @@ export class ResendNotificationDto {
 // ==========================================
 export class AssistRescheduleAppointmentDto {
   @ApiProperty({ example: '2026-08-22', description: 'New consultation date (YYYY-MM-DD)' })
+  @IsNotEmpty()
+  @IsString()
   date!: string;
 
   @ApiProperty({ example: '11:00 AM', description: 'New time slot' })
+  @IsNotEmpty()
+  @IsString()
   time!: string;
 
-  @ApiPropertyOptional({ description: 'New Doctor Profile ID if reassigning' })
+  @ApiPropertyOptional({ example: 'doc-1001', description: 'New Doctor Profile ID if reassigning' })
+  @IsOptional()
+  @IsString()
   doctorId?: string;
 
-  @ApiPropertyOptional({ description: 'Reason for rescheduling assistance' })
+  @ApiPropertyOptional({ example: 'Patient has family emergency on original appointment date.', description: 'Reason for rescheduling assistance' })
+  @IsOptional()
+  @IsString()
   reason?: string;
 }
 
@@ -173,12 +273,22 @@ export class AssistRescheduleAppointmentDto {
 // 5. ACTIVITY LOGS DTOs
 // ==========================================
 export class SupportActivityFilterDto {
-  @ApiPropertyOptional({ description: 'Filter by staff user ID' })
+  @ApiPropertyOptional({ example: 'staff-1001', description: 'Filter by staff user ID' })
+  @IsOptional()
+  @IsString()
   staffId?: string;
 
-  @ApiPropertyOptional({ default: 1 })
+  @ApiPropertyOptional({ example: 1, default: 1 })
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
   page?: number;
 
-  @ApiPropertyOptional({ default: 20 })
+  @ApiPropertyOptional({ example: 20, default: 20 })
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
   limit?: number;
 }

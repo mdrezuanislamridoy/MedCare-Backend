@@ -17,7 +17,6 @@ import {
   ApiResponse,
   ApiBearerAuth,
   ApiParam,
-  ApiQuery,
 } from '@nestjs/swagger';
 import { Observable, interval, map, merge } from 'rxjs';
 import { DoctorService } from '../microservices/doctor/doctor.service';
@@ -32,6 +31,9 @@ import {
   SaveConsultationNotesDto,
   CreateDoctorPrescriptionDto,
   DoctorAppointmentFilterDto,
+  DoctorPrescriptionFilterDto,
+  DoctorPatientFilterDto,
+  DoctorReviewFilterDto,
   DoctorPayoutRequestDto,
   DoctorReplyReviewDto,
   UpdateDoctorProfileDto,
@@ -63,7 +65,7 @@ export class DoctorGatewayController {
   // ==========================================
   @ApiOperation({ summary: 'Get patient clinical medical chart and consultation workspace for an appointment' })
   @ApiResponse({ status: 200, description: 'Consultation workspace data returned' })
-  @ApiParam({ name: 'appointmentId', description: 'Appointment ID' })
+  @ApiParam({ name: 'appointmentId', description: 'Appointment ID', example: 'apt-1001' })
   @Get('consultations/:appointmentId')
   async getConsultationWorkspace(
     @Req() req: AuthenticatedRequest,
@@ -74,7 +76,7 @@ export class DoctorGatewayController {
 
   @ApiOperation({ summary: 'Save patient symptoms, clinical diagnosis, vitals, and treatment plan' })
   @ApiResponse({ status: 200, description: 'Clinical consultation notes saved' })
-  @ApiParam({ name: 'appointmentId', description: 'Appointment ID' })
+  @ApiParam({ name: 'appointmentId', description: 'Appointment ID', example: 'apt-1001' })
   @Post('consultations/:appointmentId/notes')
   async saveConsultationNotes(
     @Req() req: AuthenticatedRequest,
@@ -86,7 +88,7 @@ export class DoctorGatewayController {
 
   @ApiOperation({ summary: 'Complete consultation, update queue token status, and credit earnings' })
   @ApiResponse({ status: 200, description: 'Consultation completed' })
-  @ApiParam({ name: 'appointmentId', description: 'Appointment ID' })
+  @ApiParam({ name: 'appointmentId', description: 'Appointment ID', example: 'apt-1001' })
   @Post('consultations/:appointmentId/complete')
   async completeConsultation(
     @Req() req: AuthenticatedRequest,
@@ -110,20 +112,17 @@ export class DoctorGatewayController {
 
   @ApiOperation({ summary: 'List prescriptions issued by current doctor with patient search and pagination' })
   @ApiResponse({ status: 200, description: 'Prescriptions list returned' })
-  @ApiQuery({ name: 'search', required: false })
-  @ApiQuery({ name: 'page', required: false, default: 1 })
-  @ApiQuery({ name: 'limit', required: false, default: 20 })
   @Get('prescriptions')
   async listPrescriptions(
     @Req() req: AuthenticatedRequest,
-    @Query() query: any,
+    @Query() query: DoctorPrescriptionFilterDto,
   ) {
     return this.doctorService.doctorListPrescriptions(req.user.id, query);
   }
 
   @ApiOperation({ summary: 'Get prescription details, medicines breakdown, and print preview' })
   @ApiResponse({ status: 200, description: 'Prescription details returned' })
-  @ApiParam({ name: 'id', description: 'Prescription ID' })
+  @ApiParam({ name: 'id', description: 'Prescription ID', example: 'rx-1001' })
   @Get('prescriptions/:id')
   async getPrescriptionDetails(
     @Req() req: AuthenticatedRequest,
@@ -147,7 +146,7 @@ export class DoctorGatewayController {
 
   @ApiOperation({ summary: 'Get single appointment details including patient, queue token, and notes' })
   @ApiResponse({ status: 200, description: 'Appointment details returned' })
-  @ApiParam({ name: 'id', description: 'Appointment ID' })
+  @ApiParam({ name: 'id', description: 'Appointment ID', example: 'apt-1001' })
   @Get('appointments/:id')
   async getAppointmentDetails(
     @Req() req: AuthenticatedRequest,
@@ -158,7 +157,7 @@ export class DoctorGatewayController {
 
   @ApiOperation({ summary: 'Generate WebRTC / Agora video channel token for online teleconsultation' })
   @ApiResponse({ status: 200, description: 'Video session room and token generated' })
-  @ApiParam({ name: 'id', description: 'Appointment ID' })
+  @ApiParam({ name: 'id', description: 'Appointment ID', example: 'apt-1001' })
   @Get('appointments/:id/video-session')
   async getVideoSessionToken(
     @Req() req: AuthenticatedRequest,
@@ -172,20 +171,17 @@ export class DoctorGatewayController {
   // ==========================================
   @ApiOperation({ summary: 'List patients who have consulted with this doctor' })
   @ApiResponse({ status: 200, description: 'Patients directory returned' })
-  @ApiQuery({ name: 'search', required: false })
-  @ApiQuery({ name: 'page', required: false, default: 1 })
-  @ApiQuery({ name: 'limit', required: false, default: 20 })
   @Get('patients')
   async listPatients(
     @Req() req: AuthenticatedRequest,
-    @Query() query: any,
+    @Query() query: DoctorPatientFilterDto,
   ) {
     return this.doctorService.doctorListPatients(req.user.id, query);
   }
 
   @ApiOperation({ summary: 'View patient uploaded lab test reports and clinical records' })
   @ApiResponse({ status: 200, description: 'Medical records list returned' })
-  @ApiParam({ name: 'id', description: 'Patient Profile ID' })
+  @ApiParam({ name: 'id', description: 'Patient Profile ID', example: 'pat-1001' })
   @Get('patients/:id/medical-records')
   async getPatientMedicalRecords(
     @Req() req: AuthenticatedRequest,
@@ -239,19 +235,17 @@ export class DoctorGatewayController {
   // ==========================================
   @ApiOperation({ summary: 'List patient reviews, star rating distribution (5★ to 1★), and recommendation rate' })
   @ApiResponse({ status: 200, description: 'Reviews list returned' })
-  @ApiQuery({ name: 'page', required: false, default: 1 })
-  @ApiQuery({ name: 'limit', required: false, default: 20 })
   @Get('reviews')
   async listReviews(
     @Req() req: AuthenticatedRequest,
-    @Query() query: any,
+    @Query() query: DoctorReviewFilterDto,
   ) {
     return this.doctorService.doctorListReviews(req.user.id, query);
   }
 
   @ApiOperation({ summary: 'Reply to a patient review feedback' })
   @ApiResponse({ status: 200, description: 'Reply submitted' })
-  @ApiParam({ name: 'id', description: 'Review ID' })
+  @ApiParam({ name: 'id', description: 'Review ID', example: 'rev-1001' })
   @Post('reviews/:id/reply')
   async replyReview(
     @Req() req: AuthenticatedRequest,

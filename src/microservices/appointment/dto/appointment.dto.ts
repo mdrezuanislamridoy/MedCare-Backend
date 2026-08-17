@@ -1,141 +1,233 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { IsEnum, IsInt, IsNotEmpty, IsOptional, IsString, Min } from 'class-validator';
+import { Type } from 'class-transformer';
 import { AppointmentStatus, AppointmentType, PaymentStatus, QueueStatus } from '../../../../generated/prisma/client';
 
 export class AppointmentFilterDto {
-  @ApiPropertyOptional({ description: 'Search query for patient name, doctor name, or appointment number' })
+  @ApiPropertyOptional({ example: 'James', description: 'Search query for patient name, doctor name, or appointment number' })
+  @IsOptional()
+  @IsString()
   q?: string;
 
-  @ApiPropertyOptional({ description: 'Filter by Doctor ID' })
+  @ApiPropertyOptional({ example: 'doc-1001', description: 'Filter by Doctor ID' })
+  @IsOptional()
+  @IsString()
   doctorId?: string;
 
-  @ApiPropertyOptional({ description: 'Filter by Patient ID' })
+  @ApiPropertyOptional({ example: 'pat-1001', description: 'Filter by Patient ID' })
+  @IsOptional()
+  @IsString()
   patientId?: string;
 
-  @ApiPropertyOptional({ description: 'Filter by Clinic ID' })
+  @ApiPropertyOptional({ example: 'clinic-1', description: 'Filter by Clinic ID' })
+  @IsOptional()
+  @IsString()
   clinicId?: string;
 
-  @ApiPropertyOptional({ enum: AppointmentStatus, description: 'Filter by appointment status' })
+  @ApiPropertyOptional({ enum: AppointmentStatus, example: AppointmentStatus.CONFIRMED, description: 'Filter by appointment status' })
+  @IsOptional()
+  @IsEnum(AppointmentStatus)
   status?: AppointmentStatus;
 
-  @ApiPropertyOptional({ enum: PaymentStatus, description: 'Filter by payment status' })
+  @ApiPropertyOptional({ enum: PaymentStatus, example: PaymentStatus.PAID, description: 'Filter by payment status' })
+  @IsOptional()
+  @IsEnum(PaymentStatus)
   paymentStatus?: PaymentStatus;
 
-  @ApiPropertyOptional({ enum: AppointmentType, description: 'Filter by appointment type (IN_PERSON, VIDEO)' })
+  @ApiPropertyOptional({ enum: AppointmentType, example: AppointmentType.IN_PERSON, description: 'Filter by appointment type (IN_PERSON, VIDEO)' })
+  @IsOptional()
+  @IsEnum(AppointmentType)
   type?: AppointmentType;
 
-  @ApiPropertyOptional({ description: 'Start date filter (YYYY-MM-DD)' })
+  @ApiPropertyOptional({ example: '2026-08-01', description: 'Start date filter (YYYY-MM-DD)' })
+  @IsOptional()
+  @IsString()
   startDate?: string;
 
-  @ApiPropertyOptional({ description: 'End date filter (YYYY-MM-DD)' })
+  @ApiPropertyOptional({ example: '2026-08-31', description: 'End date filter (YYYY-MM-DD)' })
+  @IsOptional()
+  @IsString()
   endDate?: string;
 
-  @ApiPropertyOptional({ default: 1, description: 'Page number' })
+  @ApiPropertyOptional({ example: 1, default: 1, description: 'Page number' })
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
   page?: number;
 
-  @ApiPropertyOptional({ default: 20, description: 'Items per page' })
+  @ApiPropertyOptional({ example: 20, default: 20, description: 'Items per page' })
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
   limit?: number;
 }
 
 export class TransitionAppointmentStatusDto {
-  @ApiProperty({ enum: AppointmentStatus, description: 'New status for appointment' })
+  @ApiProperty({ enum: AppointmentStatus, example: AppointmentStatus.COMPLETED, description: 'New status for appointment' })
+  @IsNotEmpty()
+  @IsEnum(AppointmentStatus)
   status!: AppointmentStatus;
 
-  @ApiPropertyOptional({ description: 'Reason for status transition or cancellation' })
+  @ApiPropertyOptional({ example: 'Patient requested cancellation due to travel delay', description: 'Reason for status transition or cancellation' })
+  @IsOptional()
+  @IsString()
   cancellationReason?: string;
 }
 
 export class RescheduleAppointmentDto {
   @ApiProperty({ example: '2026-08-25', description: 'New date for appointment (YYYY-MM-DD)' })
+  @IsNotEmpty()
+  @IsString()
   date!: string;
 
   @ApiProperty({ example: '11:00 AM', description: 'New time slot for appointment' })
+  @IsNotEmpty()
+  @IsString()
   time!: string;
 
-  @ApiPropertyOptional({ description: 'Reassign to another Doctor ID' })
+  @ApiPropertyOptional({ example: 'doc-1001', description: 'Reassign to another Doctor ID' })
+  @IsOptional()
+  @IsString()
   doctorId?: string;
 
-  @ApiPropertyOptional({ description: 'Reassign to another Clinic ID' })
+  @ApiPropertyOptional({ example: 'clinic-1', description: 'Reassign to another Clinic ID' })
+  @IsOptional()
+  @IsString()
   clinicId?: string;
 
-  @ApiPropertyOptional({ description: 'Reason for rescheduling' })
+  @ApiPropertyOptional({ example: 'Rescheduled upon patient request', description: 'Reason for rescheduling' })
+  @IsOptional()
+  @IsString()
   reason?: string;
 }
 
 export class BookAppointmentDto {
-  @ApiProperty({ example: 'doc-cuid-123', description: 'Doctor profile ID' })
+  @ApiProperty({ example: 'doc-1001', description: 'Doctor profile ID' })
+  @IsNotEmpty()
+  @IsString()
   doctorId!: string;
 
-  @ApiPropertyOptional({ description: 'Clinic ID where consultation takes place' })
+  @ApiPropertyOptional({ example: 'clinic-1', description: 'Clinic ID where consultation takes place' })
+  @IsOptional()
+  @IsString()
   clinicId?: string;
 
   @ApiProperty({ example: '2026-08-20', description: 'Appointment date (YYYY-MM-DD)' })
+  @IsNotEmpty()
+  @IsString()
   date!: string;
 
   @ApiProperty({ example: '10:00 AM', description: 'Appointment time slot' })
+  @IsNotEmpty()
+  @IsString()
   time!: string;
 
-  @ApiPropertyOptional({ enum: AppointmentType, default: AppointmentType.IN_PERSON })
+  @ApiPropertyOptional({ enum: AppointmentType, example: AppointmentType.IN_PERSON, default: AppointmentType.IN_PERSON })
+  @IsOptional()
+  @IsEnum(AppointmentType)
   type?: AppointmentType;
 
-  @ApiPropertyOptional({ description: 'Patient symptoms or consultation notes' })
+  @ApiPropertyOptional({ example: 'Experiencing regular migraine headaches and nausea', description: 'Patient symptoms or consultation notes' })
+  @IsOptional()
+  @IsString()
   notes?: string;
 }
 
 export class PatientAppointmentFilterDto {
-  @ApiPropertyOptional({ enum: ['upcoming', 'completed', 'cancelled', 'all'], default: 'upcoming' })
+  @ApiPropertyOptional({ enum: ['upcoming', 'completed', 'cancelled', 'all'], example: 'upcoming', default: 'upcoming' })
+  @IsOptional()
+  @IsEnum(['upcoming', 'completed', 'cancelled', 'all'])
   tab?: 'upcoming' | 'completed' | 'cancelled' | 'all';
 
-  @ApiPropertyOptional({ enum: AppointmentType })
+  @ApiPropertyOptional({ enum: AppointmentType, example: AppointmentType.IN_PERSON })
+  @IsOptional()
+  @IsEnum(AppointmentType)
   type?: AppointmentType;
 
-  @ApiPropertyOptional({ default: 1 })
+  @ApiPropertyOptional({ example: 1, default: 1 })
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
   page?: number;
 
-  @ApiPropertyOptional({ default: 10 })
+  @ApiPropertyOptional({ example: 10, default: 10 })
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
   limit?: number;
 }
 
 export class ReceptionistCheckInDto {
-  @ApiProperty({ example: 'apt-cuid-123', description: 'Appointment ID to check in' })
+  @ApiProperty({ example: 'apt-1001', description: 'Appointment ID to check in' })
+  @IsNotEmpty()
+  @IsString()
   appointmentId!: string;
 
   @ApiPropertyOptional({ example: 'Room 204', description: 'Assigned consultation room number' })
+  @IsOptional()
+  @IsString()
   roomNumber?: string;
 
-  @ApiPropertyOptional({ description: 'Front-desk notes' })
+  @ApiPropertyOptional({ example: 'Patient arrived 10 minutes early with insurance card verified', description: 'Front-desk notes' })
+  @IsOptional()
+  @IsString()
   notes?: string;
 }
 
 export class ReceptionistUpdateQueueDto {
   @ApiProperty({ enum: QueueStatus, example: QueueStatus.CALLED, description: 'Target queue status' })
+  @IsNotEmpty()
+  @IsEnum(QueueStatus)
   status!: QueueStatus;
 }
 
 export class ReceptionistWalkInBookingDto {
-  @ApiPropertyOptional({ description: 'Existing patient profile ID (if registered)' })
+  @ApiPropertyOptional({ example: 'pat-1001', description: 'Existing patient profile ID (if registered)' })
+  @IsOptional()
+  @IsString()
   patientId?: string;
 
   @ApiPropertyOptional({ example: 'Kareem Abdul', description: 'Patient name (for new walk-in)' })
+  @IsOptional()
+  @IsString()
   patientName?: string;
 
   @ApiPropertyOptional({ example: '+1-555-0199', description: 'Patient contact phone' })
+  @IsOptional()
+  @IsString()
   phone?: string;
 
-  @ApiProperty({ example: 'doc-cuid-123', description: 'Doctor ID' })
+  @ApiProperty({ example: 'doc-1001', description: 'Doctor ID' })
+  @IsNotEmpty()
+  @IsString()
   doctorId!: string;
 
-  @ApiPropertyOptional({ description: 'Clinic ID' })
+  @ApiPropertyOptional({ example: 'clinic-1', description: 'Clinic ID' })
+  @IsOptional()
+  @IsString()
   clinicId?: string;
 
   @ApiPropertyOptional({ example: '11:30 AM', description: 'Appointment time (defaults to current time)' })
+  @IsOptional()
+  @IsString()
   time?: string;
 
-  @ApiPropertyOptional({ enum: AppointmentType, default: AppointmentType.IN_PERSON })
+  @ApiPropertyOptional({ enum: AppointmentType, example: AppointmentType.IN_PERSON, default: AppointmentType.IN_PERSON })
+  @IsOptional()
+  @IsEnum(AppointmentType)
   type?: AppointmentType;
 
   @ApiPropertyOptional({ example: 'Room 101', description: 'Assigned consultation room' })
+  @IsOptional()
+  @IsString()
   roomNumber?: string;
 
-  @ApiPropertyOptional({ description: 'Walk-in front-desk notes' })
+  @ApiPropertyOptional({ example: 'Walk-in emergency registration for acute back pain', description: 'Walk-in front-desk notes' })
+  @IsOptional()
+  @IsString()
   notes?: string;
 }
