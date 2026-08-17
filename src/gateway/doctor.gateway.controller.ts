@@ -4,6 +4,7 @@ import {
   Get,
   MessageEvent,
   Param,
+  Patch,
   Post,
   Put,
   Query,
@@ -61,12 +62,12 @@ export class DoctorGatewayController {
   }
 
   // ==========================================
-  // 2. CONSULTATION WORKSPACE
+  // 2. CONSULTATION WORKSPACE & NOTES
   // ==========================================
   @ApiOperation({ summary: 'Get patient clinical medical chart and consultation workspace for an appointment' })
   @ApiResponse({ status: 200, description: 'Consultation workspace data returned' })
   @ApiParam({ name: 'appointmentId', description: 'Appointment ID', example: 'apt-1001' })
-  @Get('consultations/:appointmentId')
+  @Get(['consultations/:appointmentId', 'consultations/:appointmentId/note', 'consultations/:appointmentId/notes'])
   async getConsultationWorkspace(
     @Req() req: AuthenticatedRequest,
     @Param('appointmentId') appointmentId: string,
@@ -77,7 +78,7 @@ export class DoctorGatewayController {
   @ApiOperation({ summary: 'Save patient symptoms, clinical diagnosis, vitals, and treatment plan' })
   @ApiResponse({ status: 200, description: 'Clinical consultation notes saved' })
   @ApiParam({ name: 'appointmentId', description: 'Appointment ID', example: 'apt-1001' })
-  @Post('consultations/:appointmentId/notes')
+  @Post(['consultations/:appointmentId/notes', 'consultations/:appointmentId/note'])
   async saveConsultationNotes(
     @Req() req: AuthenticatedRequest,
     @Param('appointmentId') appointmentId: string,
@@ -132,7 +133,7 @@ export class DoctorGatewayController {
   }
 
   // ==========================================
-  // 4. APPOINTMENTS & TELECONSULTATION VIDEO
+  // 4. APPOINTMENTS & STATUS UPDATES
   // ==========================================
   @ApiOperation({ summary: 'List doctor appointments with date, status, and consultation type filters' })
   @ApiResponse({ status: 200, description: 'Appointments list returned' })
@@ -155,10 +156,23 @@ export class DoctorGatewayController {
     return this.doctorService.doctorGetAppointmentDetails(req.user.id, id);
   }
 
+  @ApiOperation({ summary: 'Update appointment status (CONFIRMED, IN_PROGRESS, COMPLETED, CANCELLED)' })
+  @ApiResponse({ status: 200, description: 'Appointment status updated' })
+  @ApiParam({ name: 'id', description: 'Appointment ID' })
+  @Patch(['appointments/:id/status', 'appointments/:id'])
+  async updateAppointmentStatus(
+    @Req() req: AuthenticatedRequest,
+    @Param('id') id: string,
+    @Body() body: { status: string; notes?: string },
+  ) {
+    return this.doctorService.doctorUpdateAppointmentStatus(req.user.id, id, body.status, body.notes);
+  }
+
   @ApiOperation({ summary: 'Generate WebRTC / Agora video channel token for online teleconsultation' })
   @ApiResponse({ status: 200, description: 'Video session room and token generated' })
   @ApiParam({ name: 'id', description: 'Appointment ID', example: 'apt-1001' })
-  @Get('appointments/:id/video-session')
+  @Get(['appointments/:id/video-session', 'video-sessions/:id/token'])
+  @Post('video-sessions/:id/token')
   async getVideoSessionToken(
     @Req() req: AuthenticatedRequest,
     @Param('id') id: string,
@@ -182,7 +196,7 @@ export class DoctorGatewayController {
   @ApiOperation({ summary: 'View patient uploaded lab test reports and clinical records' })
   @ApiResponse({ status: 200, description: 'Medical records list returned' })
   @ApiParam({ name: 'id', description: 'Patient Profile ID', example: 'pat-1001' })
-  @Get('patients/:id/medical-records')
+  @Get(['patients/:id/medical-records', 'patients/:id/chart'])
   async getPatientMedicalRecords(
     @Req() req: AuthenticatedRequest,
     @Param('id') id: string,
@@ -195,14 +209,15 @@ export class DoctorGatewayController {
   // ==========================================
   @ApiOperation({ summary: 'Get doctor weekly working hours, break intervals, and consultation fee' })
   @ApiResponse({ status: 200, description: 'Weekly schedule returned' })
-  @Get('schedule')
+  @Get(['schedule', 'schedules'])
   async getSchedule(@Req() req: AuthenticatedRequest) {
     return this.doctorService.doctorGetSchedule(req.user.id);
   }
 
   @ApiOperation({ summary: 'Update weekly working schedule, day-offs, slot duration, and consultation fee' })
   @ApiResponse({ status: 200, description: 'Schedule updated successfully' })
-  @Put('schedule')
+  @Put(['schedule', 'schedules'])
+  @Post('schedules')
   async updateSchedule(
     @Req() req: AuthenticatedRequest,
     @Body() body: DoctorScheduleDto,
@@ -222,7 +237,7 @@ export class DoctorGatewayController {
 
   @ApiOperation({ summary: 'Submit withdrawal / payout request for pending balance' })
   @ApiResponse({ status: 201, description: 'Payout request registered' })
-  @Post('earnings/payout-request')
+  @Post(['earnings/payout-request', 'payouts/request'])
   async requestPayout(
     @Req() req: AuthenticatedRequest,
     @Body() body: DoctorPayoutRequestDto,

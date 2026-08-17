@@ -169,7 +169,7 @@ export class PatientGatewayController {
 
   @ApiOperation({ summary: 'Book a new doctor appointment' })
   @ApiResponse({ status: 201, description: 'Appointment booked successfully' })
-  @Post('appointments/book')
+  @Post(['appointments', 'appointments/book'])
   async bookAppointment(
     @Req() req: AuthenticatedRequest,
     @Body() body: BookAppointmentDto,
@@ -181,6 +181,7 @@ export class PatientGatewayController {
   @ApiResponse({ status: 200, description: 'Appointment cancelled' })
   @ApiParam({ name: 'id', description: 'Appointment ID' })
   @Post('appointments/:id/cancel')
+  @Delete('appointments/:id')
   async cancelAppointment(
     @Req() req: AuthenticatedRequest,
     @Param('id') id: string,
@@ -193,6 +194,7 @@ export class PatientGatewayController {
   @ApiResponse({ status: 200, description: 'Appointment rescheduled' })
   @ApiParam({ name: 'id', description: 'Appointment ID' })
   @Post('appointments/:id/reschedule')
+  @Patch(['appointments/:id/reschedule', 'appointments/:id'])
   async rescheduleAppointment(
     @Req() req: AuthenticatedRequest,
     @Param('id') id: string,

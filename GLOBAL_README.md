@@ -34,6 +34,28 @@
   - Role portal routes protected under `app/*`: `/patient`, `/doctor`, `/receptionist`, `/support-staff`, `/clinic-manager`, `/admin`, and `/super-admin`.
   - `src/common/services/api.ts` & `auth.service.ts`: Centralized fetch client with automatic JWT bearer attachment.
   - `src/MedCarePortal.tsx`: Interactive login and signup UI with live API integration and one-click demo credentials.
+- [x] **Patient Portal Frontend Integration (100% Complete):**
+  - `src/roles/patient/services/patient.api.ts`: API client connecting all 22 Patient REST endpoints.
+  - `Dashboard.tsx`: Live stats summary, greetings with user name from Zustand store, and active teleconsultations.
+  - `ProfileSettings.tsx`: Health metrics and emergency contact persistence connected with `PUT /patient/profile`.
+  - `FindDoctors.tsx` & `BookAppointment.tsx`: Specialist discovery & booking flow connected with `POST /patient/appointments`.
+  - `MyAppointments.tsx`: Live appointment management, cancellations (`DELETE/PATCH`), and rescheduling.
+  - `Prescriptions.tsx`: Live digital prescription history & PDF downloads connected with `GET /patient/prescriptions`.
+  - `MedicalRecords.tsx`: Encrypted diagnostic reports & files connected with `GET /patient/medical-records`.
+  - `Payments.tsx`: Invoices & payment ledger connected with `GET /patient/payments`.
+  - `Reviews.tsx`: Doctor ratings & reviews connected with `GET /patient/reviews` & `POST /patient/reviews`.
+  - `Notifications.tsx`: Real-time alerts connected with `GET /patient/notifications` & mark-read handler.
+- [x] **Doctor Portal Frontend Integration (100% Complete):**
+  - `src/roles/doctor/services/doctor.api.ts`: API client connecting all 17 Doctor REST endpoints.
+  - `Dashboard.tsx`: Live clinical stats, patient queue schedule, and monthly revenue overview.
+  - `Profile.tsx`: Specialty, bio, qualifications, and consultation fee persistence connected with `PUT /doctor/profile`.
+  - `Appointments.tsx`: Clinical appointment schedule and real-time status actions (`START`, `COMPLETE`, `CANCEL`).
+  - `Consultations.tsx`: Live EHR charting, diagnosis, symptoms, and treatment plan connected with `POST /doctor/consultations/:id/note`.
+  - `Prescriptions.tsx`: Digital prescription issuance and drug regimens connected with `POST /doctor/prescriptions`.
+  - `Patients.tsx`: Attending patient roster and HIPAA medical charts connected with `GET /doctor/patients`.
+  - `Schedule.tsx`: Duty shifts, consultation slot durations, and working hours connected with `POST /doctor/schedules`.
+  - `Earnings.tsx`: Revenue analytics, weekly breakdowns, and disbursement requests connected with `POST /doctor/payouts/request`.
+  - `Reviews.tsx`: Verified patient review feeds and doctor replies connected with `GET /doctor/reviews`.
 
 ---
 

@@ -382,6 +382,43 @@ export class DoctorService {
     };
   }
 
+  async doctorUpdateAppointmentStatus(userId: string, appointmentId: string, status: string, notes?: string) {
+    const doctor = await this.getDoctorByUserId(userId);
+    const appointment = await this.prisma.appointment.findUnique({
+      where: { id: appointmentId },
+      include: { queue: true },
+    });
+
+    if (!appointment) {
+      throw new NotFoundException(`Appointment ${appointmentId} not found`);
+    }
+    if (appointment.doctorId !== doctor.id) {
+      throw new ForbiddenException(`Unauthorized to update appointment`);
+    }
+
+    const validStatus = (status.toUpperCase() as AppointmentStatus);
+    const updated = await this.prisma.appointment.update({
+      where: { id: appointmentId },
+      data: {
+        status: validStatus,
+        notes: notes ? (appointment.notes ? `${appointment.notes}\n${notes}` : notes) : appointment.notes,
+      },
+    });
+
+    if (validStatus === AppointmentStatus.COMPLETED && appointment.queue) {
+      await this.prisma.patientQueue.update({
+        where: { id: appointment.queue.id },
+        data: { status: QueueStatus.COMPLETED },
+      });
+    }
+
+    return {
+      success: true,
+      message: `Appointment status updated to ${status}`,
+      appointment: updated,
+    };
+  }
+
   // ==========================================
   // 3. DIGITAL PRESCRIPTIONS
   // ==========================================
