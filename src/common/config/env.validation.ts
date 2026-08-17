@@ -10,11 +10,19 @@ import {
 } from 'class-validator';
 
 class EnvironmentVariables {
-  @IsUrl({ require_tld: false })
+  @IsUrl({
+    require_tld: false,
+    protocols: ['postgres', 'postgresql'],
+    require_protocol: true,
+  })
   DATABASE_URL!: string;
 
   @IsOptional()
-  @IsUrl({ require_tld: false })
+  @IsUrl({
+    require_tld: false,
+    protocols: ['postgres', 'postgresql'],
+    require_protocol: true,
+  })
   SHADOW_DATABASE_URL?: string;
 
   @IsString()
@@ -25,7 +33,11 @@ class EnvironmentVariables {
   @IsString()
   JWT_EXPIRES_IN?: string;
 
-  @IsUrl({ require_tld: false })
+  @IsUrl({
+    require_tld: false,
+    protocols: ['redis', 'rediss'],
+    require_protocol: true,
+  })
   REDIS_URL!: string;
 
   @IsOptional()

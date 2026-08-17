@@ -7,7 +7,7 @@ services:
     container_name: medcare-postgres-dev
     restart: unless-stopped
     ports:
-      - "5432:5432"
+      - "${DB_PORT:-5432}:5432"
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-medcare}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-medcare_secure_pass}
@@ -28,7 +28,7 @@ services:
     container_name: medcare-redis-dev
     restart: unless-stopped
     ports:
-      - "6379:6379"
+      - "${REDIS_PORT:-6379}:6379"
     volumes:
       - medcare_dev_redisdata:/data
     healthcheck:
@@ -45,7 +45,7 @@ services:
     container_name: medcare-pgadmin-dev
     restart: unless-stopped
     ports:
-      - "5050:80"
+      - "${PGADMIN_PORT:-5050}:80"
     environment:
       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-admin@medcare.local}
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin}

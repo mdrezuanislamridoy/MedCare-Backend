@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { CommonModule } from '../common/common.module';
 import { AnalyticsModule } from '../microservices/analytics/analytics.module';
 import { DoctorModule } from '../microservices/doctor/doctor.module';
 import { PatientModule } from '../microservices/patient/patient.module';
@@ -31,6 +32,7 @@ import { DoctorGatewayController } from './doctor.gateway.controller';
 
 @Module({
   imports: [
+    CommonModule,
     AnalyticsModule,
     DoctorModule,
     PatientModule,
