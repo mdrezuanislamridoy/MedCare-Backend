@@ -15,6 +15,13 @@
   - [x] **Phase 4: Real-Time Consultation Queue & Video Sessions** (`GET /doctor/queue/stream` SSE stream with 15s heartbeat & Agora/WebRTC video token generator).
   - [x] **Phase 5: Security, RBAC & Medical EHR Compliance** (Strict doctor-patient authorization on EHR records & compliance audit logging in `AuditLog`).
   - [x] **Phase 6: Verification & Automated Testing** (Unit tests in `doctor.service.spec.ts` & `doctor.gateway.controller.spec.ts`, 62/62 passing tests).
+- [x] **Clinic Manager Portal Backend Roadmap:** Complete architecture and implementation steps in [`CLINIC_MANAGER_BACKEND_STEPS.md`](file:///Volumes/2BT/Ridoy/MedCare%20Backend/CLINIC_MANAGER_BACKEND_STEPS.md).
+  - [x] **Phase 1: Database & Prisma Schema Enhancements** (`clinic-room.prisma`, `clinic-staff.prisma`, `Clinic` relations).
+  - [x] **Phase 2: Microservices Layer Implementation** (`ClinicService` expanded with branch stats, doctor roster, staff shifts, room inventory, financials, and reports).
+  - [x] **Phase 3: Clinic Manager Gateway REST API** (`ClinicManagerGatewayController` with 20 REST endpoints under `/clinic-manager/*` registered in `GatewayModule` & Swagger).
+  - [x] **Phase 4: Real-Time Live Room & Queue SSE Stream** (`GET /clinic-manager/stream` with 15s heartbeat).
+  - [x] **Phase 5: Security, RBAC & Multi-Branch Compliance** (Strict manager-clinic boundary authorization & compliance audit logging).
+  - [x] **Phase 6: Verification & Automated Testing** (Unit tests in `clinic-manager.service.spec.ts` & `clinic-manager.gateway.controller.spec.ts`, 83/83 tests passing).
 - [x] **End-to-End Chat & Real-Time Messaging System:**
   - Database: `prisma/schema/chat.prisma` (`Conversation`, `ChatParticipant`, `ChatMessage` with unread counts, attachments, internal notes).
   - Microservice & WebSocket Gateway: `ChatService`, `ChatGateway` (Socket.io room namespace `/chat`, typing indicators, real-time message broadcast, SSE stream).

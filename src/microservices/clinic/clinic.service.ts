@@ -862,7 +862,7 @@ export class ClinicService {
           },
         },
       },
-      orderBy: { tokenNumber: 'asc' },
+      orderBy: { queueNumber: 'asc' },
     });
 
     return queues;
