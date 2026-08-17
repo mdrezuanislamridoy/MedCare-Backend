@@ -20,6 +20,13 @@
   - Microservice & WebSocket Gateway: `ChatService`, `ChatGateway` (Socket.io room namespace `/chat`, typing indicators, real-time message broadcast, SSE stream).
   - REST Gateway API: `ChatGatewayController` (`/chat/conversations`, `/chat/unread-count`, `/chat/messages`, `/chat/read`, `/chat/stream`).
   - Unit Tests: `chat.service.spec.ts` & `chat.gateway.controller.spec.ts` (73/73 total tests passing).
+- [x] **Frontend Authentication, Zustand Store & Role Guard:**
+  - `src/common/stores/auth.store.ts`: Zustand store with persistent storage (`persist`), role helpers, instant role switching, and silent session verification.
+  - `src/common/guards/RoleGuard.tsx`: Client-side RBAC route protector with customized 403 Access Denied views, fallback handling, and unauthenticated redirects.
+  - `src/common/components/AuthHeader.tsx`: Unified, responsive top navigation header with active role pills, user profile badge, instant workspace switcher dropdown, and sign out handler.
+  - Role portal routes protected under `app/*`: `/patient`, `/doctor`, `/receptionist`, `/support-staff`, `/clinic-manager`, `/admin`, and `/super-admin`.
+  - `src/common/services/api.ts` & `auth.service.ts`: Centralized fetch client with automatic JWT bearer attachment.
+  - `src/MedCarePortal.tsx`: Interactive login and signup UI with live API integration and one-click demo credentials.
 
 ---
 

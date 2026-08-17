@@ -42,6 +42,7 @@ model DoctorProfile {
   schedules          DoctorSchedule[]
   consultationNotes  ConsultationNote[]
   payouts            DoctorPayout[]
+  assignedRooms      ClinicRoom[]
 
   @@map("doctor_profiles")
 }

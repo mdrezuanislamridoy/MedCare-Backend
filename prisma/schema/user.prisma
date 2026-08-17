@@ -31,6 +31,7 @@ model User {
   supportActivities   SupportActivity[]
   chatParticipants    ChatParticipant[]
   chatMessages        ChatMessage[]
+  clinicStaff         ClinicStaff[]
 
   @@map("users")
 }

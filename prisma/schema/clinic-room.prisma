@@ -1,0 +1,36 @@
+enum RoomType {
+  CONSULTATION
+  EXAMINATION
+  SURGERY
+  EMERGENCY_BAY
+  DIAGNOSTIC_LAB
+  WAITING_LOUNGE
+}
+
+enum RoomStatus {
+  AVAILABLE
+  OCCUPIED
+  MAINTENANCE
+  RESERVED
+}
+
+model ClinicRoom {
+  id              String       @id @default(cuid())
+  clinicId        String
+  roomNumber      String
+  name            String
+  floor           String?
+  type            RoomType     @default(CONSULTATION)
+  status          RoomStatus   @default(AVAILABLE)
+  capacity        Int          @default(1)
+  equipment       Json?
+  currentDoctorId String?
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  clinic          Clinic       @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  currentDoctor   DoctorProfile? @relation(fields: [currentDoctorId], references: [id])
+
+  @@unique([clinicId, roomNumber])
+  @@map("clinic_rooms")
+}

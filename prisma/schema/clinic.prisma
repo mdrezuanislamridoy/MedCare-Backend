@@ -16,6 +16,8 @@ model Clinic {
   doctors      DoctorProfile[]
   appointments Appointment[]
   queues       PatientQueue[]
+  rooms        ClinicRoom[]
+  staff        ClinicStaff[]
 
   @@map("clinics")
 }
