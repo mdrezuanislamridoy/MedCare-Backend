@@ -1,7 +1,7 @@
 model PatientProfile {
-  id                    String          @id @default(cuid())
-  userId                String          @unique
-  user                  User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id                    String             @id @default(cuid())
+  userId                String             @unique
+  user                  User               @relation(fields: [userId], references: [id], onDelete: Cascade)
   phone                 String?
   dateOfBirth           DateTime?
   gender                String?
@@ -15,10 +15,10 @@ model PatientProfile {
   weight                Float?
   allergies             String?
   chronicConditions     String?
-  status                AccountStatus   @default(ACTIVE)
-  lastActivity          DateTime        @default(now())
-  createdAt             DateTime        @default(now())
-  updatedAt             DateTime        @updatedAt
+  status                AccountStatus      @default(ACTIVE)
+  lastActivity          DateTime           @default(now())
+  createdAt             DateTime           @default(now())
+  updatedAt             DateTime           @updatedAt
   appointments          Appointment[]
   reviews               DoctorReview[]
   transactions          Transaction[]
@@ -27,6 +27,7 @@ model PatientProfile {
   queues                PatientQueue[]
   supportTickets        SupportTicket[]
   complaints            Complaint[]
+  consultationNotes     ConsultationNote[]
 
   @@map("patient_profiles")
 }

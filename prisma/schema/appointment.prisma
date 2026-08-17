@@ -43,6 +43,7 @@ model Appointment {
   transactions       Transaction[]
   prescription       Prescription?
   queue              PatientQueue?
+  consultationNote   ConsultationNote?
 
   @@map("appointments")
 }

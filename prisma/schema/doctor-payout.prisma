@@ -1,0 +1,25 @@
+enum PayoutStatus {
+  PENDING
+  PROCESSING
+  PAID
+  REJECTED
+}
+
+model DoctorPayout {
+  id            String        @id @default(cuid())
+  payoutNumber  String        @unique // e.g. "PAYOUT-5012"
+  doctorId      String
+  doctor        DoctorProfile @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+  amount        Float
+  status        PayoutStatus  @default(PENDING)
+  bankName      String?
+  accountNumber String?
+  notes         String?
+  processedAt   DateTime?
+
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  @@index([doctorId, status])
+  @@map("doctor_payouts")
+}

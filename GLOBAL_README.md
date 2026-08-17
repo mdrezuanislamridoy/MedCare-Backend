@@ -7,12 +7,13 @@
   - Microservices: `patient`, `appointment`, `doctor`, `clinic`, `finance`, `review`, `notification`, `analytics`, `audit`, `rbac`, `system`
   - Database: PostgreSQL with Prisma ORM (multi-file schema in `prisma/schema/`)
 - [x] **Receptionist / Front-Desk Portal Backend Roadmap:** Complete implementation details in [`RECEPTIONIST_BACKEND_STEPS.md`](file:///Volumes/2BT/Ridoy/MedCare%20Backend/RECEPTIONIST_BACKEND_STEPS.md).
-- [ ] **Support Staff Portal Backend Roadmap:** Complete architecture and implementation steps in [`SUPPORT_STAFF_BACKEND_STEPS.md`](file:///Volumes/2BT/Ridoy/MedCare%20Backend/SUPPORT_STAFF_BACKEND_STEPS.md).
-  - [x] **Phase 1: Database & Prisma Schema Design** (`support-ticket.prisma`, `complaint.prisma`, `support-activity.prisma`, relations updated in `user`, `patient`, `doctor`, `appointment`).
-  - [x] **Phase 2: Microservices Layer Implementation** (`SupportService`, `SupportController`, DTOs, message patterns in `microservices.constants.ts`).
-  - [x] **Phase 3: Support Staff Gateway REST API & DTOs** (`SupportStaffGatewayController` with all 16 endpoints registered in `GatewayModule` & Swagger).
-  - [x] **Phase 4: Real-time Live Event Bus & SSE Stream** (`LiveSupportEventService` singleton event bus & `GET /support-staff/events/stream` with 15s heartbeat).
-  - [x] **Phase 5: Security, RBAC & Privacy Protection** (HIPAA-safe patient data sanitization, immutable dual audit logging in `SupportActivity` & `AuditLog`).
+- [x] **Support Staff Portal Backend Roadmap:** Complete architecture and implementation steps in [`SUPPORT_STAFF_BACKEND_STEPS.md`](file:///Volumes/2BT/Ridoy/MedCare%20Backend/SUPPORT_STAFF_BACKEND_STEPS.md).
+- [ ] **Doctor Portal Backend Roadmap:** Complete architecture and implementation steps in [`DOCTOR_BACKEND_STEPS.md`](file:///Volumes/2BT/Ridoy/MedCare%20Backend/DOCTOR_BACKEND_STEPS.md).
+  - [x] **Phase 1: Database & Prisma Schema Enhancements** (`doctor-schedule.prisma`, `consultation-note.prisma`, `doctor-payout.prisma`, `DoctorProfile` relations).
+  - [ ] **Phase 2: Microservices Layer Implementation** (`DoctorService`, `PrescriptionService`, `AppointmentService` clinical notes & Agora video token methods).
+  - [ ] **Phase 3: Doctor Gateway REST API & DTOs** (`DoctorGatewayController` with 18 endpoints under `/doctor/*`).
+  - [ ] **Phase 4: Real-Time Consultation Queue & Video Sessions**.
+  - [ ] **Phase 5: Security, RBAC & Medical EHR Compliance**.
   - [ ] **Phase 6: Verification & Automated Testing**.
 
 ---
