@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../common/database/prisma/prisma.service';
 import { LiveSupportEventService } from '../../common/events/live-support-event.service';
+import { AuditService } from '../audit/audit.service';
 import {
   TicketFilterDto,
   CreateTicketDto,
@@ -26,6 +27,7 @@ export class SupportService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly supportEventService: LiveSupportEventService,
+    private readonly auditService: AuditService,
   ) {}
 
   // ==========================================
@@ -731,15 +733,27 @@ export class SupportService {
         select: { name: true },
       });
 
-      await this.prisma.supportActivity.create({
-        data: {
-          staffId,
-          staffName: staff?.name || 'Support Agent',
-          action,
-          targetId,
-          details,
-        },
-      });
+      const staffName = staff?.name || 'Support Agent';
+
+      await Promise.all([
+        this.prisma.supportActivity.create({
+          data: {
+            staffId,
+            staffName,
+            action,
+            targetId,
+            details,
+          },
+        }),
+        this.auditService.recordLog({
+          actorId: staffId,
+          actorName: staffName,
+          action: `SUPPORT_${action}`,
+          resource: targetId || 'SUPPORT_PORTAL',
+          details: details || undefined,
+          result: 'success',
+        }),
+      ]);
     } catch {
       // Non-blocking logger
     }

@@ -12,7 +12,7 @@
   - [x] **Phase 2: Microservices Layer Implementation** (`SupportService`, `SupportController`, DTOs, message patterns in `microservices.constants.ts`).
   - [x] **Phase 3: Support Staff Gateway REST API & DTOs** (`SupportStaffGatewayController` with all 16 endpoints registered in `GatewayModule` & Swagger).
   - [x] **Phase 4: Real-time Live Event Bus & SSE Stream** (`LiveSupportEventService` singleton event bus & `GET /support-staff/events/stream` with 15s heartbeat).
-  - [ ] **Phase 5: Security, RBAC & Privacy Protection**.
+  - [x] **Phase 5: Security, RBAC & Privacy Protection** (HIPAA-safe patient data sanitization, immutable dual audit logging in `SupportActivity` & `AuditLog`).
   - [ ] **Phase 6: Verification & Automated Testing**.
 
 ---
