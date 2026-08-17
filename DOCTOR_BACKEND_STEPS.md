@@ -225,7 +225,7 @@ Create `src/gateway/doctor.gateway.controller.ts` with 18 REST endpoints under `
 
 ---
 
-## ⚡ Phase 4: Real-Time Consultation Queue & Video Sessions
+## ⚡ Phase 4: Real-Time Consultation Queue & Video Sessions ✅ (COMPLETED)
 
 - **Live Consultation Stream:**
   - Real-time SSE updates when receptionists check in patients or transition queue tokens (`CALLED`, `IN_ROOM`).

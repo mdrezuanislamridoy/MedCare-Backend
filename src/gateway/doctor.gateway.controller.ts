@@ -2,11 +2,13 @@ import {
   Body,
   Controller,
   Get,
+  MessageEvent,
   Param,
   Post,
   Put,
   Query,
   Req,
+  Sse,
   UseGuards,
 } from '@nestjs/common';
 import {
@@ -17,7 +19,9 @@ import {
   ApiParam,
   ApiQuery,
 } from '@nestjs/swagger';
+import { Observable, interval, map, merge } from 'rxjs';
 import { DoctorService } from '../microservices/doctor/doctor.service';
+import { LiveQueueEventService } from '../common/events/live-queue-event.service';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
@@ -39,7 +43,10 @@ import {
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(UserRole.DOCTOR, UserRole.ADMIN, UserRole.SUPER_ADMIN)
 export class DoctorGatewayController {
-  constructor(private readonly doctorService: DoctorService) {}
+  constructor(
+    private readonly doctorService: DoctorService,
+    private readonly queueEventService: LiveQueueEventService,
+  ) {}
 
   // ==========================================
   // 1. DASHBOARD OVERVIEW & KPIS
@@ -272,5 +279,35 @@ export class DoctorGatewayController {
     @Body() body: UpdateDoctorProfileDto,
   ) {
     return this.doctorService.doctorUpdateProfile(req.user.id, body);
+  }
+
+  // ==========================================
+  // 10. REAL-TIME LIVE QUEUE STREAM (SSE)
+  // ==========================================
+  @ApiOperation({ summary: 'Server-Sent Events (SSE) stream for real-time live patient check-in & queue alerts' })
+  @ApiResponse({ status: 200, description: 'SSE stream connected' })
+  @Sse('queue/stream')
+  streamDoctorQueueEvents(): Observable<MessageEvent> {
+    const queueEvents$ = this.queueEventService.getStream().pipe(
+      map(
+        event =>
+          ({
+            data: event,
+            type: 'queue-event',
+          }) as MessageEvent,
+      ),
+    );
+
+    const heartbeat$ = interval(15000).pipe(
+      map(
+        () =>
+          ({
+            data: { type: 'HEARTBEAT', timestamp: new Date().toISOString() },
+            type: 'heartbeat',
+          }) as MessageEvent,
+      ),
+    );
+
+    return merge(queueEvents$, heartbeat$);
   }
 }
