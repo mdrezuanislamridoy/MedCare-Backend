@@ -12,6 +12,7 @@ import { AuditModule } from '../microservices/audit/audit.module';
 import { RbacModule } from '../microservices/rbac/rbac.module';
 import { SystemModule } from '../microservices/system/system.module';
 import { SupportModule } from '../microservices/support/support.module';
+import { ChatModule } from '../microservices/chat/chat.module';
 
 import { AdminAnalyticsGatewayController } from './admin-analytics.gateway.controller';
 import { AdminDoctorGatewayController } from './admin-doctor.gateway.controller';
@@ -29,6 +30,7 @@ import { PublicPaymentGatewayController } from './public-payment.gateway.control
 import { ReceptionistGatewayController } from './receptionist.gateway.controller';
 import { SupportStaffGatewayController } from './support-staff.gateway.controller';
 import { DoctorGatewayController } from './doctor.gateway.controller';
+import { ChatGatewayController } from './chat.gateway.controller';
 
 @Module({
   imports: [
@@ -45,6 +47,7 @@ import { DoctorGatewayController } from './doctor.gateway.controller';
     RbacModule,
     SystemModule,
     SupportModule,
+    ChatModule,
   ],
   controllers: [
     AdminAnalyticsGatewayController,
@@ -63,6 +66,7 @@ import { DoctorGatewayController } from './doctor.gateway.controller';
     ReceptionistGatewayController,
     SupportStaffGatewayController,
     DoctorGatewayController,
+    ChatGatewayController,
   ],
 })
 export class GatewayModule {}

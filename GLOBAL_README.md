@@ -15,6 +15,11 @@
   - [x] **Phase 4: Real-Time Consultation Queue & Video Sessions** (`GET /doctor/queue/stream` SSE stream with 15s heartbeat & Agora/WebRTC video token generator).
   - [x] **Phase 5: Security, RBAC & Medical EHR Compliance** (Strict doctor-patient authorization on EHR records & compliance audit logging in `AuditLog`).
   - [x] **Phase 6: Verification & Automated Testing** (Unit tests in `doctor.service.spec.ts` & `doctor.gateway.controller.spec.ts`, 62/62 passing tests).
+- [x] **End-to-End Chat & Real-Time Messaging System:**
+  - Database: `prisma/schema/chat.prisma` (`Conversation`, `ChatParticipant`, `ChatMessage` with unread counts, attachments, internal notes).
+  - Microservice & WebSocket Gateway: `ChatService`, `ChatGateway` (Socket.io room namespace `/chat`, typing indicators, real-time message broadcast, SSE stream).
+  - REST Gateway API: `ChatGatewayController` (`/chat/conversations`, `/chat/unread-count`, `/chat/messages`, `/chat/read`, `/chat/stream`).
+  - Unit Tests: `chat.service.spec.ts` & `chat.gateway.controller.spec.ts` (73/73 total tests passing).
 
 ---
 
