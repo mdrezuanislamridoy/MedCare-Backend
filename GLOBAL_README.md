@@ -8,13 +8,13 @@
   - Database: PostgreSQL with Prisma ORM (multi-file schema in `prisma/schema/`)
 - [x] **Receptionist / Front-Desk Portal Backend Roadmap:** Complete implementation details in [`RECEPTIONIST_BACKEND_STEPS.md`](file:///Volumes/2BT/Ridoy/MedCare%20Backend/RECEPTIONIST_BACKEND_STEPS.md).
 - [x] **Support Staff Portal Backend Roadmap:** Complete architecture and implementation steps in [`SUPPORT_STAFF_BACKEND_STEPS.md`](file:///Volumes/2BT/Ridoy/MedCare%20Backend/SUPPORT_STAFF_BACKEND_STEPS.md).
-- [ ] **Doctor Portal Backend Roadmap:** Complete architecture and implementation steps in [`DOCTOR_BACKEND_STEPS.md`](file:///Volumes/2BT/Ridoy/MedCare%20Backend/DOCTOR_BACKEND_STEPS.md).
+- [x] **Doctor Portal Backend Roadmap:** Complete architecture and implementation steps in [`DOCTOR_BACKEND_STEPS.md`](file:///Volumes/2BT/Ridoy/MedCare%20Backend/DOCTOR_BACKEND_STEPS.md).
   - [x] **Phase 1: Database & Prisma Schema Enhancements** (`doctor-schedule.prisma`, `consultation-note.prisma`, `doctor-payout.prisma`, `DoctorProfile` relations).
   - [x] **Phase 2: Microservices Layer Implementation** (`DoctorService`, `DoctorController`, DTOs, message patterns in `microservices.constants.ts`).
   - [x] **Phase 3: Doctor Gateway REST API & DTOs** (`DoctorGatewayController` with 18 endpoints under `/doctor/*` registered in `GatewayModule` & Swagger).
   - [x] **Phase 4: Real-Time Consultation Queue & Video Sessions** (`GET /doctor/queue/stream` SSE stream with 15s heartbeat & Agora/WebRTC video token generator).
   - [x] **Phase 5: Security, RBAC & Medical EHR Compliance** (Strict doctor-patient authorization on EHR records & compliance audit logging in `AuditLog`).
-  - [ ] **Phase 6: Verification & Automated Testing**.
+  - [x] **Phase 6: Verification & Automated Testing** (Unit tests in `doctor.service.spec.ts` & `doctor.gateway.controller.spec.ts`, 62/62 passing tests).
 
 ---
 
