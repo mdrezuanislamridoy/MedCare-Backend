@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException, BadRequestException, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../../common/database/prisma/prisma.service';
 import { RedisService } from '../../common/cache/redis/redis.service';
+import { AuditService } from '../audit/audit.service';
 import {
   AccountStatus,
   VerificationStatus,
@@ -27,6 +28,7 @@ export class DoctorService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly redis: RedisService,
+    private readonly auditService: AuditService,
   ) {}
 
   // ==========================================
@@ -276,7 +278,7 @@ export class DoctorService {
       throw new ForbiddenException(`You are not authorized to save notes for this appointment`);
     }
 
-    return this.prisma.consultationNote.upsert({
+    const saved = await this.prisma.consultationNote.upsert({
       where: { appointmentId },
       create: {
         appointmentId,
@@ -296,6 +298,21 @@ export class DoctorService {
         vitals: dto.vitals || {},
       },
     });
+
+    try {
+      await this.auditService.recordLog({
+        actorId: doctor.userId,
+        actorName: doctor.user.name || 'Doctor',
+        action: 'DOCTOR_SAVE_CONSULTATION_NOTES',
+        resource: appointmentId,
+        details: `Saved diagnosis '${dto.diagnosis}' for patient`,
+        result: 'success',
+      });
+    } catch {
+      // Non-blocking
+    }
+
+    return saved;
   }
 
   async doctorCompleteConsultation(userId: string, appointmentId: string) {
@@ -345,6 +362,19 @@ export class DoctorService {
       });
     }
 
+    try {
+      await this.auditService.recordLog({
+        actorId: doctor.userId,
+        actorName: doctor.user.name || 'Doctor',
+        action: 'DOCTOR_COMPLETE_CONSULTATION',
+        resource: appointmentId,
+        details: `Completed consultation for appointment ${appointment.appointmentNumber}`,
+        result: 'success',
+      });
+    } catch {
+      // Non-blocking
+    }
+
     return {
       success: true,
       message: 'Consultation completed successfully',
@@ -365,7 +395,7 @@ export class DoctorService {
       throw new NotFoundException(`Appointment ${dto.appointmentId} not found`);
     }
 
-    return this.prisma.prescription.upsert({
+    const prescription = await this.prisma.prescription.upsert({
       where: { appointmentId: dto.appointmentId },
       create: {
         appointmentId: dto.appointmentId,
@@ -387,6 +417,21 @@ export class DoctorService {
         doctor: { include: { user: { select: { name: true } } } },
       },
     });
+
+    try {
+      await this.auditService.recordLog({
+        actorId: doctor.userId,
+        actorName: doctor.user.name || 'Doctor',
+        action: 'DOCTOR_ISSUE_PRESCRIPTION',
+        resource: prescription.id,
+        details: `Issued prescription for appointment ${appointment.appointmentNumber} with ${dto.medicines.length} medicines`,
+        result: 'success',
+      });
+    } catch {
+      // Non-blocking
+    }
+
+    return prescription;
   }
 
   async doctorListPrescriptions(userId: string, query: any) {

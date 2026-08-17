@@ -13,7 +13,7 @@
   - [x] **Phase 2: Microservices Layer Implementation** (`DoctorService`, `DoctorController`, DTOs, message patterns in `microservices.constants.ts`).
   - [x] **Phase 3: Doctor Gateway REST API & DTOs** (`DoctorGatewayController` with 18 endpoints under `/doctor/*` registered in `GatewayModule` & Swagger).
   - [x] **Phase 4: Real-Time Consultation Queue & Video Sessions** (`GET /doctor/queue/stream` SSE stream with 15s heartbeat & Agora/WebRTC video token generator).
-  - [ ] **Phase 5: Security, RBAC & Medical EHR Compliance**.
+  - [x] **Phase 5: Security, RBAC & Medical EHR Compliance** (Strict doctor-patient authorization on EHR records & compliance audit logging in `AuditLog`).
   - [ ] **Phase 6: Verification & Automated Testing**.
 
 ---
