@@ -11,7 +11,7 @@
 - [ ] **Doctor Portal Backend Roadmap:** Complete architecture and implementation steps in [`DOCTOR_BACKEND_STEPS.md`](file:///Volumes/2BT/Ridoy/MedCare%20Backend/DOCTOR_BACKEND_STEPS.md).
   - [x] **Phase 1: Database & Prisma Schema Enhancements** (`doctor-schedule.prisma`, `consultation-note.prisma`, `doctor-payout.prisma`, `DoctorProfile` relations).
   - [x] **Phase 2: Microservices Layer Implementation** (`DoctorService`, `DoctorController`, DTOs, message patterns in `microservices.constants.ts`).
-  - [ ] **Phase 3: Doctor Gateway REST API & DTOs** (`DoctorGatewayController` with 18 endpoints under `/doctor/*`).
+  - [x] **Phase 3: Doctor Gateway REST API & DTOs** (`DoctorGatewayController` with 18 endpoints under `/doctor/*` registered in `GatewayModule` & Swagger).
   - [ ] **Phase 4: Real-Time Consultation Queue & Video Sessions**.
   - [ ] **Phase 5: Security, RBAC & Medical EHR Compliance**.
   - [ ] **Phase 6: Verification & Automated Testing**.

@@ -1,0 +1,276 @@
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Put,
+  Query,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+  ApiParam,
+  ApiQuery,
+} from '@nestjs/swagger';
+import { DoctorService } from '../microservices/doctor/doctor.service';
+import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
+import { RolesGuard } from '../common/guards/roles.guard';
+import { Roles } from '../common/decorators/roles.decorator';
+import { UserRole } from '../../generated/prisma/client';
+import type { AuthenticatedRequest } from '../common/types/authenticated-request.type';
+import {
+  DoctorScheduleDto,
+  SaveConsultationNotesDto,
+  CreateDoctorPrescriptionDto,
+  DoctorAppointmentFilterDto,
+  DoctorPayoutRequestDto,
+  DoctorReplyReviewDto,
+  UpdateDoctorProfileDto,
+} from '../microservices/doctor/dto/doctor.dto';
+
+@ApiTags('Doctor Portal')
+@ApiBearerAuth('JWT-auth')
+@Controller('doctor')
+@UseGuards(JwtAuthGuard, RolesGuard)
+@Roles(UserRole.DOCTOR, UserRole.ADMIN, UserRole.SUPER_ADMIN)
+export class DoctorGatewayController {
+  constructor(private readonly doctorService: DoctorService) {}
+
+  // ==========================================
+  // 1. DASHBOARD OVERVIEW & KPIS
+  // ==========================================
+  @ApiOperation({ summary: 'Get doctor dashboard metrics, upcoming appointment, and active queue' })
+  @ApiResponse({ status: 200, description: 'Dashboard metrics returned successfully' })
+  @Get('dashboard')
+  async getDashboard(@Req() req: AuthenticatedRequest) {
+    return this.doctorService.doctorGetDashboard(req.user.id);
+  }
+
+  // ==========================================
+  // 2. CONSULTATION WORKSPACE
+  // ==========================================
+  @ApiOperation({ summary: 'Get patient clinical medical chart and consultation workspace for an appointment' })
+  @ApiResponse({ status: 200, description: 'Consultation workspace data returned' })
+  @ApiParam({ name: 'appointmentId', description: 'Appointment ID' })
+  @Get('consultations/:appointmentId')
+  async getConsultationWorkspace(
+    @Req() req: AuthenticatedRequest,
+    @Param('appointmentId') appointmentId: string,
+  ) {
+    return this.doctorService.doctorGetConsultationWorkspace(req.user.id, appointmentId);
+  }
+
+  @ApiOperation({ summary: 'Save patient symptoms, clinical diagnosis, vitals, and treatment plan' })
+  @ApiResponse({ status: 200, description: 'Clinical consultation notes saved' })
+  @ApiParam({ name: 'appointmentId', description: 'Appointment ID' })
+  @Post('consultations/:appointmentId/notes')
+  async saveConsultationNotes(
+    @Req() req: AuthenticatedRequest,
+    @Param('appointmentId') appointmentId: string,
+    @Body() body: SaveConsultationNotesDto,
+  ) {
+    return this.doctorService.doctorSaveConsultationNotes(req.user.id, appointmentId, body);
+  }
+
+  @ApiOperation({ summary: 'Complete consultation, update queue token status, and credit earnings' })
+  @ApiResponse({ status: 200, description: 'Consultation completed' })
+  @ApiParam({ name: 'appointmentId', description: 'Appointment ID' })
+  @Post('consultations/:appointmentId/complete')
+  async completeConsultation(
+    @Req() req: AuthenticatedRequest,
+    @Param('appointmentId') appointmentId: string,
+  ) {
+    return this.doctorService.doctorCompleteConsultation(req.user.id, appointmentId);
+  }
+
+  // ==========================================
+  // 3. DIGITAL PRESCRIPTIONS
+  // ==========================================
+  @ApiOperation({ summary: 'Create digital prescription with medicine list, dosage, instructions, and advice' })
+  @ApiResponse({ status: 201, description: 'Prescription created successfully' })
+  @Post('prescriptions')
+  async createPrescription(
+    @Req() req: AuthenticatedRequest,
+    @Body() body: CreateDoctorPrescriptionDto,
+  ) {
+    return this.doctorService.doctorCreatePrescription(req.user.id, body);
+  }
+
+  @ApiOperation({ summary: 'List prescriptions issued by current doctor with patient search and pagination' })
+  @ApiResponse({ status: 200, description: 'Prescriptions list returned' })
+  @ApiQuery({ name: 'search', required: false })
+  @ApiQuery({ name: 'page', required: false, default: 1 })
+  @ApiQuery({ name: 'limit', required: false, default: 20 })
+  @Get('prescriptions')
+  async listPrescriptions(
+    @Req() req: AuthenticatedRequest,
+    @Query() query: any,
+  ) {
+    return this.doctorService.doctorListPrescriptions(req.user.id, query);
+  }
+
+  @ApiOperation({ summary: 'Get prescription details, medicines breakdown, and print preview' })
+  @ApiResponse({ status: 200, description: 'Prescription details returned' })
+  @ApiParam({ name: 'id', description: 'Prescription ID' })
+  @Get('prescriptions/:id')
+  async getPrescriptionDetails(
+    @Req() req: AuthenticatedRequest,
+    @Param('id') id: string,
+  ) {
+    return this.doctorService.doctorGetPrescriptionDetails(req.user.id, id);
+  }
+
+  // ==========================================
+  // 4. APPOINTMENTS & TELECONSULTATION VIDEO
+  // ==========================================
+  @ApiOperation({ summary: 'List doctor appointments with date, status, and consultation type filters' })
+  @ApiResponse({ status: 200, description: 'Appointments list returned' })
+  @Get('appointments')
+  async listAppointments(
+    @Req() req: AuthenticatedRequest,
+    @Query() query: DoctorAppointmentFilterDto,
+  ) {
+    return this.doctorService.doctorListAppointments(req.user.id, query);
+  }
+
+  @ApiOperation({ summary: 'Get single appointment details including patient, queue token, and notes' })
+  @ApiResponse({ status: 200, description: 'Appointment details returned' })
+  @ApiParam({ name: 'id', description: 'Appointment ID' })
+  @Get('appointments/:id')
+  async getAppointmentDetails(
+    @Req() req: AuthenticatedRequest,
+    @Param('id') id: string,
+  ) {
+    return this.doctorService.doctorGetAppointmentDetails(req.user.id, id);
+  }
+
+  @ApiOperation({ summary: 'Generate WebRTC / Agora video channel token for online teleconsultation' })
+  @ApiResponse({ status: 200, description: 'Video session room and token generated' })
+  @ApiParam({ name: 'id', description: 'Appointment ID' })
+  @Get('appointments/:id/video-session')
+  async getVideoSessionToken(
+    @Req() req: AuthenticatedRequest,
+    @Param('id') id: string,
+  ) {
+    return this.doctorService.doctorGetVideoSessionToken(req.user.id, id);
+  }
+
+  // ==========================================
+  // 5. PATIENTS DIRECTORY & MEDICAL RECORDS
+  // ==========================================
+  @ApiOperation({ summary: 'List patients who have consulted with this doctor' })
+  @ApiResponse({ status: 200, description: 'Patients directory returned' })
+  @ApiQuery({ name: 'search', required: false })
+  @ApiQuery({ name: 'page', required: false, default: 1 })
+  @ApiQuery({ name: 'limit', required: false, default: 20 })
+  @Get('patients')
+  async listPatients(
+    @Req() req: AuthenticatedRequest,
+    @Query() query: any,
+  ) {
+    return this.doctorService.doctorListPatients(req.user.id, query);
+  }
+
+  @ApiOperation({ summary: 'View patient uploaded lab test reports and clinical records' })
+  @ApiResponse({ status: 200, description: 'Medical records list returned' })
+  @ApiParam({ name: 'id', description: 'Patient Profile ID' })
+  @Get('patients/:id/medical-records')
+  async getPatientMedicalRecords(
+    @Req() req: AuthenticatedRequest,
+    @Param('id') id: string,
+  ) {
+    return this.doctorService.doctorGetPatientMedicalRecords(req.user.id, id);
+  }
+
+  // ==========================================
+  // 6. SCHEDULE & AVAILABILITY
+  // ==========================================
+  @ApiOperation({ summary: 'Get doctor weekly working hours, break intervals, and consultation fee' })
+  @ApiResponse({ status: 200, description: 'Weekly schedule returned' })
+  @Get('schedule')
+  async getSchedule(@Req() req: AuthenticatedRequest) {
+    return this.doctorService.doctorGetSchedule(req.user.id);
+  }
+
+  @ApiOperation({ summary: 'Update weekly working schedule, day-offs, slot duration, and consultation fee' })
+  @ApiResponse({ status: 200, description: 'Schedule updated successfully' })
+  @Put('schedule')
+  async updateSchedule(
+    @Req() req: AuthenticatedRequest,
+    @Body() body: DoctorScheduleDto,
+  ) {
+    return this.doctorService.doctorUpdateSchedule(req.user.id, body);
+  }
+
+  // ==========================================
+  // 7. FINANCIAL EARNINGS & PAYOUTS
+  // ==========================================
+  @ApiOperation({ summary: 'Get doctor earnings summary, platform commission, chart data, and transaction list' })
+  @ApiResponse({ status: 200, description: 'Earnings analytics returned' })
+  @Get('earnings')
+  async getEarnings(@Req() req: AuthenticatedRequest) {
+    return this.doctorService.doctorGetEarningsSummary(req.user.id);
+  }
+
+  @ApiOperation({ summary: 'Submit withdrawal / payout request for pending balance' })
+  @ApiResponse({ status: 201, description: 'Payout request registered' })
+  @Post('earnings/payout-request')
+  async requestPayout(
+    @Req() req: AuthenticatedRequest,
+    @Body() body: DoctorPayoutRequestDto,
+  ) {
+    return this.doctorService.doctorRequestPayout(req.user.id, body);
+  }
+
+  // ==========================================
+  // 8. PATIENT REVIEWS & RATINGS
+  // ==========================================
+  @ApiOperation({ summary: 'List patient reviews, star rating distribution (5★ to 1★), and recommendation rate' })
+  @ApiResponse({ status: 200, description: 'Reviews list returned' })
+  @ApiQuery({ name: 'page', required: false, default: 1 })
+  @ApiQuery({ name: 'limit', required: false, default: 20 })
+  @Get('reviews')
+  async listReviews(
+    @Req() req: AuthenticatedRequest,
+    @Query() query: any,
+  ) {
+    return this.doctorService.doctorListReviews(req.user.id, query);
+  }
+
+  @ApiOperation({ summary: 'Reply to a patient review feedback' })
+  @ApiResponse({ status: 200, description: 'Reply submitted' })
+  @ApiParam({ name: 'id', description: 'Review ID' })
+  @Post('reviews/:id/reply')
+  async replyReview(
+    @Req() req: AuthenticatedRequest,
+    @Param('id') id: string,
+    @Body() body: DoctorReplyReviewDto,
+  ) {
+    return this.doctorService.doctorReplyReview(req.user.id, id, body.reply);
+  }
+
+  // ==========================================
+  // 9. DOCTOR PROFILE MANAGEMENT
+  // ==========================================
+  @ApiOperation({ summary: 'Get logged in doctor profile, clinic branch, and verification status' })
+  @ApiResponse({ status: 200, description: 'Doctor profile returned' })
+  @Get('profile')
+  async getProfile(@Req() req: AuthenticatedRequest) {
+    return this.doctorService.doctorGetProfile(req.user.id);
+  }
+
+  @ApiOperation({ summary: 'Update doctor bio, qualifications, experience, room number, or phone' })
+  @ApiResponse({ status: 200, description: 'Doctor profile updated' })
+  @Put('profile')
+  async updateProfile(
+    @Req() req: AuthenticatedRequest,
+    @Body() body: UpdateDoctorProfileDto,
+  ) {
+    return this.doctorService.doctorUpdateProfile(req.user.id, body);
+  }
+}

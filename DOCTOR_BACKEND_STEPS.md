@@ -198,7 +198,7 @@ Create/expand methods in `DoctorService`, `AppointmentService`, `PrescriptionSer
 
 ---
 
-## 🌐 Phase 3: Doctor Gateway REST API & DTOs
+## 🌐 Phase 3: Doctor Gateway REST API & DTOs ✅ (COMPLETED)
 
 Create `src/gateway/doctor.gateway.controller.ts` with 18 REST endpoints under `/doctor/*`:
 

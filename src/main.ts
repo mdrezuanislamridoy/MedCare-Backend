@@ -59,6 +59,7 @@ Bearer <your-access-token>
       'JWT-auth',
     )
     .addTag('Patient Portal', 'Patient self-service, bookings, prescriptions, medical records, and video consultations')
+    .addTag('Doctor Portal', 'Doctor clinical workspace, consultation notes, digital prescriptions, teleconsultation video tokens, schedule management, earnings, and reviews')
     .addTag('Receptionist Portal', 'Front-desk operations, 6-step check-in wizard, token queues, and doctor schedules')
     .addTag('Support Staff Portal', 'Helpdesk support tickets, dispute complaints escalation, privacy-safe patient lookup, and appointment assistance')
     .addTag('Admin Analytics', 'Platform-wide analytics, revenue stats, and utilization metrics')
