@@ -27,6 +27,7 @@ import { SuperAdminRbacGatewayController } from './super-admin-rbac.gateway.cont
 import { SuperAdminSystemGatewayController } from './super-admin-system.gateway.controller';
 import { PatientGatewayController } from './patient.gateway.controller';
 import { PublicPaymentGatewayController } from './public-payment.gateway.controller';
+import { PublicGatewayController } from './public.gateway.controller';
 import { ReceptionistGatewayController } from './receptionist.gateway.controller';
 import { SupportStaffGatewayController } from './support-staff.gateway.controller';
 import { DoctorGatewayController } from './doctor.gateway.controller';
@@ -64,6 +65,7 @@ import { ClinicManagerGatewayController } from './clinic-manager.gateway.control
     SuperAdminSystemGatewayController,
     PatientGatewayController,
     PublicPaymentGatewayController,
+    PublicGatewayController,
     ReceptionistGatewayController,
     SupportStaffGatewayController,
     DoctorGatewayController,
