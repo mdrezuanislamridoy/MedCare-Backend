@@ -66,30 +66,51 @@ export class AnalyticsService {
       flaggedReviewsCount,
       completedTransactions,
     ] = await Promise.all([
-      this.prisma.doctorProfile.count({ where: { accountStatus: 'ACTIVE' } }).catch(() => 284),
-      this.prisma.patientProfile.count({ where: { status: 'ACTIVE' } }).catch(() => 12847),
+      this.prisma.doctorProfile
+        .count({ where: { accountStatus: 'ACTIVE' } })
+        .catch(() => 284),
+      this.prisma.patientProfile
+        .count({ where: { status: 'ACTIVE' } })
+        .catch(() => 12847),
       this.prisma.clinic.count({ where: { status: 'ACTIVE' } }).catch(() => 47),
-      this.prisma.appointment.count({
-        where: { date: { gte: todayStart, lte: todayEnd } },
-      }).catch(() => 183),
-      this.prisma.appointment.count({
-        where: { date: { gt: todayEnd }, status: { in: ['CONFIRMED', 'PENDING'] } },
-      }).catch(() => 412),
-      this.prisma.doctorVerification.count({
-        where: { status: 'PENDING' },
-      }).catch(() => 4),
-      this.prisma.doctorReview.count({
-        where: { flagged: true },
-      }).catch(() => 2),
-      this.prisma.transaction.findMany({
-        where: { status: 'COMPLETED' },
-        select: { amount: true },
-      }).catch((): Array<{ amount: number }> => []),
+      this.prisma.appointment
+        .count({
+          where: { date: { gte: todayStart, lte: todayEnd } },
+        })
+        .catch(() => 183),
+      this.prisma.appointment
+        .count({
+          where: {
+            date: { gt: todayEnd },
+            status: { in: ['CONFIRMED', 'PENDING'] },
+          },
+        })
+        .catch(() => 412),
+      this.prisma.doctorVerification
+        .count({
+          where: { status: 'PENDING' },
+        })
+        .catch(() => 4),
+      this.prisma.doctorReview
+        .count({
+          where: { flagged: true },
+        })
+        .catch(() => 2),
+      this.prisma.transaction
+        .findMany({
+          where: { status: 'COMPLETED' },
+          select: { amount: true },
+        })
+        .catch((): Array<{ amount: number }> => []),
     ]);
 
-    const totalRevenue = completedTransactions.length > 0
-      ? completedTransactions.reduce((acc: number, curr: { amount: number }) => acc + curr.amount, 0)
-      : 362400;
+    const totalRevenue =
+      completedTransactions.length > 0
+        ? completedTransactions.reduce(
+            (acc: number, curr: { amount: number }) => acc + curr.amount,
+            0,
+          )
+        : 362400;
 
     const data: AnalyticsOverviewDto = {
       kpis: {
@@ -128,7 +149,11 @@ export class AnalyticsService {
     };
 
     try {
-      await this.redis.set(this.CACHE_KEY, JSON.stringify(data), this.CACHE_TTL);
+      await this.redis.set(
+        this.CACHE_KEY,
+        JSON.stringify(data),
+        this.CACHE_TTL,
+      );
     } catch {
       // ignore redis write errors
     }

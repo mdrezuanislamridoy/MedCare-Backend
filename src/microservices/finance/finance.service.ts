@@ -1,7 +1,19 @@
-import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '../../common/database/prisma/prisma.service';
-import { ProcessRefundDto, TransactionFilterDto, PatientPaymentDto } from './dto/finance.dto';
-import { PaymentStatus, TransactionStatus } from '../../../generated/prisma/client';
+import {
+  ProcessRefundDto,
+  TransactionFilterDto,
+  PatientPaymentDto,
+} from './dto/finance.dto';
+import {
+  PaymentStatus,
+  TransactionStatus,
+} from '../../../generated/prisma/client';
 
 @Injectable()
 export class FinanceService {
@@ -27,8 +39,16 @@ export class FinanceService {
     if (filter.q) {
       where.OR = [
         { transactionNumber: { contains: filter.q, mode: 'insensitive' } },
-        { patient: { user: { name: { contains: filter.q, mode: 'insensitive' } } } },
-        { doctor: { user: { name: { contains: filter.q, mode: 'insensitive' } } } },
+        {
+          patient: {
+            user: { name: { contains: filter.q, mode: 'insensitive' } },
+          },
+        },
+        {
+          doctor: {
+            user: { name: { contains: filter.q, mode: 'insensitive' } },
+          },
+        },
       ];
     }
 
@@ -48,7 +68,9 @@ export class FinanceService {
               user: { select: { id: true, name: true, email: true } },
             },
           },
-          appointment: { select: { id: true, appointmentNumber: true, date: true } },
+          appointment: {
+            select: { id: true, appointmentNumber: true, date: true },
+          },
         },
         orderBy: { createdAt: 'desc' },
       }),
@@ -90,22 +112,29 @@ export class FinanceService {
     });
 
     if (transaction.appointmentId) {
-      await this.prisma.appointment.update({
-        where: { id: transaction.appointmentId },
-        data: { paymentStatus: PaymentStatus.REFUNDED },
-      }).catch(() => null);
+      await this.prisma.appointment
+        .update({
+          where: { id: transaction.appointmentId },
+          data: { paymentStatus: PaymentStatus.REFUNDED },
+        })
+        .catch(() => null);
     }
 
-    await this.prisma.auditLog.create({
-      data: {
-        actorId,
-        actorName: 'Admin',
-        action: `Refund Processed for ${transaction.transactionNumber}`,
-        resource: `Transaction ${transaction.transactionNumber} ($${transaction.amount})`,
-        details: JSON.stringify({ reason: dto.reason, amount: dto.amount || transaction.amount }),
-        result: 'success',
-      },
-    }).catch(() => null);
+    await this.prisma.auditLog
+      .create({
+        data: {
+          actorId,
+          actorName: 'Admin',
+          action: `Refund Processed for ${transaction.transactionNumber}`,
+          resource: `Transaction ${transaction.transactionNumber} ($${transaction.amount})`,
+          details: JSON.stringify({
+            reason: dto.reason,
+            amount: dto.amount || transaction.amount,
+          }),
+          result: 'success',
+        },
+      })
+      .catch(() => null);
 
     return updated;
   }
@@ -186,7 +215,10 @@ export class FinanceService {
     };
   }
 
-  async patientListInvoices(userId: string, filter: { page?: number; limit?: number }) {
+  async patientListInvoices(
+    userId: string,
+    filter: { page?: number; limit?: number },
+  ) {
     const patientId = await this.getPatientIdFromUserId(userId);
     const page = Math.max(1, Number(filter.page) || 1);
     const limit = Math.min(100, Math.max(1, Number(filter.limit) || 20));
@@ -204,7 +236,12 @@ export class FinanceService {
             },
           },
           appointment: {
-            select: { appointmentNumber: true, date: true, time: true, type: true },
+            select: {
+              appointmentNumber: true,
+              date: true,
+              time: true,
+              type: true,
+            },
           },
         },
         orderBy: { createdAt: 'desc' },
@@ -264,7 +301,10 @@ export class FinanceService {
     };
   }
 
-  async createCheckoutSession(userId: string, data: { appointmentId: string; provider?: string; returnUrl?: string }) {
+  async createCheckoutSession(
+    userId: string,
+    data: { appointmentId: string; provider?: string; returnUrl?: string },
+  ) {
     const patientId = await this.getPatientIdFromUserId(userId);
     const appointment = await this.prisma.appointment.findUnique({
       where: { id: data.appointmentId },
@@ -297,12 +337,18 @@ export class FinanceService {
   }
 
   async handlePaymentWebhook(provider: string, payload: any) {
-    const appointmentId = payload.appointmentId || payload.tran_id?.replace('TXN-', '');
-    const status = payload.status === 'VALID' || payload.status === 'SUCCESS' ? TransactionStatus.COMPLETED : TransactionStatus.FAILED;
+    const appointmentId =
+      payload.appointmentId || payload.tran_id?.replace('TXN-', '');
+    const status =
+      payload.status === 'VALID' || payload.status === 'SUCCESS'
+        ? TransactionStatus.COMPLETED
+        : TransactionStatus.FAILED;
 
     if (appointmentId) {
       const appointment = await this.prisma.appointment.findFirst({
-        where: { OR: [{ id: appointmentId }, { appointmentNumber: appointmentId }] },
+        where: {
+          OR: [{ id: appointmentId }, { appointmentNumber: appointmentId }],
+        },
       });
 
       if (appointment && status === TransactionStatus.COMPLETED) {
@@ -328,4 +374,3 @@ export class FinanceService {
     return { received: true, provider, status };
   }
 }
-

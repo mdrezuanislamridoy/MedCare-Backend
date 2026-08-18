@@ -19,12 +19,26 @@ export class SystemController {
   }
 
   @MessagePattern(PATTERNS.SYSTEM.UPDATE_SETTINGS)
-  async updateSettings(@Payload() payload: { dto: UpdatePlatformSettingsDto; superAdminId?: string }) {
-    return this.systemService.updateSettings(payload.dto.settings, payload.superAdminId);
+  async updateSettings(
+    @Payload()
+    payload: {
+      dto: UpdatePlatformSettingsDto;
+      superAdminId?: string;
+    },
+  ) {
+    return this.systemService.updateSettings(
+      payload.dto.settings,
+      payload.superAdminId,
+    );
   }
 
   @MessagePattern(PATTERNS.SYSTEM.BACKUP)
-  async triggerBackup(@Payload() payload: { dto: TriggerBackupDto; superAdminId?: string }) {
-    return this.systemService.triggerBackup(payload.superAdminId, payload.dto.notes);
+  async triggerBackup(
+    @Payload() payload: { dto: TriggerBackupDto; superAdminId?: string },
+  ) {
+    return this.systemService.triggerBackup(
+      payload.superAdminId,
+      payload.dto.notes,
+    );
   }
 }

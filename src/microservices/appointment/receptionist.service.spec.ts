@@ -2,7 +2,12 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { AppointmentService } from './appointment.service';
 import { PrismaService } from '../../common/database/prisma/prisma.service';
 import { LiveQueueEventService } from '../../common/events/live-queue-event.service';
-import { AppointmentStatus, AppointmentType, PaymentStatus, QueueStatus } from '../../../generated/prisma/client';
+import {
+  AppointmentStatus,
+  AppointmentType,
+  PaymentStatus,
+  QueueStatus,
+} from '../../../generated/prisma/client';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 
 describe('ReceptionistAppointmentService', () => {
@@ -21,7 +26,11 @@ describe('ReceptionistAppointmentService', () => {
     userId: 'doc-user-100',
     specialty: 'Internal Medicine',
     roomNumber: 'Room 204',
-    user: { id: 'doc-user-100', name: 'Dr. Linda Cho', email: 'linda@medcare.local' },
+    user: {
+      id: 'doc-user-100',
+      name: 'Dr. Linda Cho',
+      email: 'linda@medcare.local',
+    },
   };
 
   const mockAppointment = {
@@ -60,7 +69,10 @@ describe('ReceptionistAppointmentService', () => {
         findUnique: jest.fn().mockResolvedValue(mockAppointment),
         findMany: jest.fn().mockResolvedValue([mockAppointment]),
         count: jest.fn().mockResolvedValue(12),
-        update: jest.fn().mockResolvedValue({ ...mockAppointment, status: AppointmentStatus.CHECKED_IN }),
+        update: jest.fn().mockResolvedValue({
+          ...mockAppointment,
+          status: AppointmentStatus.CHECKED_IN,
+        }),
         create: jest.fn().mockResolvedValue(mockAppointment),
       },
       patientQueue: {
@@ -68,7 +80,9 @@ describe('ReceptionistAppointmentService', () => {
         create: jest.fn().mockResolvedValue(mockQueueEntry),
         findMany: jest.fn().mockResolvedValue([mockQueueEntry]),
         findUnique: jest.fn().mockResolvedValue(mockQueueEntry),
-        update: jest.fn().mockResolvedValue({ ...mockQueueEntry, status: QueueStatus.CALLED }),
+        update: jest
+          .fn()
+          .mockResolvedValue({ ...mockQueueEntry, status: QueueStatus.CALLED }),
         count: jest.fn().mockResolvedValue(3),
       },
       doctorProfile: {
@@ -187,7 +201,10 @@ describe('ReceptionistAppointmentService', () => {
 
   describe('receptionistUpdateQueueStatus', () => {
     it('should transition queue status to CALLED and emit real-time event', async () => {
-      const res = await service.receptionistUpdateQueueStatus('q-100', QueueStatus.CALLED);
+      const res = await service.receptionistUpdateQueueStatus(
+        'q-100',
+        QueueStatus.CALLED,
+      );
       expect(res).toBeDefined();
       expect(prisma.patientQueue.update).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -213,7 +230,10 @@ describe('ReceptionistAppointmentService', () => {
     });
 
     it('should update appointment status to COMPLETED when status is COMPLETED', async () => {
-      await service.receptionistUpdateQueueStatus('q-100', QueueStatus.COMPLETED);
+      await service.receptionistUpdateQueueStatus(
+        'q-100',
+        QueueStatus.COMPLETED,
+      );
       expect(prisma.appointment.update).toHaveBeenCalledWith(
         expect.objectContaining({
           data: { status: AppointmentStatus.COMPLETED },

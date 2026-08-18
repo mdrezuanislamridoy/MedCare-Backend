@@ -1,8 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../common/database/prisma/prisma.service';
 import { RedisService } from '../../common/cache/redis/redis.service';
-import { BroadcastNotificationDto, NotificationFilterDto } from './dto/notification.dto';
-import { NotificationAudience, NotificationPriority } from '../../../generated/prisma/client';
+import {
+  BroadcastNotificationDto,
+  NotificationFilterDto,
+} from './dto/notification.dto';
+import {
+  NotificationAudience,
+  NotificationPriority,
+} from '../../../generated/prisma/client';
 
 @Injectable()
 export class NotificationService {
@@ -72,16 +78,18 @@ export class NotificationService {
       // ignore redis write error
     }
 
-    await this.prisma.auditLog.create({
-      data: {
-        actorId: senderId,
-        actorName: 'Admin',
-        action: `Broadcast Notification Sent (${priority})`,
-        resource: `Notification "${dto.title}" to ${audience}`,
-        details: JSON.stringify(dto),
-        result: 'success',
-      },
-    }).catch(() => null);
+    await this.prisma.auditLog
+      .create({
+        data: {
+          actorId: senderId,
+          actorName: 'Admin',
+          action: `Broadcast Notification Sent (${priority})`,
+          resource: `Notification "${dto.title}" to ${audience}`,
+          details: JSON.stringify(dto),
+          result: 'success',
+        },
+      })
+      .catch(() => null);
 
     return notification;
   }
@@ -91,7 +99,9 @@ export class NotificationService {
   async patientListNotifications(userId: string) {
     const notifications = await this.prisma.notification.findMany({
       where: {
-        audience: { in: [NotificationAudience.ALL, NotificationAudience.PATIENTS] },
+        audience: {
+          in: [NotificationAudience.ALL, NotificationAudience.PATIENTS],
+        },
       },
       take: 20,
       orderBy: { createdAt: 'desc' },
@@ -101,12 +111,14 @@ export class NotificationService {
   }
 
   async patientMarkRead(userId: string, notificationId: string) {
-    await this.prisma.notification.update({
-      where: { id: notificationId },
-      data: {
-        readByCount: { increment: 1 },
-      },
-    }).catch(() => null);
+    await this.prisma.notification
+      .update({
+        where: { id: notificationId },
+        data: {
+          readByCount: { increment: 1 },
+        },
+      })
+      .catch(() => null);
 
     return { success: true };
   }

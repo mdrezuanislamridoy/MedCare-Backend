@@ -45,7 +45,12 @@ import {
 @ApiBearerAuth('JWT-auth')
 @Controller('receptionist')
 @UseGuards(JwtAuthGuard, RolesGuard)
-@Roles(UserRole.RECEPTIONIST, UserRole.CLINIC_MANAGER, UserRole.ADMIN, UserRole.SUPER_ADMIN)
+@Roles(
+  UserRole.RECEPTIONIST,
+  UserRole.CLINIC_MANAGER,
+  UserRole.ADMIN,
+  UserRole.SUPER_ADMIN,
+)
 export class ReceptionistGatewayController {
   constructor(
     private readonly appointmentService: AppointmentService,
@@ -56,9 +61,18 @@ export class ReceptionistGatewayController {
   ) {}
 
   // 1. Dashboard Overview
-  @ApiOperation({ summary: "Get receptionist dashboard overview, today's KPIs, and timeline" })
-  @ApiResponse({ status: 200, description: 'Dashboard metrics and live queue summary returned' })
-  @ApiQuery({ name: 'clinicId', required: false, description: 'Filter by specific clinic ID' })
+  @ApiOperation({
+    summary: "Get receptionist dashboard overview, today's KPIs, and timeline",
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Dashboard metrics and live queue summary returned',
+  })
+  @ApiQuery({
+    name: 'clinicId',
+    required: false,
+    description: 'Filter by specific clinic ID',
+  })
   @Get('dashboard')
   async getDashboard(@Query('clinicId') clinicId?: string) {
     return this.appointmentService.receptionistGetDashboardStats(clinicId);
@@ -66,7 +80,10 @@ export class ReceptionistGatewayController {
 
   // 2. Appointments List & Filters
   @ApiOperation({ summary: 'List and filter all clinic appointments' })
-  @ApiResponse({ status: 200, description: 'Paginated appointment list returned' })
+  @ApiResponse({
+    status: 200,
+    description: 'Paginated appointment list returned',
+  })
   @Get('appointments')
   async listAppointments(@Query() filter: AppointmentFilterDto) {
     return this.appointmentService.listAppointments(filter);
@@ -74,7 +91,10 @@ export class ReceptionistGatewayController {
 
   // 3. Reschedule Appointment
   @ApiOperation({ summary: 'Reschedule an existing appointment date or time' })
-  @ApiResponse({ status: 200, description: 'Appointment successfully rescheduled' })
+  @ApiResponse({
+    status: 200,
+    description: 'Appointment successfully rescheduled',
+  })
   @ApiParam({ name: 'id', description: 'Appointment ID' })
   @Patch('appointments/:id/reschedule')
   async rescheduleAppointment(
@@ -97,14 +117,20 @@ export class ReceptionistGatewayController {
   ) {
     return this.appointmentService.transitionStatus(
       id,
-      { status: 'CANCELLED' as any, cancellationReason: reason },
+      { status: 'CANCELLED', cancellationReason: reason },
       req.user?.id,
     );
   }
 
   // 5. 6-Step Patient Check-In Execution
-  @ApiOperation({ summary: 'Execute patient check-in, assign daily token # and consultation room' })
-  @ApiResponse({ status: 201, description: 'Patient checked in and added to Live Queue' })
+  @ApiOperation({
+    summary:
+      'Execute patient check-in, assign daily token # and consultation room',
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'Patient checked in and added to Live Queue',
+  })
   @Post('check-in')
   async checkInPatient(
     @Body() dto: ReceptionistCheckInDto,
@@ -127,8 +153,13 @@ export class ReceptionistGatewayController {
   }
 
   // 7. Transition Queue Status (Call, In Room, Complete, No Show)
-  @ApiOperation({ summary: 'Update queue entry status (CALLED, IN_ROOM, COMPLETED, NO_SHOW)' })
-  @ApiResponse({ status: 200, description: 'Queue status updated and broadcasted' })
+  @ApiOperation({
+    summary: 'Update queue entry status (CALLED, IN_ROOM, COMPLETED, NO_SHOW)',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Queue status updated and broadcasted',
+  })
   @ApiParam({ name: 'id', description: 'Queue Entry ID' })
   @Patch('queue/:id/status')
   async updateQueueStatus(
@@ -136,11 +167,17 @@ export class ReceptionistGatewayController {
     @Body() dto: ReceptionistUpdateQueueDto,
     @Req() req: AuthenticatedRequest,
   ) {
-    return this.appointmentService.receptionistUpdateQueueStatus(id, dto.status, req.user?.id);
+    return this.appointmentService.receptionistUpdateQueueStatus(
+      id,
+      dto.status,
+      req.user?.id,
+    );
   }
 
   // 8. Doctors Status & Room Directory
-  @ApiOperation({ summary: 'Get doctor attendance, room numbers, and active queue length' })
+  @ApiOperation({
+    summary: 'Get doctor attendance, room numbers, and active queue length',
+  })
   @ApiResponse({ status: 200, description: 'Doctor status list returned' })
   @ApiQuery({ name: 'clinicId', required: false })
   @Get('doctors')
@@ -149,9 +186,16 @@ export class ReceptionistGatewayController {
   }
 
   // 9. Doctor Schedule Grid Matrix (08:00 - 17:00)
-  @ApiOperation({ summary: 'Get 08:00 - 17:00 hourly appointment schedule matrix across all doctors' })
+  @ApiOperation({
+    summary:
+      'Get 08:00 - 17:00 hourly appointment schedule matrix across all doctors',
+  })
   @ApiResponse({ status: 200, description: 'Schedule grid matrix returned' })
-  @ApiQuery({ name: 'date', required: false, description: 'Target date (YYYY-MM-DD)' })
+  @ApiQuery({
+    name: 'date',
+    required: false,
+    description: 'Target date (YYYY-MM-DD)',
+  })
   @ApiQuery({ name: 'clinicId', required: false })
   @Get('schedule')
   async getScheduleGrid(
@@ -162,8 +206,13 @@ export class ReceptionistGatewayController {
   }
 
   // 10. Walk-In Appointment Booking
-  @ApiOperation({ summary: 'Create walk-in appointment and immediately queue the patient' })
-  @ApiResponse({ status: 201, description: 'Walk-in booking created and queued' })
+  @ApiOperation({
+    summary: 'Create walk-in appointment and immediately queue the patient',
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'Walk-in booking created and queued',
+  })
   @Post('schedule/walk-in')
   async createWalkInBooking(
     @Body() dto: ReceptionistWalkInBookingDto,
@@ -173,7 +222,10 @@ export class ReceptionistGatewayController {
   }
 
   // 11. Patient Directory Search
-  @ApiOperation({ summary: 'Search clinic patient directory by name, phone, or ID with visit history' })
+  @ApiOperation({
+    summary:
+      'Search clinic patient directory by name, phone, or ID with visit history',
+  })
   @ApiResponse({ status: 200, description: 'Patient directory list returned' })
   @ApiQuery({ name: 'q', required: false, description: 'Search term' })
   @ApiQuery({ name: 'page', required: false, default: 1 })
@@ -204,49 +256,63 @@ export class ReceptionistGatewayController {
   }
 
   // 13. Real-Time Live Queue Event Stream (SSE)
-  @ApiOperation({ summary: 'Server-Sent Events (SSE) stream for live queue updates and display boards' })
+  @ApiOperation({
+    summary:
+      'Server-Sent Events (SSE) stream for live queue updates and display boards',
+  })
   @ApiResponse({ status: 200, description: 'SSE stream connected' })
   @Public()
   @Sse('queue/stream')
   streamQueueEvents(): Observable<MessageEvent> {
     const queueEvents$ = this.queueEventService.getStream().pipe(
-      map(event => ({
+      map((event) => ({
         data: event,
         type: 'queue-event',
-      } as MessageEvent)),
+      })),
     );
 
     const heartbeat$ = interval(15000).pipe(
       map(() => ({
         data: { type: 'HEARTBEAT', timestamp: new Date().toISOString() },
         type: 'heartbeat',
-      } as MessageEvent)),
+      })),
     );
 
     return merge(queueEvents$, heartbeat$);
   }
 
   // 14. Waiting Lounge TV / Display Board View
-  @ApiOperation({ summary: 'Public endpoint for Waiting Room TV display screens' })
-  @ApiResponse({ status: 200, description: 'Live display board state returned' })
+  @ApiOperation({
+    summary: 'Public endpoint for Waiting Room TV display screens',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Live display board state returned',
+  })
   @ApiQuery({ name: 'clinicId', required: false })
   @Public()
   @Get('queue/display')
   async getDisplayBoard(@Query('clinicId') clinicId?: string) {
-    const activeQueue = await this.appointmentService.receptionistGetLiveQueue(clinicId);
-    const currentlyCalled = activeQueue.filter(q => q.status === QueueStatus.CALLED || q.status === QueueStatus.IN_ROOM);
-    const waitingList = activeQueue.filter(q => q.status === QueueStatus.WAITING);
+    const activeQueue =
+      await this.appointmentService.receptionistGetLiveQueue(clinicId);
+    const currentlyCalled = activeQueue.filter(
+      (q) =>
+        q.status === QueueStatus.CALLED || q.status === QueueStatus.IN_ROOM,
+    );
+    const waitingList = activeQueue.filter(
+      (q) => q.status === QueueStatus.WAITING,
+    );
 
     return {
       activeCount: activeQueue.length,
-      currentlyCalled: currentlyCalled.map(q => ({
+      currentlyCalled: currentlyCalled.map((q) => ({
         queueNumber: q.queueNumber,
         patientName: q.patient.user.name,
         doctorName: q.doctor.user.name,
         roomNumber: q.roomNumber || 'Room 101',
         status: q.status,
       })),
-      waitingList: waitingList.map(q => ({
+      waitingList: waitingList.map((q) => ({
         queueNumber: q.queueNumber,
         patientName: q.patient.user.name,
         doctorName: q.doctor.user.name,

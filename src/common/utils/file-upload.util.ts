@@ -18,7 +18,11 @@ export const medicalRecordStorage = diskStorage({
   },
 });
 
-export const medicalRecordFileFilter = (req: any, file: Express.Multer.File, callback: any) => {
+export const medicalRecordFileFilter = (
+  req: any,
+  file: Express.Multer.File,
+  callback: any,
+) => {
   const allowedMimeTypes = [
     'application/pdf',
     'image/jpeg',

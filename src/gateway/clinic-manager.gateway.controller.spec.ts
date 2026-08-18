@@ -7,18 +7,28 @@ describe('ClinicManagerGatewayController', () => {
   let controller: ClinicManagerGatewayController;
   let clinicService: any;
 
-  const mockUser = { id: 'mgr-1', email: 'manager@medcare.local', role: UserRole.CLINIC_MANAGER };
+  const mockUser = {
+    id: 'mgr-1',
+    email: 'manager@medcare.local',
+    role: UserRole.CLINIC_MANAGER,
+  };
   const mockReq = { user: mockUser } as any;
 
   beforeEach(async () => {
     clinicService = {
-      getClinicDashboardStats: jest.fn().mockResolvedValue({ stats: { totalDoctors: 5 } }),
+      getClinicDashboardStats: jest
+        .fn()
+        .mockResolvedValue({ stats: { totalDoctors: 5 } }),
       getClinicProfile: jest.fn().mockResolvedValue({ id: 'clinic-1' }),
       updateClinicProfile: jest.fn().mockResolvedValue({ id: 'clinic-1' }),
-      listClinicDoctors: jest.fn().mockResolvedValue({ items: [], meta: { total: 0 } }),
+      listClinicDoctors: jest
+        .fn()
+        .mockResolvedValue({ items: [], meta: { total: 0 } }),
       assignDoctorToClinic: jest.fn().mockResolvedValue({ id: 'doc-1' }),
       removeDoctorFromClinic: jest.fn().mockResolvedValue({ success: true }),
-      listClinicStaff: jest.fn().mockResolvedValue({ items: [], meta: { total: 0 } }),
+      listClinicStaff: jest
+        .fn()
+        .mockResolvedValue({ items: [], meta: { total: 0 } }),
       createClinicStaff: jest.fn().mockResolvedValue({ id: 'staff-1' }),
       updateClinicStaff: jest.fn().mockResolvedValue({ id: 'staff-1' }),
       deleteClinicStaff: jest.fn().mockResolvedValue({ success: true }),
@@ -26,9 +36,13 @@ describe('ClinicManagerGatewayController', () => {
       createClinicRoom: jest.fn().mockResolvedValue({ id: 'room-1' }),
       updateClinicRoom: jest.fn().mockResolvedValue({ id: 'room-1' }),
       deleteClinicRoom: jest.fn().mockResolvedValue({ success: true }),
-      getClinicAppointments: jest.fn().mockResolvedValue({ items: [], meta: { total: 0 } }),
+      getClinicAppointments: jest
+        .fn()
+        .mockResolvedValue({ items: [], meta: { total: 0 } }),
       getClinicQueue: jest.fn().mockResolvedValue([]),
-      getClinicFinancialSummary: jest.fn().mockResolvedValue({ totalRevenue: 15000 }),
+      getClinicFinancialSummary: jest
+        .fn()
+        .mockResolvedValue({ totalRevenue: 15000 }),
       getClinicReports: jest.fn().mockResolvedValue({ metrics: {} }),
       getClinicActivityLogs: jest.fn().mockResolvedValue({ items: [] }),
       getStream: jest.fn(),
@@ -39,7 +53,9 @@ describe('ClinicManagerGatewayController', () => {
       providers: [{ provide: ClinicService, useValue: clinicService }],
     }).compile();
 
-    controller = module.get<ClinicManagerGatewayController>(ClinicManagerGatewayController);
+    controller = module.get<ClinicManagerGatewayController>(
+      ClinicManagerGatewayController,
+    );
   });
 
   it('should be defined', () => {
@@ -49,7 +65,10 @@ describe('ClinicManagerGatewayController', () => {
   it('should get dashboard stats and profile', async () => {
     const dash = await controller.getDashboard(mockReq);
     expect(dash).toBeDefined();
-    expect(clinicService.getClinicDashboardStats).toHaveBeenCalledWith('mgr-1', undefined);
+    expect(clinicService.getClinicDashboardStats).toHaveBeenCalledWith(
+      'mgr-1',
+      undefined,
+    );
 
     const profile = await controller.getProfile(mockReq);
     expect(profile).toBeDefined();
@@ -59,10 +78,17 @@ describe('ClinicManagerGatewayController', () => {
     await controller.listDoctors(mockReq, {});
     expect(clinicService.listClinicDoctors).toHaveBeenCalled();
 
-    await controller.createStaff(mockReq, { name: 'Amina', role: StaffRole.RECEPTIONIST });
+    await controller.createStaff(mockReq, {
+      name: 'Amina',
+      role: StaffRole.RECEPTIONIST,
+    });
     expect(clinicService.createClinicStaff).toHaveBeenCalled();
 
-    await controller.createRoom(mockReq, { roomNumber: '302', name: 'Cardiology', type: RoomType.CONSULTATION });
+    await controller.createRoom(mockReq, {
+      roomNumber: '302',
+      name: 'Cardiology',
+      type: RoomType.CONSULTATION,
+    });
     expect(clinicService.createClinicRoom).toHaveBeenCalled();
   });
 

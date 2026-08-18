@@ -20,6 +20,9 @@ export class AuditController {
 
   @MessagePattern(PATTERNS.AUDIT.RECEPTIONIST_LOGS)
   async listReceptionistLogs(@Payload() payload: { limit?: number }) {
-    return this.auditService.listLogs({ limit: payload?.limit || 20, q: 'Receptionist' });
+    return this.auditService.listLogs({
+      limit: payload?.limit || 20,
+      q: 'Receptionist',
+    });
   }
 }

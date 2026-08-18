@@ -37,7 +37,9 @@ export class SupportController {
   }
 
   @MessagePattern(PATTERNS.SUPPORT.CREATE_TICKET)
-  async createTicket(@Payload() data: { staffId: string; dto: CreateTicketDto }) {
+  async createTicket(
+    @Payload() data: { staffId: string; dto: CreateTicketDto },
+  ) {
     return this.supportService.createTicket(data.staffId, data.dto);
   }
 
@@ -62,15 +64,30 @@ export class SupportController {
   }
 
   @MessagePattern(PATTERNS.SUPPORT.ASSIGN_TICKET)
-  async assignTicket(@Payload() data: { ticketId: string; staffId: string; actorId: string }) {
-    return this.supportService.assignTicket(data.ticketId, data.staffId, data.actorId);
+  async assignTicket(
+    @Payload() data: { ticketId: string; staffId: string; actorId: string },
+  ) {
+    return this.supportService.assignTicket(
+      data.ticketId,
+      data.staffId,
+      data.actorId,
+    );
   }
 
   @MessagePattern(PATTERNS.SUPPORT.UPDATE_TICKET_STATUS)
   async updateTicketStatus(
-    @Payload() data: { ticketId: string; dto: UpdateTicketStatusDto; actorId: string },
+    @Payload()
+    data: {
+      ticketId: string;
+      dto: UpdateTicketStatusDto;
+      actorId: string;
+    },
   ) {
-    return this.supportService.updateTicketStatus(data.ticketId, data.dto, data.actorId);
+    return this.supportService.updateTicketStatus(
+      data.ticketId,
+      data.dto,
+      data.actorId,
+    );
   }
 
   @MessagePattern(PATTERNS.SUPPORT.LIST_COMPLAINTS)
@@ -85,16 +102,34 @@ export class SupportController {
 
   @MessagePattern(PATTERNS.SUPPORT.UPDATE_COMPLAINT_STATUS)
   async updateComplaintStatus(
-    @Payload() data: { complaintId: string; dto: UpdateComplaintStatusDto; actorId: string },
+    @Payload()
+    data: {
+      complaintId: string;
+      dto: UpdateComplaintStatusDto;
+      actorId: string;
+    },
   ) {
-    return this.supportService.updateComplaintStatus(data.complaintId, data.dto, data.actorId);
+    return this.supportService.updateComplaintStatus(
+      data.complaintId,
+      data.dto,
+      data.actorId,
+    );
   }
 
   @MessagePattern(PATTERNS.SUPPORT.ESCALATE_COMPLAINT)
   async escalateComplaint(
-    @Payload() data: { complaintId: string; dto: EscalateComplaintDto; actorId: string },
+    @Payload()
+    data: {
+      complaintId: string;
+      dto: EscalateComplaintDto;
+      actorId: string;
+    },
   ) {
-    return this.supportService.escalateComplaint(data.complaintId, data.dto, data.actorId);
+    return this.supportService.escalateComplaint(
+      data.complaintId,
+      data.dto,
+      data.actorId,
+    );
   }
 
   @MessagePattern(PATTERNS.SUPPORT.SEARCH_PATIENTS)
@@ -106,7 +141,11 @@ export class SupportController {
   async resendPatientNotification(
     @Payload() data: { patientId: string; type: string; actorId: string },
   ) {
-    return this.supportService.resendPatientNotification(data.patientId, data.type, data.actorId);
+    return this.supportService.resendPatientNotification(
+      data.patientId,
+      data.type,
+      data.actorId,
+    );
   }
 
   @MessagePattern(PATTERNS.SUPPORT.LIST_FLAGGED_APPOINTMENTS)
@@ -131,8 +170,13 @@ export class SupportController {
   }
 
   @MessagePattern(PATTERNS.SUPPORT.CLEAR_APPOINTMENT_FLAG)
-  async clearAppointmentFlag(@Payload() data: { appointmentId: string; actorId: string }) {
-    return this.supportService.clearAppointmentFlag(data.appointmentId, data.actorId);
+  async clearAppointmentFlag(
+    @Payload() data: { appointmentId: string; actorId: string },
+  ) {
+    return this.supportService.clearAppointmentFlag(
+      data.appointmentId,
+      data.actorId,
+    );
   }
 
   @MessagePattern(PATTERNS.SUPPORT.LIST_ACTIVITY_LOGS)

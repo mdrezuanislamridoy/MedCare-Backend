@@ -1,5 +1,22 @@
-import { Body, Controller, Get, Param, Patch, Post, Put, Query, Req, UseGuards } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiParam } from '@nestjs/swagger';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Put,
+  Query,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+  ApiParam,
+} from '@nestjs/swagger';
 import { RbacService } from '../microservices/rbac/rbac.service';
 import {
   AccessRequestFilterDto,
@@ -81,14 +98,18 @@ export class SuperAdminRbacGatewayController {
   // ==========================================
   // 3. ADMINISTRATORS MANAGEMENT
   // ==========================================
-  @ApiOperation({ summary: 'List all platform administrators and clinic managers' })
+  @ApiOperation({
+    summary: 'List all platform administrators and clinic managers',
+  })
   @ApiResponse({ status: 200, description: 'Administrators list returned' })
   @Get('administrators')
   async listAdministrators(@Query() query: AdministratorFilterDto) {
     return this.rbacService.listAdministrators(query);
   }
 
-  @ApiOperation({ summary: 'Provision new administrator or branch manager account' })
+  @ApiOperation({
+    summary: 'Provision new administrator or branch manager account',
+  })
   @ApiResponse({ status: 201, description: 'Administrator created' })
   @Post('administrators')
   async createAdministrator(

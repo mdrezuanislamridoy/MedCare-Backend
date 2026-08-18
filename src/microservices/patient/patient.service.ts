@@ -1,7 +1,18 @@
-import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { PrismaService } from '../../common/database/prisma/prisma.service';
-import { AccountStatus, RecordCategory } from '../../../generated/prisma/client';
-import { PatientFilterDto, UpdatePatientProfileDto, CreateMedicalRecordDto } from './dto/patient.dto';
+import {
+  AccountStatus,
+  RecordCategory,
+} from '../../../generated/prisma/client';
+import {
+  PatientFilterDto,
+  UpdatePatientProfileDto,
+  CreateMedicalRecordDto,
+} from './dto/patient.dto';
 
 @Injectable()
 export class PatientService {
@@ -31,7 +42,9 @@ export class PatientService {
         skip,
         take: limit,
         include: {
-          user: { select: { id: true, name: true, email: true, createdAt: true } },
+          user: {
+            select: { id: true, name: true, email: true, createdAt: true },
+          },
           _count: { select: { appointments: true, transactions: true } },
         },
         orderBy: { createdAt: 'desc' },
@@ -54,7 +67,9 @@ export class PatientService {
     const patient = await this.prisma.patientProfile.findUnique({
       where: { id },
       include: {
-        user: { select: { id: true, name: true, email: true, lastLoginAt: true } },
+        user: {
+          select: { id: true, name: true, email: true, lastLoginAt: true },
+        },
         appointments: {
           take: 10,
           orderBy: { date: 'desc' },
@@ -67,7 +82,9 @@ export class PatientService {
           take: 10,
           orderBy: { createdAt: 'desc' },
         },
-        _count: { select: { appointments: true, transactions: true, reviews: true } },
+        _count: {
+          select: { appointments: true, transactions: true, reviews: true },
+        },
       },
     });
 
@@ -78,7 +95,12 @@ export class PatientService {
     return patient;
   }
 
-  async updatePatientStatus(id: string, status: AccountStatus, reason?: string, actorId?: string) {
+  async updatePatientStatus(
+    id: string,
+    status: AccountStatus,
+    reason?: string,
+    actorId?: string,
+  ) {
     const patient = await this.prisma.patientProfile.findUnique({
       where: { id },
       include: { user: true },
@@ -93,16 +115,18 @@ export class PatientService {
       data: { status },
     });
 
-    await this.prisma.auditLog.create({
-      data: {
-        actorId,
-        actorName: 'Admin',
-        action: `Patient Status Updated to ${status}`,
-        resource: `Patient Profile ${id} (${patient.user.name || patient.user.email})`,
-        details: reason ? JSON.stringify({ reason }) : undefined,
-        result: 'success',
-      },
-    }).catch(() => null);
+    await this.prisma.auditLog
+      .create({
+        data: {
+          actorId,
+          actorName: 'Admin',
+          action: `Patient Status Updated to ${status}`,
+          resource: `Patient Profile ${id} (${patient.user.name || patient.user.email})`,
+          details: reason ? JSON.stringify({ reason }) : undefined,
+          result: 'success',
+        },
+      })
+      .catch(() => null);
 
     return updated;
   }
@@ -128,8 +152,19 @@ export class PatientService {
   async getDashboardSummary(userId: string) {
     const patient = await this.ensurePatientProfile(userId);
     const now = new Date();
-    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const endOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
+    const startOfToday = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate(),
+    );
+    const endOfToday = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate(),
+      23,
+      59,
+      59,
+    );
 
     const [
       upcomingCount,
@@ -237,7 +272,8 @@ export class PatientService {
       data: {
         ...patientFields,
         dateOfBirth: dateOfBirth ? new Date(dateOfBirth) : undefined,
-        emergencyContact: patientFields.emergencyContact || patientFields.emergencyPhone,
+        emergencyContact:
+          patientFields.emergencyContact || patientFields.emergencyPhone,
       },
       include: {
         user: { select: { id: true, name: true, email: true } },
@@ -287,7 +323,9 @@ export class PatientService {
     }
 
     if (record.patientId !== profile.id) {
-      throw new ForbiddenException(`You do not have permission to delete this record`);
+      throw new ForbiddenException(
+        `You do not have permission to delete this record`,
+      );
     }
 
     return this.prisma.medicalRecord.delete({
@@ -308,7 +346,12 @@ export class PatientService {
           },
         },
         appointment: {
-          select: { appointmentNumber: true, date: true, time: true, type: true },
+          select: {
+            appointmentNumber: true,
+            date: true,
+            time: true,
+            type: true,
+          },
         },
       },
     });
@@ -363,7 +406,9 @@ export class PatientService {
           appointments: {
             take: 1,
             orderBy: { date: 'desc' },
-            include: { doctor: { include: { user: { select: { name: true } } } } },
+            include: {
+              doctor: { include: { user: { select: { name: true } } } },
+            },
           },
           _count: { select: { appointments: true } },
         },
@@ -373,15 +418,22 @@ export class PatientService {
     ]);
 
     return {
-      data: patients.map(p => ({
+      data: patients.map((p) => ({
         id: p.id,
         name: p.user.name || 'Unknown Patient',
         email: p.user.email,
         phone: p.phone || 'N/A',
-        avatar: (p.user.name || 'P').split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase(),
+        avatar: (p.user.name || 'P')
+          .split(' ')
+          .map((n) => n[0])
+          .join('')
+          .slice(0, 2)
+          .toUpperCase(),
         doctor: p.appointments[0]?.doctor.user.name || 'General Physician',
         visits: p._count.appointments,
-        lastVisit: p.appointments[0]?.date ? new Date(p.appointments[0].date).toISOString().split('T')[0] : 'None',
+        lastVisit: p.appointments[0]?.date
+          ? new Date(p.appointments[0].date).toISOString().split('T')[0]
+          : 'None',
       })),
       meta: {
         page,

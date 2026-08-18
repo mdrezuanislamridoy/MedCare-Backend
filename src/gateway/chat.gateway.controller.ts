@@ -53,9 +53,13 @@ export class ChatGatewayController {
   // 1. START OR GET CONVERSATION
   // ==========================================
   @ApiOperation({
-    summary: 'Start a new conversation or retrieve existing thread with a doctor, patient, or staff',
+    summary:
+      'Start a new conversation or retrieve existing thread with a doctor, patient, or staff',
   })
-  @ApiResponse({ status: 201, description: 'Conversation started or retrieved' })
+  @ApiResponse({
+    status: 201,
+    description: 'Conversation started or retrieved',
+  })
   @Post('conversations')
   async startConversation(
     @Req() req: AuthenticatedRequest,
@@ -68,7 +72,8 @@ export class ChatGatewayController {
   // 2. LIST USER CONVERSATIONS
   // ==========================================
   @ApiOperation({
-    summary: 'List active conversations for logged-in user with latest message, unread badge, and recipient profile',
+    summary:
+      'List active conversations for logged-in user with latest message, unread badge, and recipient profile',
   })
   @ApiResponse({ status: 200, description: 'User conversations list returned' })
   @Get('conversations')
@@ -83,7 +88,8 @@ export class ChatGatewayController {
   // 3. UNREAD MESSAGES COUNT
   // ==========================================
   @ApiOperation({
-    summary: 'Get total unread messages count across all active conversations for badge indicator',
+    summary:
+      'Get total unread messages count across all active conversations for badge indicator',
   })
   @ApiResponse({ status: 200, description: 'Unread count returned' })
   @Get('unread-count')
@@ -95,10 +101,15 @@ export class ChatGatewayController {
   // 4. GET CONVERSATION MESSAGES
   // ==========================================
   @ApiOperation({
-    summary: 'Get chronological message history for a conversation and mark unread messages as read',
+    summary:
+      'Get chronological message history for a conversation and mark unread messages as read',
   })
   @ApiResponse({ status: 200, description: 'Messages list returned' })
-  @ApiParam({ name: 'id', description: 'Conversation ID', example: 'conv-1001' })
+  @ApiParam({
+    name: 'id',
+    description: 'Conversation ID',
+    example: 'conv-1001',
+  })
   @Get('conversations/:id/messages')
   async getMessages(
     @Req() req: AuthenticatedRequest,
@@ -112,10 +123,15 @@ export class ChatGatewayController {
   // 5. SEND MESSAGE
   // ==========================================
   @ApiOperation({
-    summary: 'Send a message in a conversation with optional attachments or internal notes',
+    summary:
+      'Send a message in a conversation with optional attachments or internal notes',
   })
   @ApiResponse({ status: 201, description: 'Message sent successfully' })
-  @ApiParam({ name: 'id', description: 'Conversation ID', example: 'conv-1001' })
+  @ApiParam({
+    name: 'id',
+    description: 'Conversation ID',
+    example: 'conv-1001',
+  })
   @Post('conversations/:id/messages')
   async sendMessage(
     @Req() req: AuthenticatedRequest,
@@ -132,12 +148,13 @@ export class ChatGatewayController {
     summary: 'Explicitly mark all unread messages in a conversation as read',
   })
   @ApiResponse({ status: 200, description: 'Conversation marked as read' })
-  @ApiParam({ name: 'id', description: 'Conversation ID', example: 'conv-1001' })
+  @ApiParam({
+    name: 'id',
+    description: 'Conversation ID',
+    example: 'conv-1001',
+  })
   @Post('conversations/:id/read')
-  async markAsRead(
-    @Req() req: AuthenticatedRequest,
-    @Param('id') id: string,
-  ) {
+  async markAsRead(@Req() req: AuthenticatedRequest, @Param('id') id: string) {
     return this.chatService.markAsRead(req.user.id, id);
   }
 
@@ -148,43 +165,46 @@ export class ChatGatewayController {
     summary: 'Update conversation status (e.g. mark as RESOLVED or ARCHIVED)',
   })
   @ApiResponse({ status: 200, description: 'Conversation status updated' })
-  @ApiParam({ name: 'id', description: 'Conversation ID', example: 'conv-1001' })
+  @ApiParam({
+    name: 'id',
+    description: 'Conversation ID',
+    example: 'conv-1001',
+  })
   @Patch('conversations/:id/status')
   async updateStatus(
     @Req() req: AuthenticatedRequest,
     @Param('id') id: string,
     @Body() body: UpdateConversationStatusDto,
   ) {
-    return this.chatService.updateConversationStatus(req.user.id, id, body.status);
+    return this.chatService.updateConversationStatus(
+      req.user.id,
+      id,
+      body.status,
+    );
   }
 
   // ==========================================
   // 8. REAL-TIME LIVE CHAT EVENT STREAM (SSE)
   // ==========================================
   @ApiOperation({
-    summary: 'Server-Sent Events (SSE) live stream for incoming chat messages and typing notifications',
+    summary:
+      'Server-Sent Events (SSE) live stream for incoming chat messages and typing notifications',
   })
   @ApiResponse({ status: 200, description: 'Chat SSE stream connected' })
   @Sse('stream')
   streamChatEvents(): Observable<MessageEvent> {
     const chatEvents$ = this.chatService.getStream().pipe(
-      map(
-        event =>
-          ({
-            data: event,
-            type: 'chat-event',
-          }) as MessageEvent,
-      ),
+      map((event) => ({
+        data: event,
+        type: 'chat-event',
+      })),
     );
 
     const heartbeat$ = interval(15000).pipe(
-      map(
-        () =>
-          ({
-            data: { type: 'HEARTBEAT', timestamp: new Date().toISOString() },
-            type: 'heartbeat',
-          }) as MessageEvent,
-      ),
+      map(() => ({
+        data: { type: 'HEARTBEAT', timestamp: new Date().toISOString() },
+        type: 'heartbeat',
+      })),
     );
 
     return merge(chatEvents$, heartbeat$);

@@ -36,7 +36,10 @@ export class SystemService {
     const memoryUsage = ((totalMemory - freeMemory) / totalMemory) * 100;
 
     return {
-      status: dbStatus === 'healthy' && redisStatus === 'healthy' ? 'healthy' : 'warning',
+      status:
+        dbStatus === 'healthy' && redisStatus === 'healthy'
+          ? 'healthy'
+          : 'warning',
       timestamp: new Date().toISOString(),
       uptimeSeconds: process.uptime(),
       services: {
@@ -75,7 +78,10 @@ export class SystemService {
     return result;
   }
 
-  async updateSettings(settings: Record<string, string>, superAdminId?: string) {
+  async updateSettings(
+    settings: Record<string, string>,
+    superAdminId?: string,
+  ) {
     const updates = Object.entries(settings).map(([key, value]) =>
       this.prisma.platformSetting.upsert({
         where: { key },
@@ -86,16 +92,18 @@ export class SystemService {
 
     await Promise.all(updates);
 
-    await this.prisma.auditLog.create({
-      data: {
-        actorId: superAdminId,
-        actorName: 'Super Admin',
-        action: 'Platform Settings Updated',
-        resource: 'Platform Configuration',
-        details: JSON.stringify(settings),
-        result: 'success',
-      },
-    }).catch(() => null);
+    await this.prisma.auditLog
+      .create({
+        data: {
+          actorId: superAdminId,
+          actorName: 'Super Admin',
+          action: 'Platform Settings Updated',
+          resource: 'Platform Configuration',
+          details: JSON.stringify(settings),
+          result: 'success',
+        },
+      })
+      .catch(() => null);
 
     return this.getSettings();
   }
@@ -104,16 +112,18 @@ export class SystemService {
     const backupId = `BKP-${Date.now()}`;
     const filename = `medcare-snapshot-${new Date().toISOString().replace(/[:.]/g, '-')}.dump`;
 
-    await this.prisma.auditLog.create({
-      data: {
-        actorId: superAdminId,
-        actorName: 'Super Admin',
-        action: 'Manual Database Backup Triggered',
-        resource: `Backup ${backupId} (${filename})`,
-        details: JSON.stringify({ backupId, filename, notes }),
-        result: 'success',
-      },
-    }).catch(() => null);
+    await this.prisma.auditLog
+      .create({
+        data: {
+          actorId: superAdminId,
+          actorName: 'Super Admin',
+          action: 'Manual Database Backup Triggered',
+          resource: `Backup ${backupId} (${filename})`,
+          details: JSON.stringify({ backupId, filename, notes }),
+          result: 'success',
+        },
+      })
+      .catch(() => null);
 
     return {
       backupId,

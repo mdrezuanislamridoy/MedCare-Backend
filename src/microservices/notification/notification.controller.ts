@@ -2,7 +2,10 @@ import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { PATTERNS } from '../common/microservices.constants';
 import { NotificationService } from './notification.service';
-import { BroadcastNotificationDto, NotificationFilterDto } from './dto/notification.dto';
+import {
+  BroadcastNotificationDto,
+  NotificationFilterDto,
+} from './dto/notification.dto';
 
 @Controller()
 export class NotificationController {
@@ -14,7 +17,9 @@ export class NotificationController {
   }
 
   @MessagePattern(PATTERNS.NOTIFICATION.BROADCAST)
-  async broadcast(@Payload() payload: { dto: BroadcastNotificationDto; senderId?: string }) {
+  async broadcast(
+    @Payload() payload: { dto: BroadcastNotificationDto; senderId?: string },
+  ) {
     return this.notificationService.broadcast(payload.dto, payload.senderId);
   }
 
@@ -26,8 +31,13 @@ export class NotificationController {
   }
 
   @MessagePattern(PATTERNS.NOTIFICATION.PATIENT_MARK_READ)
-  async patientMarkRead(@Payload() payload: { userId: string; notificationId: string }) {
-    return this.notificationService.patientMarkRead(payload.userId, payload.notificationId);
+  async patientMarkRead(
+    @Payload() payload: { userId: string; notificationId: string },
+  ) {
+    return this.notificationService.patientMarkRead(
+      payload.userId,
+      payload.notificationId,
+    );
   }
 
   @MessagePattern(PATTERNS.NOTIFICATION.PATIENT_MARK_ALL_READ)

@@ -1,7 +1,25 @@
-import { Body, Controller, Get, Param, Patch, Query, Req, UseGuards } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiParam } from '@nestjs/swagger';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Query,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+  ApiParam,
+} from '@nestjs/swagger';
 import { PatientService } from '../microservices/patient/patient.service';
-import { PatientFilterDto, UpdatePatientStatusDto } from '../microservices/patient/dto/patient.dto';
+import {
+  PatientFilterDto,
+  UpdatePatientStatusDto,
+} from '../microservices/patient/dto/patient.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
@@ -23,7 +41,9 @@ export class AdminPatientGatewayController {
     return this.patientService.listPatients(query);
   }
 
-  @ApiOperation({ summary: 'Get full patient details and consultation history' })
+  @ApiOperation({
+    summary: 'Get full patient details and consultation history',
+  })
   @ApiResponse({ status: 200, description: 'Patient details returned' })
   @ApiParam({ name: 'id', description: 'Patient ID' })
   @Get(':id')
@@ -40,6 +60,11 @@ export class AdminPatientGatewayController {
     @Body() body: UpdatePatientStatusDto,
     @Req() req: AuthenticatedRequest,
   ) {
-    return this.patientService.updatePatientStatus(id, body.status, body.reason, req.user?.id);
+    return this.patientService.updatePatientStatus(
+      id,
+      body.status,
+      body.reason,
+      req.user?.id,
+    );
   }
 }

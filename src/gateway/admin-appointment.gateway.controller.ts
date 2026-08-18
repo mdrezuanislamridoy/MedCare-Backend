@@ -1,7 +1,27 @@
-import { Body, Controller, Get, Param, Patch, Post, Query, Req, UseGuards } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiParam } from '@nestjs/swagger';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+  ApiParam,
+} from '@nestjs/swagger';
 import { AppointmentService } from '../microservices/appointment/appointment.service';
-import { AppointmentFilterDto, RescheduleAppointmentDto, TransitionAppointmentStatusDto } from '../microservices/appointment/dto/appointment.dto';
+import {
+  AppointmentFilterDto,
+  RescheduleAppointmentDto,
+  TransitionAppointmentStatusDto,
+} from '../microservices/appointment/dto/appointment.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
@@ -31,7 +51,10 @@ export class AdminAppointmentGatewayController {
     return this.appointmentService.getAppointmentById(id);
   }
 
-  @ApiOperation({ summary: 'Transition appointment status (CONFIRMED, CANCELLED, NO_SHOW, etc.)' })
+  @ApiOperation({
+    summary:
+      'Transition appointment status (CONFIRMED, CANCELLED, NO_SHOW, etc.)',
+  })
   @ApiResponse({ status: 200, description: 'Appointment status updated' })
   @ApiParam({ name: 'id', description: 'Appointment ID' })
   @Patch(':id/status')
@@ -43,7 +66,9 @@ export class AdminAppointmentGatewayController {
     return this.appointmentService.transitionStatus(id, body, req.user?.id);
   }
 
-  @ApiOperation({ summary: 'Reschedule appointment to a new date/time or reassign doctor' })
+  @ApiOperation({
+    summary: 'Reschedule appointment to a new date/time or reassign doctor',
+  })
   @ApiResponse({ status: 200, description: 'Appointment rescheduled' })
   @ApiParam({ name: 'id', description: 'Appointment ID' })
   @Post(':id/reschedule')

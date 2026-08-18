@@ -1,7 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AppointmentService } from './appointment.service';
 import { PrismaService } from '../../common/database/prisma/prisma.service';
-import { AppointmentStatus, AppointmentType, PaymentStatus } from '../../../generated/prisma/client';
+import {
+  AppointmentStatus,
+  AppointmentType,
+  PaymentStatus,
+} from '../../../generated/prisma/client';
 import { BadRequestException } from '@nestjs/common';
 
 describe('AppointmentService', () => {
@@ -9,7 +13,12 @@ describe('AppointmentService', () => {
   let prisma: any;
 
   const mockPatient = { id: 'pat-123', userId: 'user-123' };
-  const mockDoctor = { id: 'doc-123', userId: 'doc-user-1', specialty: 'Cardiology', clinicId: 'clinic-1' };
+  const mockDoctor = {
+    id: 'doc-123',
+    userId: 'doc-user-1',
+    specialty: 'Cardiology',
+    clinicId: 'clinic-1',
+  };
   const mockAppointment = {
     id: 'apt-1',
     appointmentNumber: 'APT-123456-789',
@@ -21,8 +30,14 @@ describe('AppointmentService', () => {
     type: AppointmentType.VIDEO,
     status: AppointmentStatus.CONFIRMED,
     paymentStatus: PaymentStatus.PENDING,
-    patient: { user: { id: 'user-123', name: 'John Doe', email: 'john@example.com' } },
-    doctor: { user: { id: 'doc-user-1', name: 'Dr. Smith', email: 'smith@example.com' }, specialty: 'Cardiology', clinic: { name: 'Cardio Care' } },
+    patient: {
+      user: { id: 'user-123', name: 'John Doe', email: 'john@example.com' },
+    },
+    doctor: {
+      user: { id: 'doc-user-1', name: 'Dr. Smith', email: 'smith@example.com' },
+      specialty: 'Cardiology',
+      clinic: { name: 'Cardio Care' },
+    },
   };
 
   beforeEach(async () => {
@@ -40,7 +55,10 @@ describe('AppointmentService', () => {
         findUnique: jest.fn().mockResolvedValue(mockAppointment),
         findMany: jest.fn().mockResolvedValue([mockAppointment]),
         count: jest.fn().mockResolvedValue(1),
-        update: jest.fn().mockResolvedValue({ ...mockAppointment, status: AppointmentStatus.CANCELLED }),
+        update: jest.fn().mockResolvedValue({
+          ...mockAppointment,
+          status: AppointmentStatus.CANCELLED,
+        }),
       },
       auditLog: {
         create: jest.fn().mockResolvedValue({ id: 'log-1' }),
@@ -90,7 +108,11 @@ describe('AppointmentService', () => {
 
   describe('patientCancelAppointment', () => {
     it('should cancel active appointment', async () => {
-      const result = await service.patientCancelAppointment('user-123', 'apt-1', 'Personal reason');
+      const result = await service.patientCancelAppointment(
+        'user-123',
+        'apt-1',
+        'Personal reason',
+      );
       expect(result.status).toBe(AppointmentStatus.CANCELLED);
       expect(prisma.appointment.update).toHaveBeenCalled();
     });

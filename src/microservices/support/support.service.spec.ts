@@ -77,7 +77,9 @@ describe('SupportService', () => {
         findMany: jest.fn().mockResolvedValue([mockTicket]),
         findUnique: jest.fn().mockResolvedValue(mockTicket),
         create: jest.fn().mockResolvedValue(mockTicket),
-        update: jest.fn().mockResolvedValue({ ...mockTicket, status: TicketStatus.RESOLVED }),
+        update: jest
+          .fn()
+          .mockResolvedValue({ ...mockTicket, status: TicketStatus.RESOLVED }),
       },
       ticketMessage: {
         create: jest.fn().mockResolvedValue({
@@ -92,7 +94,10 @@ describe('SupportService', () => {
         findMany: jest.fn().mockResolvedValue([mockComplaint]),
         findUnique: jest.fn().mockResolvedValue(mockComplaint),
         create: jest.fn().mockResolvedValue(mockComplaint),
-        update: jest.fn().mockResolvedValue({ ...mockComplaint, status: ComplaintStatus.ESCALATED }),
+        update: jest.fn().mockResolvedValue({
+          ...mockComplaint,
+          status: ComplaintStatus.ESCALATED,
+        }),
       },
       patientProfile: {
         findMany: jest.fn().mockResolvedValue([mockPatient]),
@@ -102,8 +107,12 @@ describe('SupportService', () => {
       appointment: {
         count: jest.fn().mockResolvedValue(3),
         findMany: jest.fn().mockResolvedValue([]),
-        findUnique: jest.fn().mockResolvedValue({ id: 'apt-100', appointmentNumber: 'APT-100' }),
-        update: jest.fn().mockResolvedValue({ id: 'apt-100', issueFlag: false }),
+        findUnique: jest
+          .fn()
+          .mockResolvedValue({ id: 'apt-100', appointmentNumber: 'APT-100' }),
+        update: jest
+          .fn()
+          .mockResolvedValue({ id: 'apt-100', issueFlag: false }),
       },
       user: {
         findUnique: jest.fn().mockResolvedValue(mockStaff),
@@ -217,7 +226,11 @@ describe('SupportService', () => {
     it('should update appointment and clear issue flag', async () => {
       const result = await service.assistRescheduleAppointment(
         'apt-100',
-        { date: '2026-08-20', time: '02:00 PM', reason: 'Patient flight delayed' },
+        {
+          date: '2026-08-20',
+          time: '02:00 PM',
+          reason: 'Patient flight delayed',
+        },
         'staff-100',
       );
 

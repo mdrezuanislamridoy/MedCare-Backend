@@ -1,5 +1,10 @@
 import { Controller, Get, Query, UseGuards } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 import { AuditService } from '../microservices/audit/audit.service';
 import { AuditFilterDto } from '../microservices/audit/dto/audit.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
@@ -15,7 +20,9 @@ import { UserRole } from '../../generated/prisma/client';
 export class AdminAuditGatewayController {
   constructor(private readonly auditService: AuditService) {}
 
-  @ApiOperation({ summary: 'List and search security and operational audit trail logs' })
+  @ApiOperation({
+    summary: 'List and search security and operational audit trail logs',
+  })
   @ApiResponse({ status: 200, description: 'Audit logs returned' })
   @Get()
   async listLogs(@Query() query: AuditFilterDto) {

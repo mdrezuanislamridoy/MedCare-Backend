@@ -41,7 +41,10 @@ export class AuthService {
       throw new ConflictException('Email is already registered');
     }
 
-    const passwordHash = await bcrypt.hash(dto.password, this.passwordSaltRounds);
+    const passwordHash = await bcrypt.hash(
+      dto.password,
+      this.passwordSaltRounds,
+    );
     const user = await this.prisma.user.create({
       data: {
         email,
@@ -63,7 +66,10 @@ export class AuthService {
       throw new UnauthorizedException('Invalid email or password');
     }
 
-    const passwordMatches = await bcrypt.compare(dto.password, user.passwordHash);
+    const passwordMatches = await bcrypt.compare(
+      dto.password,
+      user.passwordHash,
+    );
     if (!passwordMatches) {
       throw new UnauthorizedException('Invalid email or password');
     }
@@ -161,7 +167,10 @@ export class AuthService {
       dto.code,
     );
 
-    const passwordHash = await bcrypt.hash(dto.password, this.passwordSaltRounds);
+    const passwordHash = await bcrypt.hash(
+      dto.password,
+      this.passwordSaltRounds,
+    );
     await this.prisma.user.update({
       where: { email },
       data: { passwordHash },

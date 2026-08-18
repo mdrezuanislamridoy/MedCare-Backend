@@ -6,8 +6,19 @@ import {
 } from '@nestjs/common';
 import { Subject, Observable } from 'rxjs';
 import { PrismaService } from '../../common/database/prisma/prisma.service';
-import { AccountStatus, AppointmentStatus, RoomStatus, StaffShiftStatus, Prisma, UserRole } from '../../../generated/prisma/client';
-import { ClinicFilterDto, CreateClinicDto, UpdateClinicDto } from './dto/clinic.dto';
+import {
+  AccountStatus,
+  AppointmentStatus,
+  RoomStatus,
+  StaffShiftStatus,
+  Prisma,
+  UserRole,
+} from '../../../generated/prisma/client';
+import {
+  ClinicFilterDto,
+  CreateClinicDto,
+  UpdateClinicDto,
+} from './dto/clinic.dto';
 import {
   UpdateClinicBranchProfileDto,
   AssignDoctorToClinicDto,
@@ -24,7 +35,11 @@ import {
 } from './dto/clinic-manager.dto';
 
 export interface ClinicLiveEvent {
-  type: 'ROOM_STATUS_CHANGED' | 'QUEUE_UPDATED' | 'STAFF_SHIFT_CHANGED' | 'APPOINTMENT_SCHEDULED';
+  type:
+    | 'ROOM_STATUS_CHANGED'
+    | 'QUEUE_UPDATED'
+    | 'STAFF_SHIFT_CHANGED'
+    | 'APPOINTMENT_SCHEDULED';
   clinicId: string;
   payload: any;
   timestamp: string;
@@ -55,17 +70,24 @@ export class ClinicService {
     // Admins and Super Admins can query any clinic
     if (user.role === UserRole.SUPER_ADMIN || user.role === UserRole.ADMIN) {
       if (clinicId) {
-        const clinic = await this.prisma.clinic.findUnique({ where: { id: clinicId } });
-        if (!clinic) throw new NotFoundException(`Clinic ${clinicId} not found`);
+        const clinic = await this.prisma.clinic.findUnique({
+          where: { id: clinicId },
+        });
+        if (!clinic)
+          throw new NotFoundException(`Clinic ${clinicId} not found`);
         return clinic;
       }
-      const firstClinic = await this.prisma.clinic.findFirst({ orderBy: { createdAt: 'asc' } });
+      const firstClinic = await this.prisma.clinic.findFirst({
+        orderBy: { createdAt: 'asc' },
+      });
       if (firstClinic) return firstClinic;
     }
 
     // Check if manager is explicitly assigned to a clinic
     let clinic = await this.prisma.clinic.findFirst({
-      where: clinicId ? { id: clinicId, managerId: managerUserId } : { managerId: managerUserId },
+      where: clinicId
+        ? { id: clinicId, managerId: managerUserId }
+        : { managerId: managerUserId },
     });
 
     // If manager has no clinic yet, auto-assign or create default branch
@@ -125,7 +147,14 @@ export class ClinicService {
         take: limit,
         include: {
           manager: { select: { id: true, name: true, email: true } },
-          _count: { select: { doctors: true, appointments: true, rooms: true, staff: true } },
+          _count: {
+            select: {
+              doctors: true,
+              appointments: true,
+              rooms: true,
+              staff: true,
+            },
+          },
         },
         orderBy: { createdAt: 'desc' },
       }),
@@ -155,7 +184,14 @@ export class ClinicService {
         },
         rooms: true,
         staff: true,
-        _count: { select: { doctors: true, appointments: true, rooms: true, staff: true } },
+        _count: {
+          select: {
+            doctors: true,
+            appointments: true,
+            rooms: true,
+            staff: true,
+          },
+        },
       },
     });
 
@@ -181,16 +217,18 @@ export class ClinicService {
       },
     });
 
-    await this.prisma.auditLog.create({
-      data: {
-        actorId,
-        actorName: 'Admin',
-        action: 'Clinic Created',
-        resource: `Clinic ${clinic.name} (ID: ${clinic.id})`,
-        details: JSON.stringify(data),
-        result: 'success',
-      },
-    }).catch(() => null);
+    await this.prisma.auditLog
+      .create({
+        data: {
+          actorId,
+          actorName: 'Admin',
+          action: 'Clinic Created',
+          resource: `Clinic ${clinic.name} (ID: ${clinic.id})`,
+          details: JSON.stringify(data),
+          result: 'success',
+        },
+      })
+      .catch(() => null);
 
     return clinic;
   }
@@ -211,36 +249,45 @@ export class ClinicService {
       },
     });
 
-    await this.prisma.auditLog.create({
-      data: {
-        actorId,
-        actorName: 'Admin',
-        action: 'Clinic Updated',
-        resource: `Clinic ${clinic.name} (ID: ${clinic.id})`,
-        details: JSON.stringify(data),
-        result: 'success',
-      },
-    }).catch(() => null);
+    await this.prisma.auditLog
+      .create({
+        data: {
+          actorId,
+          actorName: 'Admin',
+          action: 'Clinic Updated',
+          resource: `Clinic ${clinic.name} (ID: ${clinic.id})`,
+          details: JSON.stringify(data),
+          result: 'success',
+        },
+      })
+      .catch(() => null);
 
     return clinic;
   }
 
-  async updateClinicStatus(id: string, status: AccountStatus, reason?: string, actorId?: string) {
+  async updateClinicStatus(
+    id: string,
+    status: AccountStatus,
+    reason?: string,
+    actorId?: string,
+  ) {
     const clinic = await this.prisma.clinic.update({
       where: { id },
       data: { status },
     });
 
-    await this.prisma.auditLog.create({
-      data: {
-        actorId,
-        actorName: 'Admin',
-        action: `Clinic Status Updated to ${status}`,
-        resource: `Clinic ${clinic.name} (ID: ${clinic.id})`,
-        details: reason ? JSON.stringify({ reason }) : undefined,
-        result: 'success',
-      },
-    }).catch(() => null);
+    await this.prisma.auditLog
+      .create({
+        data: {
+          actorId,
+          actorName: 'Admin',
+          action: `Clinic Status Updated to ${status}`,
+          resource: `Clinic ${clinic.name} (ID: ${clinic.id})`,
+          details: reason ? JSON.stringify({ reason }) : undefined,
+          result: 'success',
+        },
+      })
+      .catch(() => null);
 
     return clinic;
   }
@@ -268,11 +315,17 @@ export class ClinicService {
       completedToday,
     ] = await Promise.all([
       this.prisma.doctorProfile.count({ where: { clinicId: clinic.id } }),
-      this.prisma.doctorProfile.count({ where: { clinicId: clinic.id, isAvailableToday: true } }),
+      this.prisma.doctorProfile.count({
+        where: { clinicId: clinic.id, isAvailableToday: true },
+      }),
       this.prisma.clinicStaff.count({ where: { clinicId: clinic.id } }),
-      this.prisma.clinicStaff.count({ where: { clinicId: clinic.id, shiftStatus: StaffShiftStatus.ON_DUTY } }),
+      this.prisma.clinicStaff.count({
+        where: { clinicId: clinic.id, shiftStatus: StaffShiftStatus.ON_DUTY },
+      }),
       this.prisma.clinicRoom.count({ where: { clinicId: clinic.id } }),
-      this.prisma.clinicRoom.count({ where: { clinicId: clinic.id, status: RoomStatus.OCCUPIED } }),
+      this.prisma.clinicRoom.count({
+        where: { clinicId: clinic.id, status: RoomStatus.OCCUPIED },
+      }),
       this.prisma.appointment.count({
         where: {
           clinicId: clinic.id,
@@ -333,7 +386,14 @@ export class ClinicService {
       where: { id: clinic.id },
       include: {
         manager: { select: { id: true, name: true, email: true, role: true } },
-        _count: { select: { doctors: true, rooms: true, staff: true, appointments: true } },
+        _count: {
+          select: {
+            doctors: true,
+            rooms: true,
+            staff: true,
+            appointments: true,
+          },
+        },
       },
     });
   }
@@ -360,16 +420,18 @@ export class ClinicService {
       },
     });
 
-    await this.prisma.auditLog.create({
-      data: {
-        actorId: actorId || managerUserId,
-        actorName: 'Clinic Manager',
-        action: 'Clinic Profile Updated',
-        resource: `Clinic ${updated.name} (ID: ${updated.id})`,
-        details: JSON.stringify(dto),
-        result: 'success',
-      },
-    }).catch(() => null);
+    await this.prisma.auditLog
+      .create({
+        data: {
+          actorId: actorId || managerUserId,
+          actorName: 'Clinic Manager',
+          action: 'Clinic Profile Updated',
+          resource: `Clinic ${updated.name} (ID: ${updated.id})`,
+          details: JSON.stringify(dto),
+          result: 'success',
+        },
+      })
+      .catch(() => null);
 
     return updated;
   }
@@ -377,7 +439,11 @@ export class ClinicService {
   // =========================================================================
   // 4. CLINIC MANAGER: DOCTORS MANAGEMENT
   // =========================================================================
-  async listClinicDoctors(managerUserId: string, clinicId: string | undefined, filter: ClinicDoctorFilterDto) {
+  async listClinicDoctors(
+    managerUserId: string,
+    clinicId: string | undefined,
+    filter: ClinicDoctorFilterDto,
+  ) {
     const clinic = await this.resolveManagerClinic(managerUserId, clinicId);
 
     const page = Math.max(1, Number(filter.page) || 1);
@@ -447,16 +513,18 @@ export class ClinicService {
       include: { user: true },
     });
 
-    await this.prisma.auditLog.create({
-      data: {
-        actorId: actorId || managerUserId,
-        actorName: 'Clinic Manager',
-        action: 'Doctor Assigned to Clinic',
-        resource: `Doctor ${doctor.user.name || doctor.user.email} -> Clinic ${clinic.name}`,
-        details: JSON.stringify(dto),
-        result: 'success',
-      },
-    }).catch(() => null);
+    await this.prisma.auditLog
+      .create({
+        data: {
+          actorId: actorId || managerUserId,
+          actorName: 'Clinic Manager',
+          action: 'Doctor Assigned to Clinic',
+          resource: `Doctor ${doctor.user.name || doctor.user.email} -> Clinic ${clinic.name}`,
+          details: JSON.stringify(dto),
+          result: 'success',
+        },
+      })
+      .catch(() => null);
 
     return updated;
   }
@@ -475,7 +543,9 @@ export class ClinicService {
     });
 
     if (!doctor) {
-      throw new NotFoundException(`Doctor ${doctorId} not assigned to this clinic`);
+      throw new NotFoundException(
+        `Doctor ${doctorId} not assigned to this clinic`,
+      );
     }
 
     await this.prisma.doctorProfile.update({
@@ -483,23 +553,32 @@ export class ClinicService {
       data: { clinicId: null, roomNumber: null },
     });
 
-    await this.prisma.auditLog.create({
-      data: {
-        actorId: actorId || managerUserId,
-        actorName: 'Clinic Manager',
-        action: 'Doctor Removed from Clinic',
-        resource: `Doctor ${doctor.user.name || doctor.user.email} removed from Clinic ${clinic.name}`,
-        result: 'success',
-      },
-    }).catch(() => null);
+    await this.prisma.auditLog
+      .create({
+        data: {
+          actorId: actorId || managerUserId,
+          actorName: 'Clinic Manager',
+          action: 'Doctor Removed from Clinic',
+          resource: `Doctor ${doctor.user.name || doctor.user.email} removed from Clinic ${clinic.name}`,
+          result: 'success',
+        },
+      })
+      .catch(() => null);
 
-    return { success: true, message: 'Doctor successfully unassigned from clinic' };
+    return {
+      success: true,
+      message: 'Doctor successfully unassigned from clinic',
+    };
   }
 
   // =========================================================================
   // 5. CLINIC MANAGER: STAFF ROSTER MANAGEMENT
   // =========================================================================
-  async listClinicStaff(managerUserId: string, clinicId: string | undefined, filter: ClinicStaffFilterDto) {
+  async listClinicStaff(
+    managerUserId: string,
+    clinicId: string | undefined,
+    filter: ClinicStaffFilterDto,
+  ) {
     const clinic = await this.resolveManagerClinic(managerUserId, clinicId);
 
     const page = Math.max(1, Number(filter.page) || 1);
@@ -516,7 +595,9 @@ export class ClinicService {
       where.OR = [
         { name: { contains: filter.search, mode: 'insensitive' } },
         { email: { contains: filter.search, mode: 'insensitive' } },
-        { assignedDepartment: { contains: filter.search, mode: 'insensitive' } },
+        {
+          assignedDepartment: { contains: filter.search, mode: 'insensitive' },
+        },
       ];
     }
 
@@ -558,16 +639,18 @@ export class ClinicService {
       },
     });
 
-    await this.prisma.auditLog.create({
-      data: {
-        actorId: actorId || managerUserId,
-        actorName: 'Clinic Manager',
-        action: 'Clinic Staff Created',
-        resource: `Staff ${staff.name} (${staff.role}) -> Clinic ${clinic.name}`,
-        details: JSON.stringify(dto),
-        result: 'success',
-      },
-    }).catch(() => null);
+    await this.prisma.auditLog
+      .create({
+        data: {
+          actorId: actorId || managerUserId,
+          actorName: 'Clinic Manager',
+          action: 'Clinic Staff Created',
+          resource: `Staff ${staff.name} (${staff.role}) -> Clinic ${clinic.name}`,
+          details: JSON.stringify(dto),
+          result: 'success',
+        },
+      })
+      .catch(() => null);
 
     return staff;
   }
@@ -586,7 +669,9 @@ export class ClinicService {
     });
 
     if (!staff) {
-      throw new NotFoundException(`Staff member ${staffId} not found in this clinic`);
+      throw new NotFoundException(
+        `Staff member ${staffId} not found in this clinic`,
+      );
     }
 
     const updated = await this.prisma.clinicStaff.update({
@@ -599,7 +684,9 @@ export class ClinicService {
         ...(dto.shiftStatus && { shiftStatus: dto.shiftStatus }),
         ...(dto.shiftStart !== undefined && { shiftStart: dto.shiftStart }),
         ...(dto.shiftEnd !== undefined && { shiftEnd: dto.shiftEnd }),
-        ...(dto.assignedDepartment !== undefined && { assignedDepartment: dto.assignedDepartment }),
+        ...(dto.assignedDepartment !== undefined && {
+          assignedDepartment: dto.assignedDepartment,
+        }),
       },
     });
 
@@ -624,13 +711,20 @@ export class ClinicService {
 
     await this.prisma.clinicStaff.delete({ where: { id: staffId } });
 
-    return { success: true, message: 'Staff member removed from clinic roster' };
+    return {
+      success: true,
+      message: 'Staff member removed from clinic roster',
+    };
   }
 
   // =========================================================================
   // 6. CLINIC MANAGER: ROOMS MANAGEMENT
   // =========================================================================
-  async listClinicRooms(managerUserId: string, clinicId: string | undefined, filter: ClinicRoomFilterDto) {
+  async listClinicRooms(
+    managerUserId: string,
+    clinicId: string | undefined,
+    filter: ClinicRoomFilterDto,
+  ) {
     const clinic = await this.resolveManagerClinic(managerUserId, clinicId);
 
     const where: Prisma.ClinicRoomWhereInput = {
@@ -680,7 +774,9 @@ export class ClinicService {
     });
 
     if (existing) {
-      throw new BadRequestException(`Room number ${dto.roomNumber} already exists in this clinic`);
+      throw new BadRequestException(
+        `Room number ${dto.roomNumber} already exists in this clinic`,
+      );
     }
 
     const room = await this.prisma.clinicRoom.create({
@@ -741,7 +837,9 @@ export class ClinicService {
         ...(dto.status && { status: dto.status }),
         ...(dto.capacity !== undefined && { capacity: dto.capacity }),
         ...(dto.equipment && { equipment: dto.equipment as any }),
-        ...(dto.currentDoctorId !== undefined && { currentDoctorId: dto.currentDoctorId }),
+        ...(dto.currentDoctorId !== undefined && {
+          currentDoctorId: dto.currentDoctorId,
+        }),
       },
       include: {
         currentDoctor: {
@@ -937,31 +1035,38 @@ export class ClinicService {
     const startDate = new Date();
     startDate.setDate(startDate.getDate() - days);
 
-    const [totalAppointments, completedCount, cancelledCount, doctorCount, roomCount] =
-      await Promise.all([
-        this.prisma.appointment.count({
-          where: { clinicId: clinic.id, createdAt: { gte: startDate } },
-        }),
-        this.prisma.appointment.count({
-          where: {
-            clinicId: clinic.id,
-            status: AppointmentStatus.COMPLETED,
-            createdAt: { gte: startDate },
-          },
-        }),
-        this.prisma.appointment.count({
-          where: {
-            clinicId: clinic.id,
-            status: AppointmentStatus.CANCELLED,
-            createdAt: { gte: startDate },
-          },
-        }),
-        this.prisma.doctorProfile.count({ where: { clinicId: clinic.id } }),
-        this.prisma.clinicRoom.count({ where: { clinicId: clinic.id } }),
-      ]);
+    const [
+      totalAppointments,
+      completedCount,
+      cancelledCount,
+      doctorCount,
+      roomCount,
+    ] = await Promise.all([
+      this.prisma.appointment.count({
+        where: { clinicId: clinic.id, createdAt: { gte: startDate } },
+      }),
+      this.prisma.appointment.count({
+        where: {
+          clinicId: clinic.id,
+          status: AppointmentStatus.COMPLETED,
+          createdAt: { gte: startDate },
+        },
+      }),
+      this.prisma.appointment.count({
+        where: {
+          clinicId: clinic.id,
+          status: AppointmentStatus.CANCELLED,
+          createdAt: { gte: startDate },
+        },
+      }),
+      this.prisma.doctorProfile.count({ where: { clinicId: clinic.id } }),
+      this.prisma.clinicRoom.count({ where: { clinicId: clinic.id } }),
+    ]);
 
     const completionRate =
-      totalAppointments > 0 ? Math.round((completedCount / totalAppointments) * 100) : 100;
+      totalAppointments > 0
+        ? Math.round((completedCount / totalAppointments) * 100)
+        : 100;
 
     return {
       periodDays: days,

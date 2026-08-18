@@ -15,7 +15,11 @@ describe('ReceptionistGatewayController', () => {
   let auditService: any;
   let queueEventService: any;
 
-  const mockUser = { id: 'rec-user-1', email: 'reception@medcare.local', role: UserRole.RECEPTIONIST };
+  const mockUser = {
+    id: 'rec-user-1',
+    email: 'reception@medcare.local',
+    role: UserRole.RECEPTIONIST,
+  };
   const mockReq = { user: mockUser } as any;
 
   beforeEach(async () => {
@@ -25,8 +29,12 @@ describe('ReceptionistGatewayController', () => {
       }),
       listAppointments: jest.fn().mockResolvedValue({ data: [] }),
       reschedule: jest.fn().mockResolvedValue({ id: 'apt-1' }),
-      transitionStatus: jest.fn().mockResolvedValue({ id: 'apt-1', status: 'CANCELLED' }),
-      receptionistCheckIn: jest.fn().mockResolvedValue({ id: 'q-1', queueNumber: 1 }),
+      transitionStatus: jest
+        .fn()
+        .mockResolvedValue({ id: 'apt-1', status: 'CANCELLED' }),
+      receptionistCheckIn: jest
+        .fn()
+        .mockResolvedValue({ id: 'q-1', queueNumber: 1 }),
       receptionistGetLiveQueue: jest.fn().mockResolvedValue([
         {
           id: 'q-1',
@@ -37,17 +45,25 @@ describe('ReceptionistGatewayController', () => {
           roomNumber: 'Room 101',
         },
       ]),
-      receptionistUpdateQueueStatus: jest.fn().mockResolvedValue({ id: 'q-1', status: QueueStatus.CALLED }),
-      receptionistWalkInBooking: jest.fn().mockResolvedValue({ id: 'q-2', queueNumber: 2 }),
+      receptionistUpdateQueueStatus: jest
+        .fn()
+        .mockResolvedValue({ id: 'q-1', status: QueueStatus.CALLED }),
+      receptionistWalkInBooking: jest
+        .fn()
+        .mockResolvedValue({ id: 'q-2', queueNumber: 2 }),
     };
 
     doctorService = {
       receptionistGetDoctorStatusList: jest.fn().mockResolvedValue([]),
-      receptionistGetScheduleGrid: jest.fn().mockResolvedValue({ hours: [], schedules: [] }),
+      receptionistGetScheduleGrid: jest
+        .fn()
+        .mockResolvedValue({ hours: [], schedules: [] }),
     };
 
     patientService = {
-      receptionistSearchPatients: jest.fn().mockResolvedValue({ data: [], meta: { total: 0 } }),
+      receptionistSearchPatients: jest
+        .fn()
+        .mockResolvedValue({ data: [], meta: { total: 0 } }),
     };
 
     auditService = {
@@ -70,7 +86,9 @@ describe('ReceptionistGatewayController', () => {
       ],
     }).compile();
 
-    controller = module.get<ReceptionistGatewayController>(ReceptionistGatewayController);
+    controller = module.get<ReceptionistGatewayController>(
+      ReceptionistGatewayController,
+    );
   });
 
   it('should be defined', () => {
@@ -80,11 +98,16 @@ describe('ReceptionistGatewayController', () => {
   it('should get dashboard statistics', async () => {
     const res = await controller.getDashboard('clinic-1');
     expect(res).toBeDefined();
-    expect(appointmentService.receptionistGetDashboardStats).toHaveBeenCalledWith('clinic-1');
+    expect(
+      appointmentService.receptionistGetDashboardStats,
+    ).toHaveBeenCalledWith('clinic-1');
   });
 
   it('should execute patient check-in', async () => {
-    const res = await controller.checkInPatient({ appointmentId: 'apt-1', roomNumber: 'Room 101' }, mockReq);
+    const res = await controller.checkInPatient(
+      { appointmentId: 'apt-1', roomNumber: 'Room 101' },
+      mockReq,
+    );
     expect(res).toBeDefined();
     expect(appointmentService.receptionistCheckIn).toHaveBeenCalledWith(
       { appointmentId: 'apt-1', roomNumber: 'Room 101' },
@@ -93,9 +116,15 @@ describe('ReceptionistGatewayController', () => {
   });
 
   it('should update queue status', async () => {
-    const res = await controller.updateQueueStatus('q-1', { status: QueueStatus.CALLED }, mockReq);
+    const res = await controller.updateQueueStatus(
+      'q-1',
+      { status: QueueStatus.CALLED },
+      mockReq,
+    );
     expect(res).toBeDefined();
-    expect(appointmentService.receptionistUpdateQueueStatus).toHaveBeenCalledWith('q-1', QueueStatus.CALLED, 'rec-user-1');
+    expect(
+      appointmentService.receptionistUpdateQueueStatus,
+    ).toHaveBeenCalledWith('q-1', QueueStatus.CALLED, 'rec-user-1');
   });
 
   it('should return display board for waiting lobby TV', async () => {
@@ -108,12 +137,19 @@ describe('ReceptionistGatewayController', () => {
   it('should get doctor schedule grid matrix', async () => {
     const res = await controller.getScheduleGrid('2026-08-16', 'clinic-1');
     expect(res).toBeDefined();
-    expect(doctorService.receptionistGetScheduleGrid).toHaveBeenCalledWith('2026-08-16', 'clinic-1');
+    expect(doctorService.receptionistGetScheduleGrid).toHaveBeenCalledWith(
+      '2026-08-16',
+      'clinic-1',
+    );
   });
 
   it('should search patients directory', async () => {
     const res = await controller.searchPatients('rahim', '1', '10');
     expect(res).toBeDefined();
-    expect(patientService.receptionistSearchPatients).toHaveBeenCalledWith('rahim', 1, 10);
+    expect(patientService.receptionistSearchPatients).toHaveBeenCalledWith(
+      'rahim',
+      1,
+      10,
+    );
   });
 });

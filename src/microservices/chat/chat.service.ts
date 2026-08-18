@@ -48,7 +48,9 @@ export class ChatService {
   // ==========================================
   async startOrGetConversation(userId: string, dto: StartConversationDto) {
     if (userId === dto.recipientUserId) {
-      throw new BadRequestException('Cannot start a chat conversation with yourself');
+      throw new BadRequestException(
+        'Cannot start a chat conversation with yourself',
+      );
     }
 
     const recipient = await this.prisma.user.findUnique({
@@ -56,7 +58,9 @@ export class ChatService {
       include: { doctorProfile: true, patientProfile: true },
     });
     if (!recipient) {
-      throw new NotFoundException(`Recipient user ${dto.recipientUserId} not found`);
+      throw new NotFoundException(
+        `Recipient user ${dto.recipientUserId} not found`,
+      );
     }
 
     const sender = await this.prisma.user.findUnique({
@@ -83,7 +87,9 @@ export class ChatService {
                 name: true,
                 email: true,
                 role: true,
-                doctorProfile: { select: { specialty: true, roomNumber: true } },
+                doctorProfile: {
+                  select: { specialty: true, roomNumber: true },
+                },
                 patientProfile: { select: { bloodGroup: true, phone: true } },
               },
             },
@@ -103,9 +109,7 @@ export class ChatService {
     }
 
     // Auto-generate title if not specified
-    const title =
-      dto.title ||
-      `Chat with ${recipient.name || recipient.email}`;
+    const title = dto.title || `Chat with ${recipient.name || recipient.email}`;
 
     // Create new conversation
     const conversation = await this.prisma.conversation.create({
@@ -130,7 +134,9 @@ export class ChatService {
                 name: true,
                 email: true,
                 role: true,
-                doctorProfile: { select: { specialty: true, roomNumber: true } },
+                doctorProfile: {
+                  select: { specialty: true, roomNumber: true },
+                },
                 patientProfile: { select: { bloodGroup: true, phone: true } },
               },
             },
@@ -152,7 +158,11 @@ export class ChatService {
   // ==========================================
   // 2. SEND MESSAGE
   // ==========================================
-  async sendMessage(senderUserId: string, conversationId: string, dto: SendChatMessageDto) {
+  async sendMessage(
+    senderUserId: string,
+    conversationId: string,
+    dto: SendChatMessageDto,
+  ) {
     const participant = await this.prisma.chatParticipant.findUnique({
       where: {
         conversationId_userId: {
@@ -166,7 +176,9 @@ export class ChatService {
     });
 
     if (!participant) {
-      throw new ForbiddenException('You are not a participant in this conversation');
+      throw new ForbiddenException(
+        'You are not a participant in this conversation',
+      );
     }
 
     const created = await this.prisma.chatMessage.create({
@@ -275,7 +287,9 @@ export class ChatService {
                   name: true,
                   email: true,
                   role: true,
-                  doctorProfile: { select: { specialty: true, roomNumber: true } },
+                  doctorProfile: {
+                    select: { specialty: true, roomNumber: true },
+                  },
                   patientProfile: { select: { bloodGroup: true, phone: true } },
                 },
               },
@@ -287,9 +301,9 @@ export class ChatService {
     ]);
 
     // Format list with recipient info and user's specific unreadCount
-    const formatted = items.map(c => {
-      const myParticipant = c.participants.find(p => p.userId === userId);
-      const recipient = c.participants.find(p => p.userId !== userId);
+    const formatted = items.map((c) => {
+      const myParticipant = c.participants.find((p) => p.userId === userId);
+      const recipient = c.participants.find((p) => p.userId !== userId);
       return {
         id: c.id,
         title: c.title,
@@ -319,7 +333,11 @@ export class ChatService {
   // ==========================================
   // 4. GET CONVERSATION MESSAGES & MARK READ
   // ==========================================
-  async getConversationMessages(userId: string, conversationId: string, query: ChatMessageFilterDto) {
+  async getConversationMessages(
+    userId: string,
+    conversationId: string,
+    query: ChatMessageFilterDto,
+  ) {
     const participant = await this.prisma.chatParticipant.findUnique({
       where: {
         conversationId_userId: {
@@ -330,7 +348,9 @@ export class ChatService {
     });
 
     if (!participant) {
-      throw new ForbiddenException('You do not have access to this conversation');
+      throw new ForbiddenException(
+        'You do not have access to this conversation',
+      );
     }
 
     const page = Math.max(1, Number(query.page) || 1);
@@ -400,7 +420,9 @@ export class ChatService {
     });
 
     if (!participant) {
-      throw new ForbiddenException('You are not a participant in this conversation');
+      throw new ForbiddenException(
+        'You are not a participant in this conversation',
+      );
     }
 
     await this.prisma.chatParticipant.update({
@@ -417,7 +439,11 @@ export class ChatService {
   // ==========================================
   // 6. UPDATE CONVERSATION STATUS (RESOLVE / ARCHIVE)
   // ==========================================
-  async updateConversationStatus(userId: string, conversationId: string, status: ConversationStatus) {
+  async updateConversationStatus(
+    userId: string,
+    conversationId: string,
+    status: ConversationStatus,
+  ) {
     const participant = await this.prisma.chatParticipant.findUnique({
       where: {
         conversationId_userId: {
@@ -428,7 +454,9 @@ export class ChatService {
     });
 
     if (!participant) {
-      throw new ForbiddenException('You are not a participant in this conversation');
+      throw new ForbiddenException(
+        'You are not a participant in this conversation',
+      );
     }
 
     const updated = await this.prisma.conversation.update({

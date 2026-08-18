@@ -36,7 +36,9 @@ export class ChatGateway
     // Subscribe to internal chat events to broadcast to appropriate rooms
     this.chatService.getStream().subscribe((event: ChatLiveEvent) => {
       if (this.server) {
-        this.server.to(`conversation_${event.conversationId}`).emit('chatEvent', event);
+        this.server
+          .to(`conversation_${event.conversationId}`)
+          .emit('chatEvent', event);
       }
     });
   }
@@ -122,7 +124,10 @@ export class ChatGateway
 
       return { status: 'success', data: saved };
     } catch (err: any) {
-      return { status: 'error', message: err?.message || 'Failed to send message' };
+      return {
+        status: 'error',
+        message: err?.message || 'Failed to send message',
+      };
     }
   }
 }

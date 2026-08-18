@@ -1,20 +1,42 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { AccountStatus, VerificationStatus, AppointmentStatus, AppointmentType } from '../../../../generated/prisma/client';
+import {
+  AccountStatus,
+  VerificationStatus,
+  AppointmentStatus,
+  AppointmentType,
+} from '../../../../generated/prisma/client';
 
 export class DoctorFilterDto {
-  @ApiPropertyOptional({ example: 'Cardiology', description: 'Search doctor name, specialty, license number, or email' })
+  @ApiPropertyOptional({
+    example: 'Cardiology',
+    description: 'Search doctor name, specialty, license number, or email',
+  })
   q?: string;
 
-  @ApiPropertyOptional({ example: 'Cardiology', description: 'Filter by specialty (e.g., Cardiology, Dermatology)' })
+  @ApiPropertyOptional({
+    example: 'Cardiology',
+    description: 'Filter by specialty (e.g., Cardiology, Dermatology)',
+  })
   specialty?: string;
 
-  @ApiPropertyOptional({ enum: AccountStatus, example: AccountStatus.ACTIVE, description: 'Filter by account status' })
+  @ApiPropertyOptional({
+    enum: AccountStatus,
+    example: AccountStatus.ACTIVE,
+    description: 'Filter by account status',
+  })
   accountStatus?: AccountStatus;
 
-  @ApiPropertyOptional({ enum: VerificationStatus, example: VerificationStatus.APPROVED, description: 'Filter by verification status' })
+  @ApiPropertyOptional({
+    enum: VerificationStatus,
+    example: VerificationStatus.APPROVED,
+    description: 'Filter by verification status',
+  })
   verificationStatus?: VerificationStatus;
 
-  @ApiPropertyOptional({ example: 'clinic-1', description: 'Filter by clinic ID' })
+  @ApiPropertyOptional({
+    example: 'clinic-1',
+    description: 'Filter by clinic ID',
+  })
   clinicId?: string;
 
   @ApiPropertyOptional({ example: 1, default: 1 })
@@ -25,16 +47,31 @@ export class DoctorFilterDto {
 }
 
 export class VerificationDecisionDto {
-  @ApiProperty({ enum: ['APPROVED', 'REJECTED', 'DOCUMENTS_REQUESTED'], example: 'APPROVED', description: 'Admin verification decision' })
+  @ApiProperty({
+    enum: ['APPROVED', 'REJECTED', 'DOCUMENTS_REQUESTED'],
+    example: 'APPROVED',
+    description: 'Admin verification decision',
+  })
   decision!: 'APPROVED' | 'REJECTED' | 'DOCUMENTS_REQUESTED';
 
-  @ApiPropertyOptional({ example: 'Medical license and credentials verified with state medical board.', description: 'Feedback or explanation notes for the doctor' })
+  @ApiPropertyOptional({
+    example:
+      'Medical license and credentials verified with state medical board.',
+    description: 'Feedback or explanation notes for the doctor',
+  })
   notes?: string;
 
-  @ApiPropertyOptional({ example: 'admin-usr-1', description: 'Admin user ID taking decision' })
+  @ApiPropertyOptional({
+    example: 'admin-usr-1',
+    description: 'Admin user ID taking decision',
+  })
   adminId?: string;
 
-  @ApiPropertyOptional({ type: [String], example: ['Updated Board Certification 2026'], description: 'List of additional documents requested' })
+  @ApiPropertyOptional({
+    type: [String],
+    example: ['Updated Board Certification 2026'],
+    description: 'List of additional documents requested',
+  })
   requestedDocuments?: string[];
 }
 
@@ -47,16 +84,28 @@ export class UpdateDoctorStatusDto {
 }
 
 export class PatientDoctorSearchDto {
-  @ApiPropertyOptional({ example: 'Sarah Mitchell', description: 'Search doctor name or specialty' })
+  @ApiPropertyOptional({
+    example: 'Sarah Mitchell',
+    description: 'Search doctor name or specialty',
+  })
   q?: string;
 
-  @ApiPropertyOptional({ example: 'Cardiology', description: 'Filter by medical specialty' })
+  @ApiPropertyOptional({
+    example: 'Cardiology',
+    description: 'Filter by medical specialty',
+  })
   specialty?: string;
 
-  @ApiPropertyOptional({ example: 'clinic-1', description: 'Filter by Clinic ID' })
+  @ApiPropertyOptional({
+    example: 'clinic-1',
+    description: 'Filter by Clinic ID',
+  })
   clinicId?: string;
 
-  @ApiPropertyOptional({ example: 4.5, description: 'Minimum average rating filter (e.g. 4.0, 4.5)' })
+  @ApiPropertyOptional({
+    example: 4.5,
+    description: 'Minimum average rating filter (e.g. 4.0, 4.5)',
+  })
   minRating?: number;
 
   @ApiPropertyOptional({ example: 1, default: 1 })
@@ -97,13 +146,65 @@ export class DoctorScheduleDto {
   @ApiProperty({
     type: [DoctorScheduleDayDto],
     example: [
-      { dayOfWeek: 'Monday', isEnabled: true, startTime: '09:00', endTime: '17:00', breakStartTime: '13:00', breakEndTime: '14:00', slotDurationMin: 30 },
-      { dayOfWeek: 'Tuesday', isEnabled: true, startTime: '09:00', endTime: '17:00', breakStartTime: '13:00', breakEndTime: '14:00', slotDurationMin: 30 },
-      { dayOfWeek: 'Wednesday', isEnabled: true, startTime: '09:00', endTime: '17:00', breakStartTime: '13:00', breakEndTime: '14:00', slotDurationMin: 30 },
-      { dayOfWeek: 'Thursday', isEnabled: true, startTime: '09:00', endTime: '17:00', breakStartTime: '13:00', breakEndTime: '14:00', slotDurationMin: 30 },
-      { dayOfWeek: 'Friday', isEnabled: true, startTime: '09:00', endTime: '16:00', breakStartTime: '13:00', breakEndTime: '14:00', slotDurationMin: 30 },
-      { dayOfWeek: 'Saturday', isEnabled: false, startTime: '10:00', endTime: '14:00', slotDurationMin: 30 },
-      { dayOfWeek: 'Sunday', isEnabled: false, startTime: '00:00', endTime: '00:00', slotDurationMin: 30 },
+      {
+        dayOfWeek: 'Monday',
+        isEnabled: true,
+        startTime: '09:00',
+        endTime: '17:00',
+        breakStartTime: '13:00',
+        breakEndTime: '14:00',
+        slotDurationMin: 30,
+      },
+      {
+        dayOfWeek: 'Tuesday',
+        isEnabled: true,
+        startTime: '09:00',
+        endTime: '17:00',
+        breakStartTime: '13:00',
+        breakEndTime: '14:00',
+        slotDurationMin: 30,
+      },
+      {
+        dayOfWeek: 'Wednesday',
+        isEnabled: true,
+        startTime: '09:00',
+        endTime: '17:00',
+        breakStartTime: '13:00',
+        breakEndTime: '14:00',
+        slotDurationMin: 30,
+      },
+      {
+        dayOfWeek: 'Thursday',
+        isEnabled: true,
+        startTime: '09:00',
+        endTime: '17:00',
+        breakStartTime: '13:00',
+        breakEndTime: '14:00',
+        slotDurationMin: 30,
+      },
+      {
+        dayOfWeek: 'Friday',
+        isEnabled: true,
+        startTime: '09:00',
+        endTime: '16:00',
+        breakStartTime: '13:00',
+        breakEndTime: '14:00',
+        slotDurationMin: 30,
+      },
+      {
+        dayOfWeek: 'Saturday',
+        isEnabled: false,
+        startTime: '10:00',
+        endTime: '14:00',
+        slotDurationMin: 30,
+      },
+      {
+        dayOfWeek: 'Sunday',
+        isEnabled: false,
+        startTime: '00:00',
+        endTime: '00:00',
+        slotDurationMin: 30,
+      },
     ],
   })
   days!: DoctorScheduleDayDto[];
@@ -111,25 +212,43 @@ export class DoctorScheduleDto {
   @ApiPropertyOptional({ example: 150, description: 'Consultation fee in USD' })
   consultationFee?: number;
 
-  @ApiPropertyOptional({ example: 30, description: 'Default consultation duration in minutes' })
+  @ApiPropertyOptional({
+    example: 30,
+    description: 'Default consultation duration in minutes',
+  })
   slotDurationMin?: number;
 }
 
 export class SaveConsultationNotesDto {
-  @ApiPropertyOptional({ example: 'Chest discomfort on exertion, shortness of breath for past 2 weeks' })
+  @ApiPropertyOptional({
+    example:
+      'Chest discomfort on exertion, shortness of breath for past 2 weeks',
+  })
   symptoms?: string;
 
   @ApiProperty({ example: 'Stage 1 Essential Hypertension & Stable Angina' })
   diagnosis!: string;
 
-  @ApiPropertyOptional({ example: 'Patient reports symptom aggravation after physical exertion. ECG shows normal sinus rhythm.' })
+  @ApiPropertyOptional({
+    example:
+      'Patient reports symptom aggravation after physical exertion. ECG shows normal sinus rhythm.',
+  })
   clinicalNotes?: string;
 
-  @ApiPropertyOptional({ example: 'Prescribe ACE inhibitor (Lisinopril 10mg). Low sodium diet. Follow-up lipid panel & ECG in 4 weeks.' })
+  @ApiPropertyOptional({
+    example:
+      'Prescribe ACE inhibitor (Lisinopril 10mg). Low sodium diet. Follow-up lipid panel & ECG in 4 weeks.',
+  })
   treatmentPlan?: string;
 
   @ApiPropertyOptional({
-    example: { bp: '135/85', pulse: 74, temp: '98.6°F', weight: '74kg', spO2: '99%' },
+    example: {
+      bp: '135/85',
+      pulse: 74,
+      temp: '98.6°F',
+      weight: '74kg',
+      spO2: '99%',
+    },
     description: 'Patient vital signs record',
   })
   vitals?: Record<string, any>;
@@ -153,7 +272,10 @@ export class PrescriptionMedicineDto {
 }
 
 export class CreateDoctorPrescriptionDto {
-  @ApiProperty({ example: 'apt-1001', description: 'Associated appointment ID' })
+  @ApiProperty({
+    example: 'apt-1001',
+    description: 'Associated appointment ID',
+  })
   appointmentId!: string;
 
   @ApiProperty({ example: 'pat-1001', description: 'Patient Profile ID' })
@@ -162,7 +284,10 @@ export class CreateDoctorPrescriptionDto {
   @ApiPropertyOptional({ example: 'Stage 1 Hypertension' })
   diagnosis?: string;
 
-  @ApiPropertyOptional({ example: 'Maintain regular physical activity (30 mins walking). Restrict dietary sodium.' })
+  @ApiPropertyOptional({
+    example:
+      'Maintain regular physical activity (30 mins walking). Restrict dietary sodium.',
+  })
   advice?: string;
 
   @ApiPropertyOptional({ example: '2026-09-15' })
@@ -171,21 +296,44 @@ export class CreateDoctorPrescriptionDto {
   @ApiProperty({
     type: [PrescriptionMedicineDto],
     example: [
-      { name: 'Lisinopril', dosage: '10mg', frequency: 'Once daily', duration: '90 days', instructions: 'Take in the morning' },
-      { name: 'Aspirin (Cardio)', dosage: '81mg', frequency: 'Once daily', duration: '90 days', instructions: 'Take after breakfast' },
+      {
+        name: 'Lisinopril',
+        dosage: '10mg',
+        frequency: 'Once daily',
+        duration: '90 days',
+        instructions: 'Take in the morning',
+      },
+      {
+        name: 'Aspirin (Cardio)',
+        dosage: '81mg',
+        frequency: 'Once daily',
+        duration: '90 days',
+        instructions: 'Take after breakfast',
+      },
     ],
   })
   medicines!: PrescriptionMedicineDto[];
 }
 
 export class DoctorAppointmentFilterDto {
-  @ApiPropertyOptional({ example: '2026-08-17', description: 'Filter by date (YYYY-MM-DD)' })
+  @ApiPropertyOptional({
+    example: '2026-08-17',
+    description: 'Filter by date (YYYY-MM-DD)',
+  })
   date?: string;
 
-  @ApiPropertyOptional({ enum: AppointmentStatus, example: AppointmentStatus.CONFIRMED, description: 'Filter by status' })
+  @ApiPropertyOptional({
+    enum: AppointmentStatus,
+    example: AppointmentStatus.CONFIRMED,
+    description: 'Filter by status',
+  })
   status?: AppointmentStatus;
 
-  @ApiPropertyOptional({ enum: AppointmentType, example: AppointmentType.IN_PERSON, description: 'Filter by consultation type (IN_PERSON / VIDEO)' })
+  @ApiPropertyOptional({
+    enum: AppointmentType,
+    example: AppointmentType.IN_PERSON,
+    description: 'Filter by consultation type (IN_PERSON / VIDEO)',
+  })
   type?: AppointmentType;
 
   @ApiPropertyOptional({ example: 'James', description: 'Search patient name' })
@@ -199,7 +347,10 @@ export class DoctorAppointmentFilterDto {
 }
 
 export class DoctorPrescriptionFilterDto {
-  @ApiPropertyOptional({ example: 'James', description: 'Search patient name or diagnosis' })
+  @ApiPropertyOptional({
+    example: 'James',
+    description: 'Search patient name or diagnosis',
+  })
   search?: string;
 
   @ApiPropertyOptional({ example: 1, default: 1 })
@@ -210,7 +361,10 @@ export class DoctorPrescriptionFilterDto {
 }
 
 export class DoctorPatientFilterDto {
-  @ApiPropertyOptional({ example: 'James', description: 'Search patient name, phone, or email' })
+  @ApiPropertyOptional({
+    example: 'James',
+    description: 'Search patient name, phone, or email',
+  })
   search?: string;
 
   @ApiPropertyOptional({ example: 1, default: 1 })
@@ -243,7 +397,9 @@ export class DoctorPayoutRequestDto {
 }
 
 export class DoctorReplyReviewDto {
-  @ApiProperty({ example: 'Thank you for your valuable feedback! Wishing you good health.' })
+  @ApiProperty({
+    example: 'Thank you for your valuable feedback! Wishing you good health.',
+  })
   reply!: string;
 }
 
@@ -263,7 +419,10 @@ export class UpdateDoctorProfileDto {
   @ApiPropertyOptional({ example: 'Consultation Room 204' })
   roomNumber?: string;
 
-  @ApiPropertyOptional({ example: 'Board-certified cardiologist specializing in preventive cardiovascular medicine and coronary care.' })
+  @ApiPropertyOptional({
+    example:
+      'Board-certified cardiologist specializing in preventive cardiovascular medicine and coronary care.',
+  })
   bio?: string;
 
   @ApiPropertyOptional({ example: '+1 (555) 234-5678' })

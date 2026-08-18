@@ -2,7 +2,12 @@ import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { PATTERNS } from '../common/microservices.constants';
 import { RbacService } from './rbac.service';
-import { AccessRequestFilterDto, CreateRoleDto, DecideAccessRequestDto, UpdateRolePermissionsDto } from './dto/rbac.dto';
+import {
+  AccessRequestFilterDto,
+  CreateRoleDto,
+  DecideAccessRequestDto,
+  UpdateRolePermissionsDto,
+} from './dto/rbac.dto';
 
 @Controller()
 export class RbacController {
@@ -14,8 +19,19 @@ export class RbacController {
   }
 
   @MessagePattern(PATTERNS.RBAC.DECIDE_REQUEST)
-  async decideRequest(@Payload() payload: { id: string; dto: DecideAccessRequestDto; superAdminId?: string }) {
-    return this.rbacService.decideAccessRequest(payload.id, payload.dto, payload.superAdminId);
+  async decideRequest(
+    @Payload()
+    payload: {
+      id: string;
+      dto: DecideAccessRequestDto;
+      superAdminId?: string;
+    },
+  ) {
+    return this.rbacService.decideAccessRequest(
+      payload.id,
+      payload.dto,
+      payload.superAdminId,
+    );
   }
 
   @MessagePattern(PATTERNS.RBAC.GET_MATRIX)
@@ -24,7 +40,18 @@ export class RbacController {
   }
 
   @MessagePattern(PATTERNS.RBAC.UPDATE_PERMISSIONS)
-  async updatePermissions(@Payload() payload: { roleId: string; dto: UpdateRolePermissionsDto; superAdminId?: string }) {
-    return this.rbacService.updateRolePermissions(payload.roleId, payload.dto, payload.superAdminId);
+  async updatePermissions(
+    @Payload()
+    payload: {
+      roleId: string;
+      dto: UpdateRolePermissionsDto;
+      superAdminId?: string;
+    },
+  ) {
+    return this.rbacService.updateRolePermissions(
+      payload.roleId,
+      payload.dto,
+      payload.superAdminId,
+    );
   }
 }

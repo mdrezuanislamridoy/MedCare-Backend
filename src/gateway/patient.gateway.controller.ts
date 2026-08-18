@@ -74,8 +74,14 @@ export class PatientGatewayController {
   // ==========================================
   // 1. DASHBOARD OVERVIEW
   // ==========================================
-  @ApiOperation({ summary: 'Get patient dashboard summary (stats, upcoming appointment, recent records)' })
-  @ApiResponse({ status: 200, description: 'Dashboard data retrieved successfully' })
+  @ApiOperation({
+    summary:
+      'Get patient dashboard summary (stats, upcoming appointment, recent records)',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Dashboard data retrieved successfully',
+  })
   @Get('dashboard')
   async getDashboardSummary(@Req() req: AuthenticatedRequest) {
     return this.patientService.getDashboardSummary(req.user.id);
@@ -84,14 +90,19 @@ export class PatientGatewayController {
   // ==========================================
   // 2. PROFILE & SETTINGS
   // ==========================================
-  @ApiOperation({ summary: 'Get current patient profile details and emergency contact' })
+  @ApiOperation({
+    summary: 'Get current patient profile details and emergency contact',
+  })
   @ApiResponse({ status: 200, description: 'Profile details returned' })
   @Get('profile')
   async getProfile(@Req() req: AuthenticatedRequest) {
     return this.patientService.getProfile(req.user.id);
   }
 
-  @ApiOperation({ summary: 'Update patient health metrics, emergency info, and contact details' })
+  @ApiOperation({
+    summary:
+      'Update patient health metrics, emergency info, and contact details',
+  })
   @ApiResponse({ status: 200, description: 'Profile successfully updated' })
   @Put('profile')
   async updateProfile(
@@ -104,14 +115,18 @@ export class PatientGatewayController {
   // ==========================================
   // 3. DOCTORS SEARCH & SLOTS
   // ==========================================
-  @ApiOperation({ summary: 'Search active doctors by name, specialty, clinic, or rating' })
+  @ApiOperation({
+    summary: 'Search active doctors by name, specialty, clinic, or rating',
+  })
   @ApiResponse({ status: 200, description: 'Doctor search results returned' })
   @Get('doctors')
   async searchDoctors(@Query() query: PatientDoctorSearchDto) {
     return this.doctorService.patientSearchDoctors(query);
   }
 
-  @ApiOperation({ summary: 'Get comprehensive details, bio, and reviews for a doctor' })
+  @ApiOperation({
+    summary: 'Get comprehensive details, bio, and reviews for a doctor',
+  })
   @ApiResponse({ status: 200, description: 'Doctor profile returned' })
   @ApiParam({ name: 'id', description: 'Doctor Profile ID' })
   @Get('doctors/:id')
@@ -119,15 +134,19 @@ export class PatientGatewayController {
     return this.doctorService.patientGetDoctorDetails(id);
   }
 
-  @ApiOperation({ summary: 'Get available consultation time slots for a doctor on a specific date' })
+  @ApiOperation({
+    summary:
+      'Get available consultation time slots for a doctor on a specific date',
+  })
   @ApiResponse({ status: 200, description: 'Time slots list returned' })
   @ApiParam({ name: 'id', description: 'Doctor Profile ID' })
-  @ApiQuery({ name: 'date', required: false, description: 'Target date (YYYY-MM-DD)' })
+  @ApiQuery({
+    name: 'date',
+    required: false,
+    description: 'Target date (YYYY-MM-DD)',
+  })
   @Get('doctors/:id/slots')
-  async getDoctorSlots(
-    @Param('id') id: string,
-    @Query('date') date: string,
-  ) {
+  async getDoctorSlots(@Param('id') id: string, @Query('date') date: string) {
     const targetDate = date || new Date().toISOString().split('T')[0];
     return this.doctorService.patientGetDoctorSlots(id, targetDate);
   }
@@ -135,7 +154,10 @@ export class PatientGatewayController {
   // ==========================================
   // 4. APPOINTMENTS
   // ==========================================
-  @ApiOperation({ summary: 'List patient appointments by tab (upcoming, completed, cancelled, all)' })
+  @ApiOperation({
+    summary:
+      'List patient appointments by tab (upcoming, completed, cancelled, all)',
+  })
   @ApiResponse({ status: 200, description: 'Appointments list returned' })
   @Get('appointments')
   async listAppointments(
@@ -156,8 +178,14 @@ export class PatientGatewayController {
     return this.appointmentService.patientGetAppointment(req.user.id, id);
   }
 
-  @ApiOperation({ summary: 'Get WebRTC / Agora video session token and room ID for teleconsultation' })
-  @ApiResponse({ status: 200, description: 'Video session room ID and token generated' })
+  @ApiOperation({
+    summary:
+      'Get WebRTC / Agora video session token and room ID for teleconsultation',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Video session room ID and token generated',
+  })
   @ApiParam({ name: 'id', description: 'Appointment ID' })
   @Get('appointments/:id/video-session')
   async getVideoSession(
@@ -187,7 +215,11 @@ export class PatientGatewayController {
     @Param('id') id: string,
     @Body('reason') reason?: string,
   ) {
-    return this.appointmentService.patientCancelAppointment(req.user.id, id, reason);
+    return this.appointmentService.patientCancelAppointment(
+      req.user.id,
+      id,
+      reason,
+    );
   }
 
   @ApiOperation({ summary: 'Reschedule an appointment to a new date and time' })
@@ -200,20 +232,29 @@ export class PatientGatewayController {
     @Param('id') id: string,
     @Body() body: RescheduleAppointmentDto,
   ) {
-    return this.appointmentService.patientRescheduleAppointment(req.user.id, id, body);
+    return this.appointmentService.patientRescheduleAppointment(
+      req.user.id,
+      id,
+      body,
+    );
   }
 
   // ==========================================
   // 5. PRESCRIPTIONS
   // ==========================================
-  @ApiOperation({ summary: 'List all digital prescriptions issued for current patient' })
+  @ApiOperation({
+    summary: 'List all digital prescriptions issued for current patient',
+  })
   @ApiResponse({ status: 200, description: 'Prescriptions list returned' })
   @Get('prescriptions')
   async listPrescriptions(@Req() req: AuthenticatedRequest) {
     return this.patientService.listPrescriptions(req.user.id);
   }
 
-  @ApiOperation({ summary: 'Get digital prescription details with medicines, dosage, and doctor notes' })
+  @ApiOperation({
+    summary:
+      'Get digital prescription details with medicines, dosage, and doctor notes',
+  })
   @ApiResponse({ status: 200, description: 'Prescription details returned' })
   @ApiParam({ name: 'id', description: 'Prescription ID' })
   @Get('prescriptions/:id')
@@ -248,7 +289,10 @@ export class PatientGatewayController {
     return this.patientService.createMedicalRecord(req.user.id, body);
   }
 
-  @ApiOperation({ summary: 'Upload medical document / lab test file (PDF, JPG, PNG up to 10MB)' })
+  @ApiOperation({
+    summary:
+      'Upload medical document / lab test file (PDF, JPG, PNG up to 10MB)',
+  })
   @ApiResponse({ status: 201, description: 'File uploaded and record created' })
   @ApiConsumes('multipart/form-data')
   @ApiBody({
@@ -274,7 +318,13 @@ export class PatientGatewayController {
   async uploadMedicalRecord(
     @Req() req: AuthenticatedRequest,
     @UploadedFile() file: Express.Multer.File,
-    @Body() body: { title?: string; category?: RecordCategory; notes?: string; recordDate?: string },
+    @Body()
+    body: {
+      title?: string;
+      category?: RecordCategory;
+      notes?: string;
+      recordDate?: string;
+    },
   ) {
     if (!file) {
       throw new BadRequestException('Please provide a file to upload');
@@ -305,7 +355,10 @@ export class PatientGatewayController {
   // ==========================================
   // 7. PAYMENTS & INVOICES
   // ==========================================
-  @ApiOperation({ summary: 'Get patient financial summary (total spent, pending invoices count)' })
+  @ApiOperation({
+    summary:
+      'Get patient financial summary (total spent, pending invoices count)',
+  })
   @ApiResponse({ status: 200, description: 'Financial summary returned' })
   @Get('payments/summary')
   async getPaymentsSummary(@Req() req: AuthenticatedRequest) {
@@ -329,13 +382,17 @@ export class PatientGatewayController {
   @Post('payments/checkout-session')
   async createCheckoutSession(
     @Req() req: AuthenticatedRequest,
-    @Body() body: { appointmentId: string; provider?: string; returnUrl?: string },
+    @Body()
+    body: { appointmentId: string; provider?: string; returnUrl?: string },
   ) {
     return this.financeService.createCheckoutSession(req.user.id, body);
   }
 
   @ApiOperation({ summary: 'Simulate or complete appointment direct payment' })
-  @ApiResponse({ status: 200, description: 'Payment recorded and appointment marked PAID' })
+  @ApiResponse({
+    status: 200,
+    description: 'Payment recorded and appointment marked PAID',
+  })
   @Post('payments/pay')
   async payAppointment(
     @Req() req: AuthenticatedRequest,
@@ -347,7 +404,9 @@ export class PatientGatewayController {
   // ==========================================
   // 8. REVIEWS & RATINGS
   // ==========================================
-  @ApiOperation({ summary: 'List completed appointments pending doctor review' })
+  @ApiOperation({
+    summary: 'List completed appointments pending doctor review',
+  })
   @ApiResponse({ status: 200, description: 'Pending reviews returned' })
   @Get('reviews/pending')
   async listPendingReviews(@Req() req: AuthenticatedRequest) {

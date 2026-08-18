@@ -48,8 +48,12 @@ export class SupportService {
       priorityTickets,
     ] = await Promise.all([
       this.prisma.supportTicket.count({ where: { status: TicketStatus.OPEN } }),
-      this.prisma.supportTicket.count({ where: { status: TicketStatus.IN_PROGRESS } }),
-      this.prisma.supportTicket.count({ where: { status: TicketStatus.WAITING_FOR_USER } }),
+      this.prisma.supportTicket.count({
+        where: { status: TicketStatus.IN_PROGRESS },
+      }),
+      this.prisma.supportTicket.count({
+        where: { status: TicketStatus.WAITING_FOR_USER },
+      }),
       this.prisma.supportTicket.count({
         where: {
           status: TicketStatus.RESOLVED,
@@ -69,7 +73,9 @@ export class SupportService {
         take: 6,
         orderBy: { createdAt: 'desc' },
         include: {
-          patient: { include: { user: { select: { name: true, email: true } } } },
+          patient: {
+            include: { user: { select: { name: true, email: true } } },
+          },
           assignedStaff: { select: { name: true } },
         },
       }),
@@ -81,7 +87,9 @@ export class SupportService {
         take: 4,
         orderBy: { createdAt: 'desc' },
         include: {
-          patient: { include: { user: { select: { name: true, email: true } } } },
+          patient: {
+            include: { user: { select: { name: true, email: true } } },
+          },
         },
       }),
     ]);
@@ -135,7 +143,11 @@ export class SupportService {
         { ticketNumber: { contains: query.search, mode: 'insensitive' } },
         { subject: { contains: query.search, mode: 'insensitive' } },
         { description: { contains: query.search, mode: 'insensitive' } },
-        { patient: { user: { name: { contains: query.search, mode: 'insensitive' } } } },
+        {
+          patient: {
+            user: { name: { contains: query.search, mode: 'insensitive' } },
+          },
+        },
       ];
     }
 
@@ -146,7 +158,9 @@ export class SupportService {
         take: limit,
         orderBy: { createdAt: 'desc' },
         include: {
-          patient: { include: { user: { select: { name: true, email: true } } } },
+          patient: {
+            include: { user: { select: { name: true, email: true } } },
+          },
           assignedStaff: { select: { id: true, name: true, email: true } },
           _count: { select: { messages: true } },
         },
@@ -209,7 +223,12 @@ export class SupportService {
       },
     });
 
-    await this.logActivity(staffId, 'CREATE_TICKET', ticket.id, `Created ticket ${ticketNumber}`);
+    await this.logActivity(
+      staffId,
+      'CREATE_TICKET',
+      ticket.id,
+      `Created ticket ${ticketNumber}`,
+    );
 
     // Emit live event
     this.supportEventService.emit({
@@ -252,7 +271,10 @@ export class SupportService {
       },
     });
 
-    if (!dto.isInternalNote && ticket.status === TicketStatus.WAITING_FOR_USER) {
+    if (
+      !dto.isInternalNote &&
+      ticket.status === TicketStatus.WAITING_FOR_USER
+    ) {
       await this.prisma.supportTicket.update({
         where: { id: ticketId },
         data: { status: TicketStatus.IN_PROGRESS },
@@ -282,7 +304,9 @@ export class SupportService {
   }
 
   async assignTicket(ticketId: string, staffId: string, actorId: string) {
-    const ticket = await this.prisma.supportTicket.findUnique({ where: { id: ticketId } });
+    const ticket = await this.prisma.supportTicket.findUnique({
+      where: { id: ticketId },
+    });
     if (!ticket) {
       throw new NotFoundException(`Ticket with ID ${ticketId} not found`);
     }
@@ -295,7 +319,12 @@ export class SupportService {
       },
     });
 
-    await this.logActivity(actorId, 'ASSIGN_TICKET', ticketId, `Assigned ticket ${ticket.ticketNumber} to staff`);
+    await this.logActivity(
+      actorId,
+      'ASSIGN_TICKET',
+      ticketId,
+      `Assigned ticket ${ticket.ticketNumber} to staff`,
+    );
 
     // Emit live event
     this.supportEventService.emit({
@@ -311,8 +340,14 @@ export class SupportService {
     return updated;
   }
 
-  async updateTicketStatus(ticketId: string, dto: UpdateTicketStatusDto, actorId: string) {
-    const ticket = await this.prisma.supportTicket.findUnique({ where: { id: ticketId } });
+  async updateTicketStatus(
+    ticketId: string,
+    dto: UpdateTicketStatusDto,
+    actorId: string,
+  ) {
+    const ticket = await this.prisma.supportTicket.findUnique({
+      where: { id: ticketId },
+    });
     if (!ticket) {
       throw new NotFoundException(`Ticket with ID ${ticketId} not found`);
     }
@@ -339,7 +374,10 @@ export class SupportService {
       `Changed ticket ${ticket.ticketNumber} status to ${dto.status}`,
     );
 
-    if (dto.status === TicketStatus.RESOLVED || dto.status === TicketStatus.CLOSED) {
+    if (
+      dto.status === TicketStatus.RESOLVED ||
+      dto.status === TicketStatus.CLOSED
+    ) {
       this.supportEventService.emit({
         type: 'TICKET_RESOLVED',
         targetId: ticketId,
@@ -376,8 +414,16 @@ export class SupportService {
         { complaintNumber: { contains: query.search, mode: 'insensitive' } },
         { title: { contains: query.search, mode: 'insensitive' } },
         { description: { contains: query.search, mode: 'insensitive' } },
-        { patient: { user: { name: { contains: query.search, mode: 'insensitive' } } } },
-        { relatedDoctor: { user: { name: { contains: query.search, mode: 'insensitive' } } } },
+        {
+          patient: {
+            user: { name: { contains: query.search, mode: 'insensitive' } },
+          },
+        },
+        {
+          relatedDoctor: {
+            user: { name: { contains: query.search, mode: 'insensitive' } },
+          },
+        },
       ];
     }
 
@@ -388,7 +434,9 @@ export class SupportService {
         take: limit,
         orderBy: { createdAt: 'desc' },
         include: {
-          patient: { include: { user: { select: { name: true, email: true } } } },
+          patient: {
+            include: { user: { select: { name: true, email: true } } },
+          },
           relatedDoctor: { include: { user: { select: { name: true } } } },
           assignedStaff: { select: { name: true } },
         },
@@ -451,7 +499,12 @@ export class SupportService {
       },
     });
 
-    await this.logActivity(staffId, 'CREATE_COMPLAINT', complaint.id, `Created complaint ${complaintNumber}`);
+    await this.logActivity(
+      staffId,
+      'CREATE_COMPLAINT',
+      complaint.id,
+      `Created complaint ${complaintNumber}`,
+    );
 
     this.supportEventService.emit({
       type: 'COMPLAINT_CREATED',
@@ -465,8 +518,14 @@ export class SupportService {
     return complaint;
   }
 
-  async updateComplaintStatus(complaintId: string, dto: UpdateComplaintStatusDto, actorId: string) {
-    const complaint = await this.prisma.complaint.findUnique({ where: { id: complaintId } });
+  async updateComplaintStatus(
+    complaintId: string,
+    dto: UpdateComplaintStatusDto,
+    actorId: string,
+  ) {
+    const complaint = await this.prisma.complaint.findUnique({
+      where: { id: complaintId },
+    });
     if (!complaint) {
       throw new NotFoundException(`Complaint with ID ${complaintId} not found`);
     }
@@ -498,8 +557,14 @@ export class SupportService {
     return updated;
   }
 
-  async escalateComplaint(complaintId: string, dto: EscalateComplaintDto, actorId: string) {
-    const complaint = await this.prisma.complaint.findUnique({ where: { id: complaintId } });
+  async escalateComplaint(
+    complaintId: string,
+    dto: EscalateComplaintDto,
+    actorId: string,
+  ) {
+    const complaint = await this.prisma.complaint.findUnique({
+      where: { id: complaintId },
+    });
     if (!complaint) {
       throw new NotFoundException(`Complaint with ID ${complaintId} not found`);
     }
@@ -600,7 +665,11 @@ export class SupportService {
     };
   }
 
-  async resendPatientNotification(patientId: string, type: string, actorId: string) {
+  async resendPatientNotification(
+    patientId: string,
+    type: string,
+    actorId: string,
+  ) {
     const patient = await this.prisma.patientProfile.findUnique({
       where: { id: patientId },
       include: { user: true },
@@ -643,16 +712,22 @@ export class SupportService {
     dto: AssistRescheduleAppointmentDto,
     actorId: string,
   ) {
-    const appt = await this.prisma.appointment.findUnique({ where: { id: appointmentId } });
+    const appt = await this.prisma.appointment.findUnique({
+      where: { id: appointmentId },
+    });
     if (!appt) {
-      throw new NotFoundException(`Appointment with ID ${appointmentId} not found`);
+      throw new NotFoundException(
+        `Appointment with ID ${appointmentId} not found`,
+      );
     }
 
     const updateData: any = {
       date: new Date(dto.date),
       time: dto.time,
       issueFlag: false,
-      issueNotes: dto.reason ? `Resolved via support: ${dto.reason}` : 'Rescheduled via support assistance',
+      issueNotes: dto.reason
+        ? `Resolved via support: ${dto.reason}`
+        : 'Rescheduled via support assistance',
     };
 
     if (dto.doctorId) {
@@ -684,7 +759,12 @@ export class SupportService {
       data: { issueFlag: false, issueNotes: null },
     });
 
-    await this.logActivity(actorId, 'CLEAR_APPOINTMENT_FLAG', appointmentId, `Cleared issue flag on appointment`);
+    await this.logActivity(
+      actorId,
+      'CLEAR_APPOINTMENT_FLAG',
+      appointmentId,
+      `Cleared issue flag on appointment`,
+    );
 
     return updated;
   }
@@ -726,7 +806,12 @@ export class SupportService {
     };
   }
 
-  private async logActivity(staffId: string, action: string, targetId?: string, details?: string) {
+  private async logActivity(
+    staffId: string,
+    action: string,
+    targetId?: string,
+    details?: string,
+  ) {
     try {
       const staff = await this.prisma.user.findUnique({
         where: { id: staffId },

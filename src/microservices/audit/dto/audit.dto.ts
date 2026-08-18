@@ -3,32 +3,50 @@ import { IsInt, IsNotEmpty, IsOptional, IsString, Min } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class AuditFilterDto {
-  @ApiPropertyOptional({ example: 'Prescription', description: 'Search action, actor, resource, or IP address' })
+  @ApiPropertyOptional({
+    example: 'Prescription',
+    description: 'Search action, actor, resource, or IP address',
+  })
   @IsOptional()
   @IsString()
   q?: string;
 
-  @ApiPropertyOptional({ example: 'user-doc-1', description: 'Filter by Actor User ID' })
+  @ApiPropertyOptional({
+    example: 'user-doc-1',
+    description: 'Filter by Actor User ID',
+  })
   @IsOptional()
   @IsString()
   actorId?: string;
 
-  @ApiPropertyOptional({ example: 'DOCTOR_ISSUE_PRESCRIPTION', description: 'Filter by action name' })
+  @ApiPropertyOptional({
+    example: 'DOCTOR_ISSUE_PRESCRIPTION',
+    description: 'Filter by action name',
+  })
   @IsOptional()
   @IsString()
   action?: string;
 
-  @ApiPropertyOptional({ example: 'success', description: 'Filter by result (success, failure)' })
+  @ApiPropertyOptional({
+    example: 'success',
+    description: 'Filter by result (success, failure)',
+  })
   @IsOptional()
   @IsString()
   result?: string;
 
-  @ApiPropertyOptional({ example: '2026-08-01', description: 'Start date (YYYY-MM-DD)' })
+  @ApiPropertyOptional({
+    example: '2026-08-01',
+    description: 'Start date (YYYY-MM-DD)',
+  })
   @IsOptional()
   @IsString()
   startDate?: string;
 
-  @ApiPropertyOptional({ example: '2026-08-31', description: 'End date (YYYY-MM-DD)' })
+  @ApiPropertyOptional({
+    example: '2026-08-31',
+    description: 'End date (YYYY-MM-DD)',
+  })
   @IsOptional()
   @IsString()
   endDate?: string;
@@ -59,17 +77,26 @@ export class CreateAuditLogDto {
   @IsString()
   actorName!: string;
 
-  @ApiProperty({ example: 'DOCTOR_ISSUE_PRESCRIPTION', description: 'Action performed' })
+  @ApiProperty({
+    example: 'DOCTOR_ISSUE_PRESCRIPTION',
+    description: 'Action performed',
+  })
   @IsNotEmpty()
   @IsString()
   action!: string;
 
-  @ApiProperty({ example: 'Prescription #RX-1029', description: 'Resource affected' })
+  @ApiProperty({
+    example: 'Prescription #RX-1029',
+    description: 'Resource affected',
+  })
   @IsNotEmpty()
   @IsString()
   resource!: string;
 
-  @ApiPropertyOptional({ example: 'Issued 3 medicines to patient', description: 'JSON string or explanation of action payload' })
+  @ApiPropertyOptional({
+    example: 'Issued 3 medicines to patient',
+    description: 'JSON string or explanation of action payload',
+  })
   @IsOptional()
   @IsString()
   details?: string;
@@ -79,7 +106,10 @@ export class CreateAuditLogDto {
   @IsString()
   ipAddress?: string;
 
-  @ApiPropertyOptional({ example: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)', description: 'Browser / Client User Agent' })
+  @ApiPropertyOptional({
+    example: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)',
+    description: 'Browser / Client User Agent',
+  })
   @IsOptional()
   @IsString()
   userAgent?: string;

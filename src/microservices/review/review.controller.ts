@@ -2,7 +2,11 @@ import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { PATTERNS } from '../common/microservices.constants';
 import { ReviewService } from './review.service';
-import { ModerateReviewDto, ReviewFilterDto, SubmitReviewDto } from './dto/review.dto';
+import {
+  ModerateReviewDto,
+  ReviewFilterDto,
+  SubmitReviewDto,
+} from './dto/review.dto';
 
 @Controller()
 export class ReviewController {
@@ -14,8 +18,19 @@ export class ReviewController {
   }
 
   @MessagePattern(PATTERNS.REVIEW.MODERATE)
-  async moderateReview(@Payload() payload: { id: string; dto: ModerateReviewDto; actorId?: string }) {
-    return this.reviewService.moderateReview(payload.id, payload.dto, payload.actorId);
+  async moderateReview(
+    @Payload()
+    payload: {
+      id: string;
+      dto: ModerateReviewDto;
+      actorId?: string;
+    },
+  ) {
+    return this.reviewService.moderateReview(
+      payload.id,
+      payload.dto,
+      payload.actorId,
+    );
   }
 
   // --- Patient Portal Message Patterns ---
@@ -26,7 +41,9 @@ export class ReviewController {
   }
 
   @MessagePattern(PATTERNS.REVIEW.PATIENT_SUBMIT)
-  async patientSubmitReview(@Payload() payload: { userId: string; dto: SubmitReviewDto }) {
+  async patientSubmitReview(
+    @Payload() payload: { userId: string; dto: SubmitReviewDto },
+  ) {
     return this.reviewService.patientSubmitReview(payload.userId, payload.dto);
   }
 

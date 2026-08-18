@@ -1,5 +1,10 @@
 import { Controller, Get, UseGuards } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 import { AnalyticsService } from '../microservices/analytics/analytics.service';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
@@ -12,7 +17,10 @@ import { UserRole } from '../../generated/prisma/client';
 export class AdminAnalyticsGatewayController {
   constructor(private readonly analyticsService: AnalyticsService) {}
 
-  @ApiOperation({ summary: 'Get clinic-wide or platform-wide analytical overview & performance metrics' })
+  @ApiOperation({
+    summary:
+      'Get clinic-wide or platform-wide analytical overview & performance metrics',
+  })
   @ApiResponse({ status: 200, description: 'Analytics overview returned' })
   @Get('overview')
   @UseGuards(JwtAuthGuard, RolesGuard)

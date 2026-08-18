@@ -7,6 +7,11 @@ import { LiveSupportEventService } from './events/live-support-event.service';
 @Module({
   imports: [PrismaModule, RedisModule],
   providers: [LiveQueueEventService, LiveSupportEventService],
-  exports: [PrismaModule, RedisModule, LiveQueueEventService, LiveSupportEventService],
+  exports: [
+    PrismaModule,
+    RedisModule,
+    LiveQueueEventService,
+    LiveSupportEventService,
+  ],
 })
 export class CommonModule {}

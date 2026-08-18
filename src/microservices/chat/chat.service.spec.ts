@@ -16,8 +16,18 @@ describe('ChatService', () => {
   let redis: any;
   let auditService: any;
 
-  const mockUser1 = { id: 'usr-1', name: 'Dr. Sarah', email: 'sarah@medcare.local', role: UserRole.DOCTOR };
-  const mockUser2 = { id: 'usr-2', name: 'James Harrington', email: 'james@medcare.local', role: UserRole.PATIENT };
+  const mockUser1 = {
+    id: 'usr-1',
+    name: 'Dr. Sarah',
+    email: 'sarah@medcare.local',
+    role: UserRole.DOCTOR,
+  };
+  const mockUser2 = {
+    id: 'usr-2',
+    name: 'James Harrington',
+    email: 'james@medcare.local',
+    role: UserRole.PATIENT,
+  };
 
   const mockConversation = {
     id: 'conv-1',
@@ -28,8 +38,20 @@ describe('ChatService', () => {
     lastMessage: 'Hello Doctor',
     lastMessageAt: new Date(),
     participants: [
-      { id: 'part-1', conversationId: 'conv-1', userId: 'usr-1', unreadCount: 0, user: mockUser1 },
-      { id: 'part-2', conversationId: 'conv-1', userId: 'usr-2', unreadCount: 1, user: mockUser2 },
+      {
+        id: 'part-1',
+        conversationId: 'conv-1',
+        userId: 'usr-1',
+        unreadCount: 0,
+        user: mockUser1,
+      },
+      {
+        id: 'part-2',
+        conversationId: 'conv-1',
+        userId: 'usr-2',
+        unreadCount: 1,
+        user: mockUser2,
+      },
     ],
   };
 
@@ -141,7 +163,9 @@ describe('ChatService', () => {
       expect(prisma.conversation.update).toHaveBeenCalledWith(
         expect.objectContaining({
           where: { id: 'conv-1' },
-          data: expect.objectContaining({ lastMessage: 'Hello James, how are you feeling today?' }),
+          data: expect.objectContaining({
+            lastMessage: 'Hello James, how are you feeling today?',
+          }),
         }),
       );
       expect(prisma.chatParticipant.updateMany).toHaveBeenCalled();
@@ -150,7 +174,10 @@ describe('ChatService', () => {
 
   describe('listUserConversations', () => {
     it('should return list of conversations with recipient info and unread count', async () => {
-      const result = await service.listUserConversations('usr-1', { page: 1, limit: 10 });
+      const result = await service.listUserConversations('usr-1', {
+        page: 1,
+        limit: 10,
+      });
       expect(result).toBeDefined();
       expect(result.items.length).toBe(1);
       expect(result.items[0].recipient).toBeDefined();
@@ -159,7 +186,10 @@ describe('ChatService', () => {
 
   describe('getConversationMessages', () => {
     it('should return message history and reset user unread count', async () => {
-      const result = await service.getConversationMessages('usr-1', 'conv-1', { page: 1, limit: 50 });
+      const result = await service.getConversationMessages('usr-1', 'conv-1', {
+        page: 1,
+        limit: 50,
+      });
       expect(result).toBeDefined();
       expect(result.messages.length).toBe(1);
       expect(prisma.chatParticipant.update).toHaveBeenCalledWith(

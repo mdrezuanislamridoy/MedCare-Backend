@@ -44,7 +44,11 @@ describe('DoctorService', () => {
     userId: 'pat-user-1',
     phone: '+1-555-1111',
     bloodGroup: 'A+',
-    user: { id: 'pat-user-1', name: 'James Harrington', email: 'james@email.com' },
+    user: {
+      id: 'pat-user-1',
+      name: 'James Harrington',
+      email: 'james@email.com',
+    },
     medicalRecords: [],
     prescriptions: [],
   };
@@ -84,11 +88,16 @@ describe('DoctorService', () => {
         findMany: jest.fn().mockResolvedValue([mockAppointment]),
         findFirst: jest.fn().mockResolvedValue(mockAppointment),
         count: jest.fn().mockResolvedValue(6),
-        update: jest.fn().mockResolvedValue({ ...mockAppointment, status: AppointmentStatus.COMPLETED }),
+        update: jest.fn().mockResolvedValue({
+          ...mockAppointment,
+          status: AppointmentStatus.COMPLETED,
+        }),
       },
       patientQueue: {
         findMany: jest.fn().mockResolvedValue([]),
-        update: jest.fn().mockResolvedValue({ id: 'q-1', status: QueueStatus.COMPLETED }),
+        update: jest
+          .fn()
+          .mockResolvedValue({ id: 'q-1', status: QueueStatus.COMPLETED }),
       },
       consultationNote: {
         upsert: jest.fn().mockResolvedValue({
@@ -114,19 +123,29 @@ describe('DoctorService', () => {
       },
       transaction: {
         findMany: jest.fn().mockResolvedValue([
-          { id: 'txn-1', amount: 150, status: TransactionStatus.COMPLETED, patient: mockPatient, appointment: mockAppointment },
+          {
+            id: 'txn-1',
+            amount: 150,
+            status: TransactionStatus.COMPLETED,
+            patient: mockPatient,
+            appointment: mockAppointment,
+          },
         ]),
         findFirst: jest.fn().mockResolvedValue(null),
         create: jest.fn().mockResolvedValue({ id: 'txn-1' }),
       },
       doctorPayout: {
         findMany: jest.fn().mockResolvedValue([]),
-        create: jest.fn().mockResolvedValue({ id: 'payout-1', payoutNumber: 'PAYOUT-5012' }),
+        create: jest
+          .fn()
+          .mockResolvedValue({ id: 'payout-1', payoutNumber: 'PAYOUT-5012' }),
       },
       doctorReview: {
         findMany: jest.fn().mockResolvedValue([]),
         count: jest.fn().mockResolvedValue(0),
-        findUnique: jest.fn().mockResolvedValue({ id: 'rev-1', doctorId: 'doc-1' }),
+        findUnique: jest
+          .fn()
+          .mockResolvedValue({ id: 'rev-1', doctorId: 'doc-1' }),
       },
       doctorSchedule: {
         findMany: jest.fn().mockResolvedValue([]),
@@ -175,7 +194,10 @@ describe('DoctorService', () => {
 
   describe('doctorGetConsultationWorkspace', () => {
     it('should return patient clinical summary and consultation details', async () => {
-      const result = await service.doctorGetConsultationWorkspace('doc-user-1', 'apt-1');
+      const result = await service.doctorGetConsultationWorkspace(
+        'doc-user-1',
+        'apt-1',
+      );
       expect(result).toBeDefined();
       expect(result.patient.name).toBe('James Harrington');
       expect(result.patient.bloodGroup).toBe('A+');
@@ -184,11 +206,15 @@ describe('DoctorService', () => {
 
   describe('doctorSaveConsultationNotes', () => {
     it('should upsert clinical consultation note and log audit trail', async () => {
-      const result = await service.doctorSaveConsultationNotes('doc-user-1', 'apt-1', {
-        diagnosis: 'Hypertension',
-        treatmentPlan: 'Prescribed ACE inhibitors',
-        vitals: { bp: '130/80', pulse: 72 },
-      });
+      const result = await service.doctorSaveConsultationNotes(
+        'doc-user-1',
+        'apt-1',
+        {
+          diagnosis: 'Hypertension',
+          treatmentPlan: 'Prescribed ACE inhibitors',
+          vitals: { bp: '130/80', pulse: 72 },
+        },
+      );
 
       expect(result).toBeDefined();
       expect(prisma.consultationNote.upsert).toHaveBeenCalled();
@@ -202,7 +228,10 @@ describe('DoctorService', () => {
 
   describe('doctorCompleteConsultation', () => {
     it('should complete appointment, update queue, and auto-record fee transaction', async () => {
-      const result = await service.doctorCompleteConsultation('doc-user-1', 'apt-1');
+      const result = await service.doctorCompleteConsultation(
+        'doc-user-1',
+        'apt-1',
+      );
       expect(result.success).toBe(true);
       expect(prisma.appointment.update).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -223,7 +252,13 @@ describe('DoctorService', () => {
         diagnosis: 'Hypertension',
         advice: 'Low sodium diet',
         medicines: [
-          { name: 'Lisinopril', dosage: '10mg', frequency: 'Once daily', duration: '90 days', instructions: 'Morning' },
+          {
+            name: 'Lisinopril',
+            dosage: '10mg',
+            frequency: 'Once daily',
+            duration: '90 days',
+            instructions: 'Morning',
+          },
         ],
       });
 
@@ -241,7 +276,10 @@ describe('DoctorService', () => {
     it('should generate secure video room and token for teleconsultation', async () => {
       prisma.appointment.findUnique.mockResolvedValueOnce(mockVideoAppointment);
 
-      const result = await service.doctorGetVideoSessionToken('doc-user-1', 'apt-2');
+      const result = await service.doctorGetVideoSessionToken(
+        'doc-user-1',
+        'apt-2',
+      );
       expect(result).toBeDefined();
       expect(result.channelName).toBe('medcare-call-APT-1002');
       expect(result.token).toBeDefined();
@@ -254,7 +292,13 @@ describe('DoctorService', () => {
       const result = await service.doctorUpdateSchedule('doc-user-1', {
         consultationFee: 175,
         days: [
-          { dayOfWeek: 'Monday', isEnabled: true, startTime: '09:00', endTime: '17:00', slotDurationMin: 30 },
+          {
+            dayOfWeek: 'Monday',
+            isEnabled: true,
+            startTime: '09:00',
+            endTime: '17:00',
+            slotDurationMin: 30,
+          },
         ],
       });
 

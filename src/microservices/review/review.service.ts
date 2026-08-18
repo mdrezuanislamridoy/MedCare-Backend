@@ -1,6 +1,14 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '../../common/database/prisma/prisma.service';
-import { ModerateReviewDto, ReviewFilterDto, SubmitReviewDto } from './dto/review.dto';
+import {
+  ModerateReviewDto,
+  ReviewFilterDto,
+  SubmitReviewDto,
+} from './dto/review.dto';
 import { ReviewStatus } from '../../../generated/prisma/client';
 
 @Injectable()
@@ -28,8 +36,16 @@ export class ReviewService {
     if (filter.q) {
       where.OR = [
         { content: { contains: filter.q, mode: 'insensitive' } },
-        { patient: { user: { name: { contains: filter.q, mode: 'insensitive' } } } },
-        { doctor: { user: { name: { contains: filter.q, mode: 'insensitive' } } } },
+        {
+          patient: {
+            user: { name: { contains: filter.q, mode: 'insensitive' } },
+          },
+        },
+        {
+          doctor: {
+            user: { name: { contains: filter.q, mode: 'insensitive' } },
+          },
+        },
       ];
     }
 
@@ -121,24 +137,30 @@ export class ReviewService {
       _count: true,
     });
 
-    await this.prisma.doctorProfile.update({
-      where: { id: review.doctorId },
-      data: {
-        rating: aggregate._avg.rating ? Number(aggregate._avg.rating.toFixed(1)) : 5.0,
-        reviewCount: aggregate._count || 0,
-      },
-    }).catch(() => null);
+    await this.prisma.doctorProfile
+      .update({
+        where: { id: review.doctorId },
+        data: {
+          rating: aggregate._avg.rating
+            ? Number(aggregate._avg.rating.toFixed(1))
+            : 5.0,
+          reviewCount: aggregate._count || 0,
+        },
+      })
+      .catch(() => null);
 
-    await this.prisma.auditLog.create({
-      data: {
-        actorId,
-        actorName: 'Admin',
-        action: `Review Moderated (${dto.action})`,
-        resource: `Review #${id} for Dr. ${review.doctor.user.name || review.doctor.user.email}`,
-        details: JSON.stringify(dto),
-        result: 'success',
-      },
-    }).catch(() => null);
+    await this.prisma.auditLog
+      .create({
+        data: {
+          actorId,
+          actorName: 'Admin',
+          action: `Review Moderated (${dto.action})`,
+          resource: `Review #${id} for Dr. ${review.doctor.user.name || review.doctor.user.email}`,
+          details: JSON.stringify(dto),
+          result: 'success',
+        },
+      })
+      .catch(() => null);
 
     return updated;
   }
@@ -182,11 +204,11 @@ export class ReviewService {
       where: { patientId },
       select: { doctorId: true },
     });
-    const reviewedDoctorIds = new Set(reviews.map(r => r.doctorId));
+    const reviewedDoctorIds = new Set(reviews.map((r) => r.doctorId));
 
     const pending = completedAppointments
-      .filter(a => !reviewedDoctorIds.has(a.doctorId))
-      .map(a => ({
+      .filter((a) => !reviewedDoctorIds.has(a.doctorId))
+      .map((a) => ({
         appointmentId: a.id,
         doctorId: a.doctorId,
         doctorName: a.doctor.user.name,
@@ -228,7 +250,9 @@ export class ReviewService {
     await this.prisma.doctorProfile.update({
       where: { id: dto.doctorId },
       data: {
-        rating: aggregate._avg.rating ? Number(aggregate._avg.rating.toFixed(1)) : dto.rating,
+        rating: aggregate._avg.rating
+          ? Number(aggregate._avg.rating.toFixed(1))
+          : dto.rating,
         reviewCount: aggregate._count || 1,
       },
     });

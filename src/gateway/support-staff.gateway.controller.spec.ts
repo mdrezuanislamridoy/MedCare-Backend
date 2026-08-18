@@ -29,23 +29,51 @@ describe('SupportStaffGatewayController', () => {
         stats: { openTickets: 4, pendingTickets: 2 },
         kpis: { avgResolutionTime: '3.2h' },
       }),
-      listTickets: jest.fn().mockResolvedValue({ items: [], meta: { total: 0 } }),
-      getTicketDetails: jest.fn().mockResolvedValue({ id: 'tick-1', ticketNumber: 'TICK-101' }),
-      createTicket: jest.fn().mockResolvedValue({ id: 'tick-1', ticketNumber: 'TICK-101' }),
-      replyTicket: jest.fn().mockResolvedValue({ id: 'msg-1', message: 'Hello' }),
-      assignTicket: jest.fn().mockResolvedValue({ id: 'tick-1', assignedStaffId: 'staff-2' }),
-      updateTicketStatus: jest.fn().mockResolvedValue({ id: 'tick-1', status: TicketStatus.RESOLVED }),
-      listComplaints: jest.fn().mockResolvedValue({ items: [], meta: { total: 0 } }),
-      getComplaintDetails: jest.fn().mockResolvedValue({ id: 'cmp-1', complaintNumber: 'CMP-101' }),
-      createComplaint: jest.fn().mockResolvedValue({ id: 'cmp-1', complaintNumber: 'CMP-101' }),
-      updateComplaintStatus: jest.fn().mockResolvedValue({ id: 'cmp-1', status: ComplaintStatus.RESOLVED }),
-      escalateComplaint: jest.fn().mockResolvedValue({ id: 'cmp-1', status: ComplaintStatus.ESCALATED }),
-      searchPatients: jest.fn().mockResolvedValue({ items: [], meta: { total: 0 } }),
+      listTickets: jest
+        .fn()
+        .mockResolvedValue({ items: [], meta: { total: 0 } }),
+      getTicketDetails: jest
+        .fn()
+        .mockResolvedValue({ id: 'tick-1', ticketNumber: 'TICK-101' }),
+      createTicket: jest
+        .fn()
+        .mockResolvedValue({ id: 'tick-1', ticketNumber: 'TICK-101' }),
+      replyTicket: jest
+        .fn()
+        .mockResolvedValue({ id: 'msg-1', message: 'Hello' }),
+      assignTicket: jest
+        .fn()
+        .mockResolvedValue({ id: 'tick-1', assignedStaffId: 'staff-2' }),
+      updateTicketStatus: jest
+        .fn()
+        .mockResolvedValue({ id: 'tick-1', status: TicketStatus.RESOLVED }),
+      listComplaints: jest
+        .fn()
+        .mockResolvedValue({ items: [], meta: { total: 0 } }),
+      getComplaintDetails: jest
+        .fn()
+        .mockResolvedValue({ id: 'cmp-1', complaintNumber: 'CMP-101' }),
+      createComplaint: jest
+        .fn()
+        .mockResolvedValue({ id: 'cmp-1', complaintNumber: 'CMP-101' }),
+      updateComplaintStatus: jest
+        .fn()
+        .mockResolvedValue({ id: 'cmp-1', status: ComplaintStatus.RESOLVED }),
+      escalateComplaint: jest
+        .fn()
+        .mockResolvedValue({ id: 'cmp-1', status: ComplaintStatus.ESCALATED }),
+      searchPatients: jest
+        .fn()
+        .mockResolvedValue({ items: [], meta: { total: 0 } }),
       resendPatientNotification: jest.fn().mockResolvedValue({ success: true }),
       listFlaggedAppointments: jest.fn().mockResolvedValue([]),
       assistRescheduleAppointment: jest.fn().mockResolvedValue({ id: 'apt-1' }),
-      clearAppointmentFlag: jest.fn().mockResolvedValue({ id: 'apt-1', issueFlag: false }),
-      listActivityLogs: jest.fn().mockResolvedValue({ items: [], meta: { total: 0 } }),
+      clearAppointmentFlag: jest
+        .fn()
+        .mockResolvedValue({ id: 'apt-1', issueFlag: false }),
+      listActivityLogs: jest
+        .fn()
+        .mockResolvedValue({ items: [], meta: { total: 0 } }),
     };
 
     eventService = {
@@ -61,7 +89,9 @@ describe('SupportStaffGatewayController', () => {
       ],
     }).compile();
 
-    controller = module.get<SupportStaffGatewayController>(SupportStaffGatewayController);
+    controller = module.get<SupportStaffGatewayController>(
+      SupportStaffGatewayController,
+    );
   });
 
   it('should be defined', () => {
@@ -89,19 +119,30 @@ describe('SupportStaffGatewayController', () => {
       priority: TicketPriority.MEDIUM,
     });
     expect(res).toBeDefined();
-    expect(supportService.createTicket).toHaveBeenCalledWith('staff-1', expect.anything());
+    expect(supportService.createTicket).toHaveBeenCalledWith(
+      'staff-1',
+      expect.anything(),
+    );
   });
 
   it('should reply to ticket', async () => {
-    const res = await controller.replyTicket(mockReq, 'tick-1', { message: 'Help is here' });
+    const res = await controller.replyTicket(mockReq, 'tick-1', {
+      message: 'Help is here',
+    });
     expect(res).toBeDefined();
     expect(supportService.replyTicket).toHaveBeenCalled();
   });
 
   it('should escalate complaint to admin', async () => {
-    const res = await controller.escalateComplaint(mockReq, 'cmp-1', { reason: 'Severe incident' });
+    const res = await controller.escalateComplaint(mockReq, 'cmp-1', {
+      reason: 'Severe incident',
+    });
     expect(res).toBeDefined();
-    expect(supportService.escalateComplaint).toHaveBeenCalledWith('cmp-1', { reason: 'Severe incident' }, 'staff-1');
+    expect(supportService.escalateComplaint).toHaveBeenCalledWith(
+      'cmp-1',
+      { reason: 'Severe incident' },
+      'staff-1',
+    );
   });
 
   it('should search patients', async () => {
@@ -117,6 +158,10 @@ describe('SupportStaffGatewayController', () => {
       reason: 'Doctor delay',
     });
     expect(res).toBeDefined();
-    expect(supportService.assistRescheduleAppointment).toHaveBeenCalledWith('apt-1', expect.anything(), 'staff-1');
+    expect(supportService.assistRescheduleAppointment).toHaveBeenCalledWith(
+      'apt-1',
+      expect.anything(),
+      'staff-1',
+    );
   });
 });

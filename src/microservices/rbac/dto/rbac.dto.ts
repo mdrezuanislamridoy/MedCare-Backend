@@ -1,10 +1,27 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsEnum, IsOptional, IsString, IsInt, Min, IsArray, IsNotEmpty, IsEmail } from 'class-validator';
+import {
+  IsEnum,
+  IsOptional,
+  IsString,
+  IsInt,
+  Min,
+  IsArray,
+  IsNotEmpty,
+  IsEmail,
+} from 'class-validator';
 import { Type } from 'class-transformer';
-import { AccessRequestStatus, UserRole, AccountStatus } from '../../../../generated/prisma/client';
+import {
+  AccessRequestStatus,
+  UserRole,
+  AccountStatus,
+} from '../../../../generated/prisma/client';
 
 export class AccessRequestFilterDto {
-  @ApiPropertyOptional({ enum: AccessRequestStatus, example: AccessRequestStatus.PENDING, description: 'Filter by access request status' })
+  @ApiPropertyOptional({
+    enum: AccessRequestStatus,
+    example: AccessRequestStatus.PENDING,
+    description: 'Filter by access request status',
+  })
   @IsOptional()
   @IsEnum(AccessRequestStatus)
   status?: AccessRequestStatus;
@@ -25,12 +42,19 @@ export class AccessRequestFilterDto {
 }
 
 export class DecideAccessRequestDto {
-  @ApiProperty({ enum: ['APPROVED', 'REJECTED'], example: 'APPROVED', description: 'Decision on access request' })
+  @ApiProperty({
+    enum: ['APPROVED', 'REJECTED'],
+    example: 'APPROVED',
+    description: 'Decision on access request',
+  })
   @IsNotEmpty()
   @IsEnum(['APPROVED', 'REJECTED'])
   decision!: 'APPROVED' | 'REJECTED';
 
-  @ApiPropertyOptional({ example: 'Granted temporary admin access for quarterly compliance review.', description: 'Reviewer decision notes' })
+  @ApiPropertyOptional({
+    example: 'Granted temporary admin access for quarterly compliance review.',
+    description: 'Reviewer decision notes',
+  })
   @IsOptional()
   @IsString()
   notes?: string;
@@ -42,12 +66,19 @@ export class CreateRoleDto {
   @IsString()
   name!: string;
 
-  @ApiPropertyOptional({ example: 'Can review medical chart history and patient audit logs', description: 'Role description' })
+  @ApiPropertyOptional({
+    example: 'Can review medical chart history and patient audit logs',
+    description: 'Role description',
+  })
   @IsOptional()
   @IsString()
   description?: string;
 
-  @ApiPropertyOptional({ type: [String], example: ['perm-ehr-read', 'perm-audit-read'], description: 'List of permission IDs' })
+  @ApiPropertyOptional({
+    type: [String],
+    example: ['perm-ehr-read', 'perm-audit-read'],
+    description: 'List of permission IDs',
+  })
   @IsOptional()
   @IsArray()
   @IsString({ each: true })
@@ -55,19 +86,28 @@ export class CreateRoleDto {
 }
 
 export class UpdateRolePermissionsDto {
-  @ApiProperty({ type: [String], example: ['perm-ehr-read', 'perm-audit-read', 'perm-reports-export'], description: 'Assigned permission IDs' })
+  @ApiProperty({
+    type: [String],
+    example: ['perm-ehr-read', 'perm-audit-read', 'perm-reports-export'],
+    description: 'Assigned permission IDs',
+  })
   @IsArray()
   @IsString({ each: true })
   permissionIds!: string[];
 }
 
 export class AdministratorFilterDto {
-  @ApiPropertyOptional({ example: 'admin@medcare.com', description: 'Search by name or email' })
+  @ApiPropertyOptional({
+    example: 'admin@medcare.com',
+    description: 'Search by name or email',
+  })
   @IsOptional()
   @IsString()
   search?: string;
 
-  @ApiPropertyOptional({ enum: [UserRole.ADMIN, UserRole.SUPER_ADMIN, UserRole.CLINIC_MANAGER] })
+  @ApiPropertyOptional({
+    enum: [UserRole.ADMIN, UserRole.SUPER_ADMIN, UserRole.CLINIC_MANAGER],
+  })
   @IsOptional()
   @IsEnum(UserRole)
   role?: UserRole;
@@ -93,27 +133,42 @@ export class AdministratorFilterDto {
 }
 
 export class CreateAdministratorDto {
-  @ApiProperty({ example: 'Marcus Vance', description: 'Administrator full name' })
+  @ApiProperty({
+    example: 'Marcus Vance',
+    description: 'Administrator full name',
+  })
   @IsNotEmpty()
   @IsString()
   name!: string;
 
-  @ApiProperty({ example: 'marcus.vance@medcare.com', description: 'Administrator email' })
+  @ApiProperty({
+    example: 'marcus.vance@medcare.com',
+    description: 'Administrator email',
+  })
   @IsNotEmpty()
   @IsEmail()
   email!: string;
 
-  @ApiPropertyOptional({ example: 'Admin1234!', description: 'Initial account password' })
+  @ApiPropertyOptional({
+    example: 'Admin1234!',
+    description: 'Initial account password',
+  })
   @IsOptional()
   @IsString()
   password?: string;
 
-  @ApiProperty({ enum: [UserRole.ADMIN, UserRole.SUPER_ADMIN, UserRole.CLINIC_MANAGER], default: UserRole.ADMIN })
+  @ApiProperty({
+    enum: [UserRole.ADMIN, UserRole.SUPER_ADMIN, UserRole.CLINIC_MANAGER],
+    default: UserRole.ADMIN,
+  })
   @IsNotEmpty()
   @IsEnum(UserRole)
   role!: UserRole;
 
-  @ApiPropertyOptional({ example: 'clinic-001', description: 'Assigned clinic branch ID (if clinic manager)' })
+  @ApiPropertyOptional({
+    example: 'clinic-001',
+    description: 'Assigned clinic branch ID (if clinic manager)',
+  })
   @IsOptional()
   @IsString()
   clinicId?: string;
@@ -125,7 +180,10 @@ export class UpdateAdministratorStatusDto {
   @IsEnum(AccountStatus)
   status!: AccountStatus;
 
-  @ApiPropertyOptional({ example: 'Suspended pending security review', description: 'Action reason' })
+  @ApiPropertyOptional({
+    example: 'Suspended pending security review',
+    description: 'Action reason',
+  })
   @IsOptional()
   @IsString()
   reason?: string;

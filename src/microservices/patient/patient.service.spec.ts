@@ -20,7 +20,9 @@ describe('PatientService', () => {
       patientProfile: {
         findUnique: jest.fn().mockResolvedValue(mockPatientProfile),
         create: jest.fn().mockResolvedValue(mockPatientProfile),
-        update: jest.fn().mockResolvedValue({ ...mockPatientProfile, bloodGroup: 'B+' }),
+        update: jest
+          .fn()
+          .mockResolvedValue({ ...mockPatientProfile, bloodGroup: 'B+' }),
         findMany: jest.fn().mockResolvedValue([mockPatientProfile]),
         count: jest.fn().mockResolvedValue(1),
       },
@@ -49,15 +51,14 @@ describe('PatientService', () => {
         delete: jest.fn().mockResolvedValue({ id: 'rec-1' }),
       },
       user: {
-        update: jest.fn().mockResolvedValue({ id: 'user-123', name: 'John Updated' }),
+        update: jest
+          .fn()
+          .mockResolvedValue({ id: 'user-123', name: 'John Updated' }),
       },
     };
 
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        PatientService,
-        { provide: PrismaService, useValue: prisma },
-      ],
+      providers: [PatientService, { provide: PrismaService, useValue: prisma }],
     }).compile();
 
     service = module.get<PatientService>(PatientService);
@@ -111,7 +112,9 @@ describe('PatientService', () => {
     it('should delete own medical record', async () => {
       const deleted = await service.deleteMedicalRecord('user-123', 'rec-1');
       expect(deleted.id).toBe('rec-1');
-      expect(prisma.medicalRecord.delete).toHaveBeenCalledWith({ where: { id: 'rec-1' } });
+      expect(prisma.medicalRecord.delete).toHaveBeenCalledWith({
+        where: { id: 'rec-1' },
+      });
     });
   });
 });

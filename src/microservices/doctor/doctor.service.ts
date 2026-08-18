@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException, BadRequestException, ForbiddenException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { PrismaService } from '../../common/database/prisma/prisma.service';
 import { RedisService } from '../../common/cache/redis/redis.service';
 import { AuditService } from '../audit/audit.service';
@@ -40,7 +45,9 @@ export class DoctorService {
       include: { user: true, clinic: true },
     });
     if (!doctor) {
-      throw new NotFoundException(`Doctor profile not found for user ${userId}`);
+      throw new NotFoundException(
+        `Doctor profile not found for user ${userId}`,
+      );
     }
     return doctor;
   }
@@ -51,8 +58,19 @@ export class DoctorService {
   async doctorGetDashboard(userId: string) {
     const doctor = await this.getDoctorByUserId(userId);
     const now = new Date();
-    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const endOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
+    const startOfToday = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate(),
+    );
+    const endOfToday = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate(),
+      23,
+      59,
+      59,
+    );
 
     const [
       todayAppointmentsCount,
@@ -81,7 +99,13 @@ export class DoctorService {
         where: {
           doctorId: doctor.id,
           date: { gte: startOfToday, lte: endOfToday },
-          status: { in: [AppointmentStatus.PENDING, AppointmentStatus.CONFIRMED, AppointmentStatus.CHECKED_IN] },
+          status: {
+            in: [
+              AppointmentStatus.PENDING,
+              AppointmentStatus.CONFIRMED,
+              AppointmentStatus.CHECKED_IN,
+            ],
+          },
         },
       }),
       this.prisma.appointment.findMany({
@@ -106,7 +130,9 @@ export class DoctorService {
       this.prisma.patientQueue.findMany({
         where: {
           doctorId: doctor.id,
-          status: { in: [QueueStatus.WAITING, QueueStatus.CALLED, QueueStatus.IN_ROOM] },
+          status: {
+            in: [QueueStatus.WAITING, QueueStatus.CALLED, QueueStatus.IN_ROOM],
+          },
           createdAt: { gte: startOfToday, lte: endOfToday },
         },
         orderBy: { queueNumber: 'asc' },
@@ -134,11 +160,16 @@ export class DoctorService {
       }),
     ]);
 
-    const todayEarnings = transactions.reduce((acc, curr) => acc + curr.amount, 0);
+    const todayEarnings = transactions.reduce(
+      (acc, curr) => acc + curr.amount,
+      0,
+    );
 
     // Find next upcoming appointment
     const nextUpcoming = todayAppointments.find(
-      a => a.status === AppointmentStatus.CONFIRMED || a.status === AppointmentStatus.CHECKED_IN,
+      (a) =>
+        a.status === AppointmentStatus.CONFIRMED ||
+        a.status === AppointmentStatus.CHECKED_IN,
     );
 
     return {
@@ -173,7 +204,7 @@ export class DoctorService {
             reason: nextUpcoming.notes,
           }
         : null,
-      todayAppointments: todayAppointments.map(a => ({
+      todayAppointments: todayAppointments.map((a) => ({
         id: a.id,
         appointmentNumber: a.appointmentNumber,
         patientName: a.patient.user.name,
@@ -183,14 +214,14 @@ export class DoctorService {
         reason: a.notes,
         queueToken: a.queue?.queueNumber || null,
       })),
-      activeQueue: activeQueue.map(q => ({
+      activeQueue: activeQueue.map((q) => ({
         id: q.id,
         queueNumber: q.queueNumber,
         patientName: q.patient.user.name,
         status: q.status,
         appointmentId: q.appointmentId,
       })),
-      recentReviews: recentReviews.map(r => ({
+      recentReviews: recentReviews.map((r) => ({
         id: r.id,
         patientName: r.patient.user.name,
         rating: r.rating,
@@ -219,7 +250,9 @@ export class DoctorService {
             prescriptions: {
               take: 3,
               orderBy: { createdAt: 'desc' },
-              include: { doctor: { include: { user: { select: { name: true } } } } },
+              include: {
+                doctor: { include: { user: { select: { name: true } } } },
+              },
             },
           },
         },
@@ -233,7 +266,9 @@ export class DoctorService {
       throw new NotFoundException(`Appointment ${appointmentId} not found`);
     }
     if (appointment.doctorId !== doctor.id) {
-      throw new ForbiddenException(`You are not authorized to view this consultation`);
+      throw new ForbiddenException(
+        `You are not authorized to view this consultation`,
+      );
     }
 
     return {
@@ -267,15 +302,23 @@ export class DoctorService {
     };
   }
 
-  async doctorSaveConsultationNotes(userId: string, appointmentId: string, dto: SaveConsultationNotesDto) {
+  async doctorSaveConsultationNotes(
+    userId: string,
+    appointmentId: string,
+    dto: SaveConsultationNotesDto,
+  ) {
     const doctor = await this.getDoctorByUserId(userId);
-    const appointment = await this.prisma.appointment.findUnique({ where: { id: appointmentId } });
+    const appointment = await this.prisma.appointment.findUnique({
+      where: { id: appointmentId },
+    });
 
     if (!appointment) {
       throw new NotFoundException(`Appointment ${appointmentId} not found`);
     }
     if (appointment.doctorId !== doctor.id) {
-      throw new ForbiddenException(`You are not authorized to save notes for this appointment`);
+      throw new ForbiddenException(
+        `You are not authorized to save notes for this appointment`,
+      );
     }
 
     const saved = await this.prisma.consultationNote.upsert({
@@ -382,7 +425,12 @@ export class DoctorService {
     };
   }
 
-  async doctorUpdateAppointmentStatus(userId: string, appointmentId: string, status: string, notes?: string) {
+  async doctorUpdateAppointmentStatus(
+    userId: string,
+    appointmentId: string,
+    status: string,
+    notes?: string,
+  ) {
     const doctor = await this.getDoctorByUserId(userId);
     const appointment = await this.prisma.appointment.findUnique({
       where: { id: appointmentId },
@@ -396,12 +444,16 @@ export class DoctorService {
       throw new ForbiddenException(`Unauthorized to update appointment`);
     }
 
-    const validStatus = (status.toUpperCase() as AppointmentStatus);
+    const validStatus = status.toUpperCase() as AppointmentStatus;
     const updated = await this.prisma.appointment.update({
       where: { id: appointmentId },
       data: {
         status: validStatus,
-        notes: notes ? (appointment.notes ? `${appointment.notes}\n${notes}` : notes) : appointment.notes,
+        notes: notes
+          ? appointment.notes
+            ? `${appointment.notes}\n${notes}`
+            : notes
+          : appointment.notes,
       },
     });
 
@@ -422,7 +474,10 @@ export class DoctorService {
   // ==========================================
   // 3. DIGITAL PRESCRIPTIONS
   // ==========================================
-  async doctorCreatePrescription(userId: string, dto: CreateDoctorPrescriptionDto) {
+  async doctorCreatePrescription(
+    userId: string,
+    dto: CreateDoctorPrescriptionDto,
+  ) {
     const doctor = await this.getDoctorByUserId(userId);
 
     const appointment = await this.prisma.appointment.findUnique({
@@ -480,7 +535,11 @@ export class DoctorService {
     const where: any = { doctorId: doctor.id };
     if (query.search) {
       where.OR = [
-        { patient: { user: { name: { contains: query.search, mode: 'insensitive' } } } },
+        {
+          patient: {
+            user: { name: { contains: query.search, mode: 'insensitive' } },
+          },
+        },
         { diagnosis: { contains: query.search, mode: 'insensitive' } },
       ];
     }
@@ -492,8 +551,12 @@ export class DoctorService {
         take: limit,
         orderBy: { createdAt: 'desc' },
         include: {
-          patient: { include: { user: { select: { name: true, email: true } } } },
-          appointment: { select: { appointmentNumber: true, date: true, time: true } },
+          patient: {
+            include: { user: { select: { name: true, email: true } } },
+          },
+          appointment: {
+            select: { appointmentNumber: true, date: true, time: true },
+          },
         },
       }),
       this.prisma.prescription.count({ where }),
@@ -544,7 +607,10 @@ export class DoctorService {
   // ==========================================
   // 4. APPOINTMENTS & VIDEO TELEHEALTH SESSIONS
   // ==========================================
-  async doctorListAppointments(userId: string, query: DoctorAppointmentFilterDto) {
+  async doctorListAppointments(
+    userId: string,
+    query: DoctorAppointmentFilterDto,
+  ) {
     const doctor = await this.getDoctorByUserId(userId);
     const page = Number(query.page) || 1;
     const limit = Number(query.limit) || 20;
@@ -554,8 +620,19 @@ export class DoctorService {
 
     if (query.date) {
       const targetDate = new Date(query.date);
-      const start = new Date(targetDate.getFullYear(), targetDate.getMonth(), targetDate.getDate());
-      const end = new Date(targetDate.getFullYear(), targetDate.getMonth(), targetDate.getDate(), 23, 59, 59);
+      const start = new Date(
+        targetDate.getFullYear(),
+        targetDate.getMonth(),
+        targetDate.getDate(),
+      );
+      const end = new Date(
+        targetDate.getFullYear(),
+        targetDate.getMonth(),
+        targetDate.getDate(),
+        23,
+        59,
+        59,
+      );
       where.date = { gte: start, lte: end };
     }
     if (query.status) {
@@ -565,7 +642,9 @@ export class DoctorService {
       where.type = query.type;
     }
     if (query.search) {
-      where.patient = { user: { name: { contains: query.search, mode: 'insensitive' } } };
+      where.patient = {
+        user: { name: { contains: query.search, mode: 'insensitive' } },
+      };
     }
 
     const [items, total] = await Promise.all([
@@ -575,7 +654,9 @@ export class DoctorService {
         take: limit,
         orderBy: [{ date: 'desc' }, { time: 'asc' }],
         include: {
-          patient: { include: { user: { select: { name: true, email: true } } } },
+          patient: {
+            include: { user: { select: { name: true, email: true } } },
+          },
           queue: true,
           prescription: { select: { id: true } },
           consultationNote: { select: { id: true } },
@@ -633,10 +714,14 @@ export class DoctorService {
       throw new NotFoundException(`Appointment ${appointmentId} not found`);
     }
     if (appointment.doctorId !== doctor.id) {
-      throw new ForbiddenException(`Unauthorized to generate video token for this appointment`);
+      throw new ForbiddenException(
+        `Unauthorized to generate video token for this appointment`,
+      );
     }
     if (appointment.type !== AppointmentType.VIDEO) {
-      throw new BadRequestException(`Appointment ${appointment.appointmentNumber} is an in-person consultation`);
+      throw new BadRequestException(
+        `Appointment ${appointment.appointmentNumber} is an in-person consultation`,
+      );
     }
 
     const channelName = `medcare-call-${appointment.appointmentNumber}`;
@@ -668,7 +753,7 @@ export class DoctorService {
       select: { patientId: true },
     });
 
-    const patientIds = appointments.map(a => a.patientId);
+    const patientIds = appointments.map((a) => a.patientId);
 
     const where: any = { id: { in: patientIds } };
     if (query.search) {
@@ -709,7 +794,9 @@ export class DoctorService {
     });
 
     if (!pastAppt) {
-      throw new ForbiddenException(`You can only access medical records of patients who have consulted with you`);
+      throw new ForbiddenException(
+        `You can only access medical records of patients who have consulted with you`,
+      );
     }
 
     return this.prisma.medicalRecord.findMany({
@@ -783,34 +870,51 @@ export class DoctorService {
   async doctorGetEarningsSummary(userId: string) {
     const doctor = await this.getDoctorByUserId(userId);
     const now = new Date();
-    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const startOfToday = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate(),
+    );
     const startOfWeek = new Date(now);
     startOfWeek.setDate(now.getDate() - now.getDay());
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
 
-    const [todayTxns, weekTxns, monthTxns, allTxns, pendingPayouts] = await Promise.all([
-      this.prisma.transaction.findMany({
-        where: { doctorId: doctor.id, status: TransactionStatus.COMPLETED, createdAt: { gte: startOfToday } },
-      }),
-      this.prisma.transaction.findMany({
-        where: { doctorId: doctor.id, status: TransactionStatus.COMPLETED, createdAt: { gte: startOfWeek } },
-      }),
-      this.prisma.transaction.findMany({
-        where: { doctorId: doctor.id, status: TransactionStatus.COMPLETED, createdAt: { gte: startOfMonth } },
-      }),
-      this.prisma.transaction.findMany({
-        where: { doctorId: doctor.id, status: TransactionStatus.COMPLETED },
-        orderBy: { createdAt: 'desc' },
-        include: {
-          patient: { include: { user: { select: { name: true } } } },
-          appointment: { select: { type: true } },
-        },
-        take: 10,
-      }),
-      this.prisma.doctorPayout.findMany({
-        where: { doctorId: doctor.id, status: PayoutStatus.PAID },
-      }),
-    ]);
+    const [todayTxns, weekTxns, monthTxns, allTxns, pendingPayouts] =
+      await Promise.all([
+        this.prisma.transaction.findMany({
+          where: {
+            doctorId: doctor.id,
+            status: TransactionStatus.COMPLETED,
+            createdAt: { gte: startOfToday },
+          },
+        }),
+        this.prisma.transaction.findMany({
+          where: {
+            doctorId: doctor.id,
+            status: TransactionStatus.COMPLETED,
+            createdAt: { gte: startOfWeek },
+          },
+        }),
+        this.prisma.transaction.findMany({
+          where: {
+            doctorId: doctor.id,
+            status: TransactionStatus.COMPLETED,
+            createdAt: { gte: startOfMonth },
+          },
+        }),
+        this.prisma.transaction.findMany({
+          where: { doctorId: doctor.id, status: TransactionStatus.COMPLETED },
+          orderBy: { createdAt: 'desc' },
+          include: {
+            patient: { include: { user: { select: { name: true } } } },
+            appointment: { select: { type: true } },
+          },
+          take: 10,
+        }),
+        this.prisma.doctorPayout.findMany({
+          where: { doctorId: doctor.id, status: PayoutStatus.PAID },
+        }),
+      ]);
 
     const today = todayTxns.reduce((acc, t) => acc + t.amount, 0);
     const weekly = weekTxns.reduce((acc, t) => acc + t.amount, 0);
@@ -838,7 +942,7 @@ export class DoctorService {
         { month: 'Jul', earnings: Math.round(monthly * 0.95) },
         { month: 'Aug', earnings: monthly },
       ],
-      recentTransactions: allTxns.map(t => ({
+      recentTransactions: allTxns.map((t) => ({
         id: t.id,
         transactionNumber: t.transactionNumber,
         patientName: t.patient?.user?.name || 'Patient',
@@ -855,7 +959,9 @@ export class DoctorService {
     const earnings = await this.doctorGetEarningsSummary(userId);
 
     if (dto.amount > earnings.kpi.pendingPayout) {
-      throw new BadRequestException(`Requested amount $${dto.amount} exceeds pending payout balance $${earnings.kpi.pendingPayout}`);
+      throw new BadRequestException(
+        `Requested amount $${dto.amount} exceeds pending payout balance $${earnings.kpi.pendingPayout}`,
+      );
     }
 
     const payoutNumber = `PAYOUT-${Math.floor(1000 + Math.random() * 9000)}`;
@@ -896,17 +1002,24 @@ export class DoctorService {
     ]);
 
     // Calculate rating distribution
-    const counts = [5, 4, 3, 2, 1].map(stars => ({
+    const counts = [5, 4, 3, 2, 1].map((stars) => ({
       stars,
-      count: reviews.filter(r => Math.round(r.rating) === stars).length,
-      pct: total > 0 ? Math.round((reviews.filter(r => Math.round(r.rating) === stars).length / total) * 100) : 0,
+      count: reviews.filter((r) => Math.round(r.rating) === stars).length,
+      pct:
+        total > 0
+          ? Math.round(
+              (reviews.filter((r) => Math.round(r.rating) === stars).length /
+                total) *
+                100,
+            )
+          : 0,
     }));
 
     return {
       averageRating: doctor.rating,
       totalReviews: total,
       ratingDistribution: counts,
-      reviews: reviews.map(r => ({
+      reviews: reviews.map((r) => ({
         id: r.id,
         patientName: r.patient.user.name,
         rating: r.rating,
@@ -924,7 +1037,9 @@ export class DoctorService {
 
   async doctorReplyReview(userId: string, reviewId: string, reply: string) {
     const doctor = await this.getDoctorByUserId(userId);
-    const review = await this.prisma.doctorReview.findUnique({ where: { id: reviewId } });
+    const review = await this.prisma.doctorReview.findUnique({
+      where: { id: reviewId },
+    });
 
     if (!review) {
       throw new NotFoundException(`Review ${reviewId} not found`);
@@ -955,7 +1070,9 @@ export class DoctorService {
     });
 
     if (!doctor) {
-      throw new NotFoundException(`Doctor profile not found for user ${userId}`);
+      throw new NotFoundException(
+        `Doctor profile not found for user ${userId}`,
+      );
     }
 
     return doctor;
@@ -967,8 +1084,10 @@ export class DoctorService {
     const updateData: any = {};
     if (dto.specialty) updateData.specialty = dto.specialty;
     if (dto.qualifications) updateData.qualifications = dto.qualifications;
-    if (dto.experienceYears !== undefined) updateData.experienceYears = dto.experienceYears;
-    if (dto.consultationFee !== undefined) updateData.consultationFee = dto.consultationFee;
+    if (dto.experienceYears !== undefined)
+      updateData.experienceYears = dto.experienceYears;
+    if (dto.consultationFee !== undefined)
+      updateData.consultationFee = dto.consultationFee;
     if (dto.roomNumber) updateData.roomNumber = dto.roomNumber;
     if (dto.bio) updateData.bio = dto.bio;
     if (dto.licenseNumber) updateData.licenseNumber = dto.licenseNumber;
@@ -1016,7 +1135,9 @@ export class DoctorService {
         skip,
         take: limit,
         include: {
-          user: { select: { id: true, name: true, email: true, createdAt: true } },
+          user: {
+            select: { id: true, name: true, email: true, createdAt: true },
+          },
           clinic: { select: { id: true, name: true, location: true } },
           _count: { select: { appointments: true, reviews: true } },
         },
@@ -1040,7 +1161,9 @@ export class DoctorService {
     const doctor = await this.prisma.doctorProfile.findUnique({
       where: { id },
       include: {
-        user: { select: { id: true, name: true, email: true, createdAt: true } },
+        user: {
+          select: { id: true, name: true, email: true, createdAt: true },
+        },
         clinic: true,
         verifications: { orderBy: { createdAt: 'desc' } },
         _count: { select: { appointments: true, reviews: true } },
@@ -1054,8 +1177,15 @@ export class DoctorService {
     return doctor;
   }
 
-  async updateDoctorStatus(id: string, status: AccountStatus, reason?: string, actorId?: string) {
-    const doctor = await this.prisma.doctorProfile.findUnique({ where: { id } });
+  async updateDoctorStatus(
+    id: string,
+    status: AccountStatus,
+    reason?: string,
+    actorId?: string,
+  ) {
+    const doctor = await this.prisma.doctorProfile.findUnique({
+      where: { id },
+    });
     if (!doctor) {
       throw new NotFoundException(`Doctor with ID ${id} not found`);
     }
@@ -1095,7 +1225,7 @@ export class DoctorService {
     const updatedVerification = await this.prisma.doctorVerification.update({
       where: { id },
       data: {
-        status: dto.decision as VerificationStatus,
+        status: dto.decision,
         notes: dto.notes,
         reviewedById: dto.adminId,
         reviewedAt: new Date(),
@@ -1208,8 +1338,19 @@ export class DoctorService {
     }
 
     const targetDate = new Date(date);
-    const startOfDay = new Date(targetDate.getFullYear(), targetDate.getMonth(), targetDate.getDate());
-    const endOfDay = new Date(targetDate.getFullYear(), targetDate.getMonth(), targetDate.getDate(), 23, 59, 59);
+    const startOfDay = new Date(
+      targetDate.getFullYear(),
+      targetDate.getMonth(),
+      targetDate.getDate(),
+    );
+    const endOfDay = new Date(
+      targetDate.getFullYear(),
+      targetDate.getMonth(),
+      targetDate.getDate(),
+      23,
+      59,
+      59,
+    );
 
     const bookedAppointments = await this.prisma.appointment.findMany({
       where: {
@@ -1220,15 +1361,24 @@ export class DoctorService {
       select: { time: true },
     });
 
-    const bookedTimes = new Set(bookedAppointments.map(a => a.time));
+    const bookedTimes = new Set(bookedAppointments.map((a) => a.time));
 
     const defaultSlots = [
-      '09:00 AM', '09:30 AM', '10:00 AM', '10:30 AM',
-      '11:00 AM', '11:30 AM', '02:00 PM', '02:30 PM',
-      '03:00 PM', '03:30 PM', '04:00 PM', '04:30 PM',
+      '09:00 AM',
+      '09:30 AM',
+      '10:00 AM',
+      '10:30 AM',
+      '11:00 AM',
+      '11:30 AM',
+      '02:00 PM',
+      '02:30 PM',
+      '03:00 PM',
+      '03:30 PM',
+      '04:00 PM',
+      '04:30 PM',
     ];
 
-    return defaultSlots.map(time => ({
+    return defaultSlots.map((time) => ({
       time,
       available: !bookedTimes.has(time),
     }));
@@ -1236,8 +1386,19 @@ export class DoctorService {
 
   async receptionistGetScheduleGrid(date?: string, clinicId?: string) {
     const targetDate = date ? new Date(date) : new Date();
-    const startOfDay = new Date(targetDate.getFullYear(), targetDate.getMonth(), targetDate.getDate());
-    const endOfDay = new Date(targetDate.getFullYear(), targetDate.getMonth(), targetDate.getDate(), 23, 59, 59);
+    const startOfDay = new Date(
+      targetDate.getFullYear(),
+      targetDate.getMonth(),
+      targetDate.getDate(),
+    );
+    const endOfDay = new Date(
+      targetDate.getFullYear(),
+      targetDate.getMonth(),
+      targetDate.getDate(),
+      23,
+      59,
+      59,
+    );
 
     const where: any = {
       accountStatus: AccountStatus.ACTIVE,
@@ -1262,11 +1423,24 @@ export class DoctorService {
       orderBy: { createdAt: 'asc' },
     });
 
-    const hours = ['08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00'];
+    const hours = [
+      '08:00',
+      '09:00',
+      '10:00',
+      '11:00',
+      '12:00',
+      '13:00',
+      '14:00',
+      '15:00',
+      '16:00',
+      '17:00',
+    ];
 
-    const doctorSchedules = doctors.map(doc => {
-      const slots = hours.map(hour => {
-        const appt = doc.appointments.find(a => a.time.startsWith(hour) || a.time.includes(hour));
+    const doctorSchedules = doctors.map((doc) => {
+      const slots = hours.map((hour) => {
+        const appt = doc.appointments.find(
+          (a) => a.time.startsWith(hour) || a.time.includes(hour),
+        );
         return {
           time: hour,
           status: appt ? 'BOOKED' : 'AVAILABLE',
@@ -1294,8 +1468,19 @@ export class DoctorService {
 
   async receptionistGetDoctorStatusList(clinicId?: string) {
     const now = new Date();
-    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const endOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
+    const startOfToday = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate(),
+    );
+    const endOfToday = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate(),
+      23,
+      59,
+      59,
+    );
 
     const where: any = {
       accountStatus: AccountStatus.ACTIVE,
@@ -1326,7 +1511,7 @@ export class DoctorService {
       orderBy: { createdAt: 'asc' },
     });
 
-    return doctors.map(doc => ({
+    return doctors.map((doc) => ({
       id: doc.id,
       name: doc.user.name || 'Doctor',
       specialty: doc.specialty,

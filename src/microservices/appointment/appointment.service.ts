@@ -1,4 +1,10 @@
-import { BadRequestException, ForbiddenException, Injectable, NotFoundException, Optional } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+  Optional,
+} from '@nestjs/common';
 import { PrismaService } from '../../common/database/prisma/prisma.service';
 import { LiveQueueEventService } from '../../common/events/live-queue-event.service';
 import {
@@ -11,7 +17,12 @@ import {
   ReceptionistUpdateQueueDto,
   ReceptionistWalkInBookingDto,
 } from './dto/appointment.dto';
-import { AppointmentStatus, PaymentStatus, AppointmentType, QueueStatus } from '../../../generated/prisma/client';
+import {
+  AppointmentStatus,
+  PaymentStatus,
+  AppointmentType,
+  QueueStatus,
+} from '../../../generated/prisma/client';
 
 @Injectable()
 export class AppointmentService {
@@ -52,8 +63,16 @@ export class AppointmentService {
     if (filter.q) {
       where.OR = [
         { appointmentNumber: { contains: filter.q, mode: 'insensitive' } },
-        { patient: { user: { name: { contains: filter.q, mode: 'insensitive' } } } },
-        { doctor: { user: { name: { contains: filter.q, mode: 'insensitive' } } } },
+        {
+          patient: {
+            user: { name: { contains: filter.q, mode: 'insensitive' } },
+          },
+        },
+        {
+          doctor: {
+            user: { name: { contains: filter.q, mode: 'insensitive' } },
+          },
+        },
       ];
     }
 
@@ -74,7 +93,9 @@ export class AppointmentService {
             },
           },
           clinic: { select: { id: true, name: true, location: true } },
-          transactions: { select: { id: true, amount: true, status: true, provider: true } },
+          transactions: {
+            select: { id: true, amount: true, status: true, provider: true },
+          },
         },
         orderBy: { date: 'desc' },
       }),
@@ -111,7 +132,11 @@ export class AppointmentService {
     return appointment;
   }
 
-  async transitionStatus(id: string, dto: TransitionAppointmentStatusDto, actorId?: string) {
+  async transitionStatus(
+    id: string,
+    dto: TransitionAppointmentStatusDto,
+    actorId?: string,
+  ) {
     const appointment = await this.prisma.appointment.findUnique({
       where: { id },
       include: { patient: { include: { user: true } } },
@@ -125,25 +150,34 @@ export class AppointmentService {
       where: { id },
       data: {
         status: dto.status,
-        cancellationReason: dto.cancellationReason || appointment.cancellationReason,
+        cancellationReason:
+          dto.cancellationReason || appointment.cancellationReason,
       },
     });
 
-    await this.prisma.auditLog.create({
-      data: {
-        actorId,
-        actorName: 'Admin',
-        action: `Appointment ${appointment.appointmentNumber} status -> ${dto.status}`,
-        resource: `Appointment ${appointment.appointmentNumber}`,
-        details: dto.cancellationReason ? JSON.stringify({ cancellationReason: dto.cancellationReason }) : undefined,
-        result: 'success',
-      },
-    }).catch(() => null);
+    await this.prisma.auditLog
+      .create({
+        data: {
+          actorId,
+          actorName: 'Admin',
+          action: `Appointment ${appointment.appointmentNumber} status -> ${dto.status}`,
+          resource: `Appointment ${appointment.appointmentNumber}`,
+          details: dto.cancellationReason
+            ? JSON.stringify({ cancellationReason: dto.cancellationReason })
+            : undefined,
+          result: 'success',
+        },
+      })
+      .catch(() => null);
 
     return updated;
   }
 
-  async reschedule(id: string, dto: RescheduleAppointmentDto, actorId?: string) {
+  async reschedule(
+    id: string,
+    dto: RescheduleAppointmentDto,
+    actorId?: string,
+  ) {
     const appointment = await this.prisma.appointment.findUnique({
       where: { id },
     });
@@ -152,8 +186,13 @@ export class AppointmentService {
       throw new NotFoundException(`Appointment with ID ${id} not found`);
     }
 
-    if (appointment.status === AppointmentStatus.COMPLETED || appointment.status === AppointmentStatus.CANCELLED) {
-      throw new BadRequestException(`Cannot reschedule a ${appointment.status.toLowerCase()} appointment`);
+    if (
+      appointment.status === AppointmentStatus.COMPLETED ||
+      appointment.status === AppointmentStatus.CANCELLED
+    ) {
+      throw new BadRequestException(
+        `Cannot reschedule a ${appointment.status.toLowerCase()} appointment`,
+      );
     }
 
     const updated = await this.prisma.appointment.update({
@@ -167,16 +206,18 @@ export class AppointmentService {
       },
     });
 
-    await this.prisma.auditLog.create({
-      data: {
-        actorId,
-        actorName: 'Admin',
-        action: `Appointment ${appointment.appointmentNumber} Rescheduled`,
-        resource: `Appointment ${appointment.appointmentNumber}`,
-        details: JSON.stringify(dto),
-        result: 'success',
-      },
-    }).catch(() => null);
+    await this.prisma.auditLog
+      .create({
+        data: {
+          actorId,
+          actorName: 'Admin',
+          action: `Appointment ${appointment.appointmentNumber} Rescheduled`,
+          resource: `Appointment ${appointment.appointmentNumber}`,
+          details: JSON.stringify(dto),
+          result: 'success',
+        },
+      })
+      .catch(() => null);
 
     return updated;
   }
@@ -195,7 +236,10 @@ export class AppointmentService {
     return profile.id;
   }
 
-  async patientListAppointments(userId: string, filter: PatientAppointmentFilterDto) {
+  async patientListAppointments(
+    userId: string,
+    filter: PatientAppointmentFilterDto,
+  ) {
     const patientId = await this.getPatientIdFromUserId(userId);
     const page = Math.max(1, Number(filter.page) || 1);
     const limit = Math.min(100, Math.max(1, Number(filter.limit) || 20));
@@ -208,10 +252,16 @@ export class AppointmentService {
     }
 
     const now = new Date();
-    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const startOfToday = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate(),
+    );
 
     if (filter.tab === 'upcoming') {
-      where.status = { in: ['PENDING', 'CONFIRMED', 'CHECKED_IN', 'IN_PROGRESS'] };
+      where.status = {
+        in: ['PENDING', 'CONFIRMED', 'CHECKED_IN', 'IN_PROGRESS'],
+      };
       where.date = { gte: startOfToday };
     } else if (filter.tab === 'completed') {
       where.status = 'COMPLETED';
@@ -233,7 +283,9 @@ export class AppointmentService {
           },
           clinic: true,
           prescription: true,
-          transactions: { select: { id: true, amount: true, status: true, provider: true } },
+          transactions: {
+            select: { id: true, amount: true, status: true, provider: true },
+          },
         },
         orderBy: { date: filter.tab === 'upcoming' ? 'asc' : 'desc' },
       }),
@@ -304,7 +356,9 @@ export class AppointmentService {
     });
 
     if (existing) {
-      throw new BadRequestException('This slot has already been booked. Please choose another slot.');
+      throw new BadRequestException(
+        'This slot has already been booked. Please choose another slot.',
+      );
     }
 
     const appointmentNumber = `APT-${Date.now().toString().slice(-6)}-${Math.floor(100 + Math.random() * 900)}`;
@@ -331,7 +385,11 @@ export class AppointmentService {
     return appointment;
   }
 
-  async patientCancelAppointment(userId: string, appointmentId: string, reason?: string) {
+  async patientCancelAppointment(
+    userId: string,
+    appointmentId: string,
+    reason?: string,
+  ) {
     const patientId = await this.getPatientIdFromUserId(userId);
     const appointment = await this.prisma.appointment.findUnique({
       where: { id: appointmentId },
@@ -345,8 +403,13 @@ export class AppointmentService {
       throw new ForbiddenException('Access denied to this appointment');
     }
 
-    if (appointment.status === AppointmentStatus.COMPLETED || appointment.status === AppointmentStatus.CANCELLED) {
-      throw new BadRequestException(`Cannot cancel a ${appointment.status.toLowerCase()} appointment`);
+    if (
+      appointment.status === AppointmentStatus.COMPLETED ||
+      appointment.status === AppointmentStatus.CANCELLED
+    ) {
+      throw new BadRequestException(
+        `Cannot cancel a ${appointment.status.toLowerCase()} appointment`,
+      );
     }
 
     return this.prisma.appointment.update({
@@ -358,7 +421,11 @@ export class AppointmentService {
     });
   }
 
-  async patientRescheduleAppointment(userId: string, appointmentId: string, dto: RescheduleAppointmentDto) {
+  async patientRescheduleAppointment(
+    userId: string,
+    appointmentId: string,
+    dto: RescheduleAppointmentDto,
+  ) {
     const patientId = await this.getPatientIdFromUserId(userId);
     const appointment = await this.prisma.appointment.findUnique({
       where: { id: appointmentId },
@@ -372,8 +439,13 @@ export class AppointmentService {
       throw new ForbiddenException('Access denied to this appointment');
     }
 
-    if (appointment.status === AppointmentStatus.COMPLETED || appointment.status === AppointmentStatus.CANCELLED) {
-      throw new BadRequestException(`Cannot reschedule a ${appointment.status.toLowerCase()} appointment`);
+    if (
+      appointment.status === AppointmentStatus.COMPLETED ||
+      appointment.status === AppointmentStatus.CANCELLED
+    ) {
+      throw new BadRequestException(
+        `Cannot reschedule a ${appointment.status.toLowerCase()} appointment`,
+      );
     }
 
     const targetDate = new Date(dto.date);
@@ -390,7 +462,9 @@ export class AppointmentService {
     });
 
     if (existing) {
-      throw new BadRequestException('This slot has already been booked. Please pick another slot.');
+      throw new BadRequestException(
+        'This slot has already been booked. Please pick another slot.',
+      );
     }
 
     return this.prisma.appointment.update({
@@ -408,8 +482,15 @@ export class AppointmentService {
     const appointment = await this.prisma.appointment.findUnique({
       where: { id: appointmentId },
       include: {
-        patient: { include: { user: { select: { id: true, name: true, email: true } } } },
-        doctor: { include: { user: { select: { id: true, name: true, email: true } }, clinic: true } },
+        patient: {
+          include: { user: { select: { id: true, name: true, email: true } } },
+        },
+        doctor: {
+          include: {
+            user: { select: { id: true, name: true, email: true } },
+            clinic: true,
+          },
+        },
       },
     });
 
@@ -417,8 +498,13 @@ export class AppointmentService {
       throw new NotFoundException('Appointment not found');
     }
 
-    if (appointment.patientId !== patientId && appointment.doctor.userId !== userId) {
-      throw new ForbiddenException('You are not authorized to join this consultation');
+    if (
+      appointment.patientId !== patientId &&
+      appointment.doctor.userId !== userId
+    ) {
+      throw new ForbiddenException(
+        'You are not authorized to join this consultation',
+      );
     }
 
     if (appointment.status === AppointmentStatus.CANCELLED) {
@@ -461,8 +547,19 @@ export class AppointmentService {
 
   async receptionistGetDashboardStats(clinicId?: string) {
     const now = new Date();
-    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const endOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
+    const startOfToday = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate(),
+    );
+    const endOfToday = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate(),
+      23,
+      59,
+      59,
+    );
 
     const baseWhere: any = {
       date: { gte: startOfToday, lte: endOfToday },
@@ -572,8 +669,19 @@ export class AppointmentService {
     }
 
     const now = new Date();
-    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const endOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
+    const startOfToday = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate(),
+    );
+    const endOfToday = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate(),
+      23,
+      59,
+      59,
+    );
 
     const lastQueue = await this.prisma.patientQueue.findFirst({
       where: {
@@ -585,7 +693,8 @@ export class AppointmentService {
     });
 
     const nextQueueNumber = (lastQueue?.queueNumber || 0) + 1;
-    const roomNumber = dto.roomNumber || appointment.doctor.roomNumber || 'Room 101';
+    const roomNumber =
+      dto.roomNumber || appointment.doctor.roomNumber || 'Room 101';
 
     await this.prisma.appointment.update({
       where: { id: appointment.id },
@@ -609,16 +718,18 @@ export class AppointmentService {
       },
     });
 
-    await this.prisma.auditLog.create({
-      data: {
-        actorId,
-        actorName: 'Receptionist',
-        action: `Patient Check-in: Token #${nextQueueNumber}`,
-        resource: `Appointment ${appointment.appointmentNumber} (${appointment.patient.user.name || 'Patient'})`,
-        details: JSON.stringify({ queueNumber: nextQueueNumber, roomNumber }),
-        result: 'success',
-      },
-    }).catch(() => null);
+    await this.prisma.auditLog
+      .create({
+        data: {
+          actorId,
+          actorName: 'Receptionist',
+          action: `Patient Check-in: Token #${nextQueueNumber}`,
+          resource: `Appointment ${appointment.appointmentNumber} (${appointment.patient.user.name || 'Patient'})`,
+          details: JSON.stringify({ queueNumber: nextQueueNumber, roomNumber }),
+          result: 'success',
+        },
+      })
+      .catch(() => null);
 
     this.queueEventService?.emit({
       type: 'CHECKED_IN',
@@ -636,8 +747,19 @@ export class AppointmentService {
 
   async receptionistGetLiveQueue(clinicId?: string, doctorId?: string) {
     const now = new Date();
-    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const endOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
+    const startOfToday = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate(),
+    );
+    const endOfToday = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate(),
+      23,
+      59,
+      59,
+    );
 
     const where: any = {
       createdAt: { gte: startOfToday, lte: endOfToday },
@@ -649,14 +771,29 @@ export class AppointmentService {
       where,
       orderBy: [{ status: 'asc' }, { queueNumber: 'asc' }],
       include: {
-        patient: { include: { user: { select: { id: true, name: true, email: true } } } },
-        doctor: { include: { user: { select: { id: true, name: true, email: true } } } },
-        appointment: { select: { appointmentNumber: true, time: true, type: true, paymentStatus: true } },
+        patient: {
+          include: { user: { select: { id: true, name: true, email: true } } },
+        },
+        doctor: {
+          include: { user: { select: { id: true, name: true, email: true } } },
+        },
+        appointment: {
+          select: {
+            appointmentNumber: true,
+            time: true,
+            type: true,
+            paymentStatus: true,
+          },
+        },
       },
     });
   }
 
-  async receptionistUpdateQueueStatus(queueId: string, status: QueueStatus, actorId?: string) {
+  async receptionistUpdateQueueStatus(
+    queueId: string,
+    status: QueueStatus,
+    actorId?: string,
+  ) {
     const queue = await this.prisma.patientQueue.findUnique({
       where: { id: queueId },
       include: {
@@ -691,22 +828,26 @@ export class AppointmentService {
     });
 
     if (apptStatus && queue.appointmentId) {
-      await this.prisma.appointment.update({
-        where: { id: queue.appointmentId },
-        data: { status: apptStatus },
-      }).catch(() => null);
+      await this.prisma.appointment
+        .update({
+          where: { id: queue.appointmentId },
+          data: { status: apptStatus },
+        })
+        .catch(() => null);
     }
 
-    await this.prisma.auditLog.create({
-      data: {
-        actorId,
-        actorName: 'Receptionist',
-        action: `Queue Status Updated to ${status}`,
-        resource: `Queue #${queue.queueNumber} (${queue.patient.user.name || 'Patient'})`,
-        details: JSON.stringify({ status }),
-        result: 'success',
-      },
-    }).catch(() => null);
+    await this.prisma.auditLog
+      .create({
+        data: {
+          actorId,
+          actorName: 'Receptionist',
+          action: `Queue Status Updated to ${status}`,
+          resource: `Queue #${queue.queueNumber} (${queue.patient.user.name || 'Patient'})`,
+          details: JSON.stringify({ status }),
+          result: 'success',
+        },
+      })
+      .catch(() => null);
 
     this.queueEventService?.emit({
       type: status as any,
@@ -722,7 +863,10 @@ export class AppointmentService {
     return updatedQueue;
   }
 
-  async receptionistWalkInBooking(dto: ReceptionistWalkInBookingDto, actorId?: string) {
+  async receptionistWalkInBooking(
+    dto: ReceptionistWalkInBookingDto,
+    actorId?: string,
+  ) {
     let patientId = dto.patientId;
 
     if (!patientId && dto.patientName) {
@@ -748,7 +892,9 @@ export class AppointmentService {
     }
 
     if (!patientId) {
-      throw new BadRequestException('Patient information is required for walk-in booking');
+      throw new BadRequestException(
+        'Patient information is required for walk-in booking',
+      );
     }
 
     const doctor = await this.prisma.doctorProfile.findUnique({
@@ -760,7 +906,9 @@ export class AppointmentService {
 
     const now = new Date();
     const appointmentNumber = `WALK-${Date.now().toString().slice(-6)}`;
-    const time = dto.time || `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+    const time =
+      dto.time ||
+      `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
 
     const appointment = await this.prisma.appointment.create({
       data: {
@@ -787,5 +935,3 @@ export class AppointmentService {
     );
   }
 }
-
-

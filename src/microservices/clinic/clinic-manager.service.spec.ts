@@ -110,10 +110,7 @@ describe('ClinicService - Clinic Manager Operations', () => {
     };
 
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        ClinicService,
-        { provide: PrismaService, useValue: prisma },
-      ],
+      providers: [ClinicService, { provide: PrismaService, useValue: prisma }],
     }).compile();
 
     service = module.get<ClinicService>(ClinicService);
@@ -136,7 +133,10 @@ describe('ClinicService - Clinic Manager Operations', () => {
 
   describe('Clinic Doctors Management', () => {
     it('should list clinic doctors with pagination', async () => {
-      const result = await service.listClinicDoctors('mgr-1', undefined, { page: 1, limit: 10 });
+      const result = await service.listClinicDoctors('mgr-1', undefined, {
+        page: 1,
+        limit: 10,
+      });
       expect(result.items.length).toBe(1);
     });
 

@@ -1,15 +1,30 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsEmail, IsEnum, IsInt, IsNotEmpty, IsOptional, IsString, Min } from 'class-validator';
+import {
+  IsEmail,
+  IsEnum,
+  IsInt,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  Min,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 import { AccountStatus } from '../../../../generated/prisma/client';
 
 export class ClinicFilterDto {
-  @ApiPropertyOptional({ example: 'Central', description: 'Search clinic name, city, or phone' })
+  @ApiPropertyOptional({
+    example: 'Central',
+    description: 'Search clinic name, city, or phone',
+  })
   @IsOptional()
   @IsString()
   q?: string;
 
-  @ApiPropertyOptional({ enum: AccountStatus, example: AccountStatus.ACTIVE, description: 'Filter by account status' })
+  @ApiPropertyOptional({
+    enum: AccountStatus,
+    example: AccountStatus.ACTIVE,
+    description: 'Filter by account status',
+  })
   @IsOptional()
   @IsEnum(AccountStatus)
   status?: AccountStatus;
@@ -30,12 +45,18 @@ export class ClinicFilterDto {
 }
 
 export class CreateClinicDto {
-  @ApiProperty({ example: 'MedCare Central Hospital', description: 'Clinic branch name' })
+  @ApiProperty({
+    example: 'MedCare Central Hospital',
+    description: 'Clinic branch name',
+  })
   @IsNotEmpty()
   @IsString()
   name!: string;
 
-  @ApiProperty({ example: 'Manhattan Medical District', description: 'Location / district' })
+  @ApiProperty({
+    example: 'Manhattan Medical District',
+    description: 'Location / district',
+  })
   @IsNotEmpty()
   @IsString()
   location!: string;
@@ -70,7 +91,10 @@ export class CreateClinicDto {
   @IsEmail()
   email?: string;
 
-  @ApiPropertyOptional({ example: 'usr-mgr-101', description: 'Manager user ID' })
+  @ApiPropertyOptional({
+    example: 'usr-mgr-101',
+    description: 'Manager user ID',
+  })
   @IsOptional()
   @IsString()
   managerId?: string;

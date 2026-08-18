@@ -17,12 +17,18 @@ export class UpdatePlatformSettingsDto {
 }
 
 export class TriggerBackupDto {
-  @ApiPropertyOptional({ example: 'S3_BACKUP_STORAGE', description: 'Target backup destination storage bucket or location' })
+  @ApiPropertyOptional({
+    example: 'S3_BACKUP_STORAGE',
+    description: 'Target backup destination storage bucket or location',
+  })
   @IsOptional()
   @IsString()
   target?: string;
 
-  @ApiPropertyOptional({ example: 'Nightly automated system & database snapshot.', description: 'Audit backup notes' })
+  @ApiPropertyOptional({
+    example: 'Nightly automated system & database snapshot.',
+    description: 'Audit backup notes',
+  })
   @IsOptional()
   @IsString()
   notes?: string;

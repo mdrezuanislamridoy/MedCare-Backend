@@ -1,7 +1,29 @@
-import { Body, Controller, Get, Param, Patch, Post, Put, Query, Req, UseGuards } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiParam } from '@nestjs/swagger';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Put,
+  Query,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+  ApiParam,
+} from '@nestjs/swagger';
 import { ClinicService } from '../microservices/clinic/clinic.service';
-import { ClinicFilterDto, CreateClinicDto, UpdateClinicDto, UpdateClinicStatusDto } from '../microservices/clinic/dto/clinic.dto';
+import {
+  ClinicFilterDto,
+  CreateClinicDto,
+  UpdateClinicDto,
+  UpdateClinicStatusDto,
+} from '../microservices/clinic/dto/clinic.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
@@ -53,7 +75,9 @@ export class AdminClinicGatewayController {
     return this.clinicService.updateClinic(id, body, req.user?.id);
   }
 
-  @ApiOperation({ summary: 'Update clinic status (ACTIVE, SUSPENDED, INACTIVE)' })
+  @ApiOperation({
+    summary: 'Update clinic status (ACTIVE, SUSPENDED, INACTIVE)',
+  })
   @ApiResponse({ status: 200, description: 'Clinic status updated' })
   @ApiParam({ name: 'id', description: 'Clinic ID' })
   @Patch(':id/status')
@@ -62,6 +86,11 @@ export class AdminClinicGatewayController {
     @Body() body: UpdateClinicStatusDto,
     @Req() req: AuthenticatedRequest,
   ) {
-    return this.clinicService.updateClinicStatus(id, body.status, body.reason, req.user?.id);
+    return this.clinicService.updateClinicStatus(
+      id,
+      body.status,
+      body.reason,
+      req.user?.id,
+    );
   }
 }
