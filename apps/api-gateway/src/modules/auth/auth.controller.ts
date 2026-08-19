@@ -2,8 +2,7 @@ import { Body, Controller, Get, Inject, Post, Req, UseGuards } from '@nestjs/com
 import { ClientProxy } from '@nestjs/microservices';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { MICROSERVICES, PATTERNS } from '@medcare/contracts';
-import { JwtAuthGuard } from '../../../../../src/common/guards/jwt-auth.guard';
-import { Public } from '../../../../../libs/auth/src';
+import { JwtAuthGuard, Public } from '@medcare/shared';
 
 @ApiTags('Authentication & Identity')
 @Controller('auth')

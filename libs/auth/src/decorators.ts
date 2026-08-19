@@ -1,8 +1,3 @@
-import { SetMetadata } from '@nestjs/common';
-import { UserRole } from '../../contracts/src';
-
-export const ROLES_KEY = 'roles';
-export const Roles = (...roles: UserRole[]) => SetMetadata(ROLES_KEY, roles);
-
-export const IS_PUBLIC_KEY = 'isPublic';
-export const Public = () => SetMetadata(IS_PUBLIC_KEY, true);
+// Re-export from @medcare/shared for backward compatibility
+// New code should import directly from @medcare/shared or @medcare/auth
+export { Public, Roles, ROLES_KEY, IS_PUBLIC_KEY } from '@medcare/shared';

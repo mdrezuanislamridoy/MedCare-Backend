@@ -21,9 +21,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { MICROSERVICES, PATTERNS, UserRole } from '@medcare/contracts';
-import { JwtAuthGuard } from '../../../../../src/common/guards/jwt-auth.guard';
-import { RolesGuard } from '../../../../../src/common/guards/roles.guard';
-import { Roles, Public } from '../../../../../libs/auth/src';
+import { JwtAuthGuard, RolesGuard, Roles, Public } from '@medcare/shared';
 
 @ApiTags('Doctor Management & Clinical Operations')
 @Controller()

@@ -22,7 +22,7 @@
     "prisma:generate:notification": "prisma generate --schema=apps/notification-service/prisma/schema.prisma",
     "prisma:generate:audit": "prisma generate --schema=apps/audit-service/prisma/schema.prisma",
     "prisma:generate:chat": "prisma generate --schema=apps/chat-service/prisma/schema.prisma",
-    "prisma:push:all": "npx prisma db push --schema=apps/auth-service/prisma/schema.prisma && npx prisma db push --schema=apps/doctor-service/prisma/schema.prisma && npx prisma db push --schema=apps/patient-service/prisma/schema.prisma && npx prisma db push --schema=apps/appointment-service/prisma/schema.prisma && npx prisma db push --schema=apps/clinic-service/prisma/schema.prisma && npx prisma db push --schema=apps/billing-service/prisma/schema.prisma && npx prisma db push --schema=apps/notification-service/prisma/schema.prisma && npx prisma db push --schema=apps/audit-service/prisma/schema.prisma && npx prisma db push --schema=apps/chat-service/prisma/schema.prisma",
+    "prisma:push:all": "node scripts/push-all.js",
     "prisma:migrate:auth": "prisma migrate dev --schema=apps/auth-service/prisma/schema.prisma",
     "prisma:migrate:doctor": "prisma migrate dev --schema=apps/doctor-service/prisma/schema.prisma",
     "prisma:migrate:patient": "prisma migrate dev --schema=apps/patient-service/prisma/schema.prisma",
