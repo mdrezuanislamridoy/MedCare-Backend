@@ -1,0 +1,53 @@
+datasource db {
+  provider = "postgresql"
+}
+
+generator client {
+  provider = "prisma-client"
+  output   = "./generated/client"
+}
+
+enum InvoiceStatus {
+  PENDING
+  PAID
+  CANCELLED
+  REFUNDED
+}
+
+enum PaymentProvider {
+  STRIPE
+  SSLCOMMERZ
+  BKASH
+  NAGAD
+  CASH
+}
+
+model Invoice {
+  id              String        @id @default(uuid())
+  invoiceNumber   String        @unique
+  patientId       String
+  appointmentId   String?
+  amount          Float
+  tax             Float         @default(0.0)
+  totalAmount     Float
+  status          InvoiceStatus @default(PENDING)
+  dueDate         DateTime?
+  items           Json          // Array of { description, amount, quantity }
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  transactions    Transaction[]
+}
+
+model Transaction {
+  id              String          @id @default(uuid())
+  invoiceId       String
+  invoice         Invoice         @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  patientId       String
+  amount          Float
+  provider        PaymentProvider @default(STRIPE)
+  transactionRef  String          @unique
+  status          String          @default("SUCCESS")
+  metadata        Json?
+  paidAt          DateTime        @default(now())
+}

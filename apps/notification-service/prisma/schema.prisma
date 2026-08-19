@@ -1,0 +1,35 @@
+datasource db {
+  provider = "postgresql"
+}
+
+generator client {
+  provider = "prisma-client"
+  output   = "./generated/client"
+}
+
+enum NotificationPriority {
+  LOW
+  NORMAL
+  HIGH
+  URGENT
+}
+
+enum NotificationAudience {
+  ALL
+  DOCTORS
+  PATIENTS
+  STAFF
+  CUSTOM
+}
+
+model Notification {
+  id           String               @id @default(uuid())
+  title        String
+  message      String
+  priority     NotificationPriority @default(NORMAL)
+  audience     NotificationAudience @default(ALL)
+  sentById     String?
+  targetUserId String?
+  readByCount  Int                  @default(0)
+  createdAt    DateTime             @default(now())
+}
