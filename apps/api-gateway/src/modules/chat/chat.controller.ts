@@ -13,7 +13,7 @@ import {
 import { ClientProxy } from '@nestjs/microservices';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { MICROSERVICES, PATTERNS } from '@medcare/contracts';
-import { JwtAuthGuard } from '../../../../../src/common/guards/jwt-auth.guard';
+import { JwtAuthGuard } from '@medcare/shared';
 
 @ApiTags('Chat & Messaging')
 @ApiBearerAuth('JWT-auth')

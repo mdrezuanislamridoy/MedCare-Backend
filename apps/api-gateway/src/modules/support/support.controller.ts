@@ -11,9 +11,7 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UserRole } from '@medcare/contracts';
-import { JwtAuthGuard } from '../../../../../src/common/guards/jwt-auth.guard';
-import { RolesGuard } from '../../../../../src/common/guards/roles.guard';
-import { Roles } from '../../../../../libs/auth/src';
+import { JwtAuthGuard, RolesGuard, Roles } from '@medcare/shared';
 
 @ApiTags('Support Staff Portal')
 @ApiBearerAuth('JWT-auth')
