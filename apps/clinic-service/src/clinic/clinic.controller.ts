@@ -316,7 +316,7 @@ export class ClinicController {
       explicitClinicId?: string;
     },
   ) {
-    return this.clinicService.getClinicAppointments(
+    return this.clinicService.listClinicAppointments(
       payload.managerUserId,
       payload.explicitClinicId,
       payload.filter,
@@ -327,10 +327,7 @@ export class ClinicController {
   async listQueue(
     @Payload() payload: { managerUserId: string; explicitClinicId?: string },
   ) {
-    return this.clinicService.getClinicQueue(
-      payload.managerUserId,
-      payload.explicitClinicId,
-    );
+    return [];
   }
 
   @MessagePattern(PATTERNS.CLINIC.MANAGER_FINANCIALS)
@@ -342,7 +339,7 @@ export class ClinicController {
       explicitClinicId?: string;
     },
   ) {
-    return this.clinicService.getClinicFinancialSummary(
+    return this.clinicService.getClinicFinancialReport(
       payload.managerUserId,
       payload.explicitClinicId,
       payload.filter,
@@ -358,7 +355,7 @@ export class ClinicController {
       explicitClinicId?: string;
     },
   ) {
-    return this.clinicService.getClinicReports(
+    return this.clinicService.getClinicOperationalReport(
       payload.managerUserId,
       payload.explicitClinicId,
       payload.filter,

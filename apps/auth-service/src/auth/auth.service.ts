@@ -9,6 +9,7 @@ import * as bcrypt from 'bcrypt';
 import { OAuth2Client } from 'google-auth-library';
 import type { SignOptions } from 'jsonwebtoken';
 import { PrismaService } from '../prisma/prisma.service';
+import { UserRole } from '@medcare/contracts';
 import { CodePurpose } from './code-purpose.enum';
 import { CodeService } from './code.service';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
@@ -48,7 +49,7 @@ export class AuthService {
       data: {
         email,
         passwordHash,
-        name: dto.name?.trim() || null,
+        name: dto.name?.trim() || 'User',
       },
     });
 
@@ -89,10 +90,10 @@ export class AuthService {
     return this.serializeUser(user);
   }
 
-  async updateUserRole(userId: string, role: User['role']) {
+  async updateUserRole(userId: string, role: UserRole) {
     const user = await this.prisma.user.update({
       where: { id: userId },
-      data: { role },
+      data: { role: role as any },
     });
 
     return this.serializeUser(user);
@@ -128,7 +129,7 @@ export class AuthService {
 
     const updatedUser = await this.prisma.user.update({
       where: { id: user.id },
-      data: { emailVerifiedAt: new Date() },
+      data: { isEmailVerified: true },
     });
 
     return this.serializeUser(updatedUser);
@@ -200,9 +201,9 @@ export class AuthService {
     const user = await this.prisma.$transaction(async (tx) => {
       const providerAccount = await tx.providerAccount.findUnique({
         where: {
-          provider_providerUserId: {
-            provider: AuthProvider.GOOGLE,
-            providerUserId: payload.sub,
+          provider_providerAccountId: {
+            provider: 'GOOGLE',
+            providerAccountId: payload.sub,
           },
         },
         include: { user: true },
@@ -224,8 +225,8 @@ export class AuthService {
         (await tx.user.create({
           data: {
             email,
-            name: payload.name ?? null,
-            emailVerifiedAt: payload.email_verified ? now : null,
+            name: payload.name || 'Google User',
+            isEmailVerified: Boolean(payload.email_verified),
           },
         }));
 
@@ -233,16 +234,14 @@ export class AuthService {
         where: { id: userRecord.id },
         data: {
           lastLoginAt: now,
-          emailVerifiedAt:
-            userRecord.emailVerifiedAt ?? (payload.email_verified ? now : null),
+          isEmailVerified: userRecord.isEmailVerified || Boolean(payload.email_verified),
         },
       });
 
       await tx.providerAccount.create({
         data: {
-          provider: AuthProvider.GOOGLE,
-          providerUserId: payload.sub,
-          email,
+          provider: 'GOOGLE',
+          providerAccountId: payload.sub,
           userId: updatedUser.id,
         },
       });
@@ -253,14 +252,14 @@ export class AuthService {
     return this.authResponse(user);
   }
 
-  private authResponse(user: User) {
+  private authResponse(user: any) {
     return {
       accessToken: this.signAccessToken(user),
       user: this.serializeUser(user),
     };
   }
 
-  private signAccessToken(user: User) {
+  private signAccessToken(user: any) {
     return this.jwtService.sign(
       {
         email: user.email,
@@ -276,13 +275,13 @@ export class AuthService {
     );
   }
 
-  private serializeUser(user: User) {
+  private serializeUser(user: any) {
     return {
       id: user.id,
       email: user.email,
       name: user.name,
       role: user.role,
-      emailVerifiedAt: user.emailVerifiedAt,
+      isEmailVerified: user.isEmailVerified,
       lastLoginAt: user.lastLoginAt,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,

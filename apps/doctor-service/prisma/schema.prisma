@@ -32,6 +32,12 @@ model DoctorProfile {
   verificationStatus VerificationStatus @default(UNVERIFIED)
   licenseNumber      String?
   documents          String[]
+  name               String?
+  email              String?
+  phone              String?
+  avatarUrl          String?
+  rating             Float              @default(4.8)
+  reviewCount        Int                @default(0)
   clinicId           String?
   roomNumber         String?
   isAvailableToday   Boolean            @default(true)

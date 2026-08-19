@@ -12,12 +12,12 @@ import {
 export class FinanceController {
   constructor(private readonly financeService: FinanceService) {}
 
-  @MessagePattern(PATTERNS.FINANCE.LIST_TRANSACTIONS)
+  @MessagePattern(PATTERNS.BILLING.LIST_TRANSACTIONS)
   async listTransactions(@Payload() filter: TransactionFilterDto) {
     return this.financeService.listTransactions(filter);
   }
 
-  @MessagePattern(PATTERNS.FINANCE.PROCESS_REFUND)
+  @MessagePattern(PATTERNS.BILLING.PROCESS_REFUND)
   async processRefund(
     @Payload() payload: { id: string; dto: ProcessRefundDto; actorId?: string },
   ) {
@@ -28,19 +28,19 @@ export class FinanceController {
     );
   }
 
-  @MessagePattern(PATTERNS.FINANCE.GET_REPORT)
+  @MessagePattern(PATTERNS.BILLING.GET_REPORT)
   async getFinanceSummary() {
     return this.financeService.getFinanceSummary();
   }
 
   // --- Patient Portal Message Patterns ---
 
-  @MessagePattern(PATTERNS.FINANCE.PATIENT_SUMMARY)
+  @MessagePattern(PATTERNS.BILLING.PATIENT_SUMMARY)
   async patientSummary(@Payload() payload: { userId: string }) {
     return this.financeService.patientGetSummary(payload.userId);
   }
 
-  @MessagePattern(PATTERNS.FINANCE.PATIENT_INVOICES)
+  @MessagePattern(PATTERNS.BILLING.PATIENT_INVOICES)
   async patientInvoices(
     @Payload()
     payload: {
@@ -54,7 +54,7 @@ export class FinanceController {
     );
   }
 
-  @MessagePattern(PATTERNS.FINANCE.PATIENT_PAY)
+  @MessagePattern(PATTERNS.BILLING.PATIENT_PAY)
   async patientPay(
     @Payload() payload: { userId: string; dto: PatientPaymentDto },
   ) {

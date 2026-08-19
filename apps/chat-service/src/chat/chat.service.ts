@@ -6,7 +6,11 @@ import {
 } from '@nestjs/common';
 import { Subject, Observable } from 'rxjs';
 import { PrismaService } from '../prisma/prisma.service';
-import { ConversationStatus } from '@medcare/contracts';
+import {
+  ConversationStatus,
+  ConversationType,
+  MessageType,
+} from '@medcare/contracts';
 import {
   StartConversationDto,
   SendChatMessageDto,
@@ -26,9 +30,7 @@ export interface ChatLiveEvent {
 export class ChatService {
   private readonly chatEventSubject = new Subject<ChatLiveEvent>();
 
-  constructor(
-    private readonly prisma: PrismaService,
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   getStream(): Observable<ChatLiveEvent> {
     return this.chatEventSubject.asObservable();
@@ -44,48 +46,18 @@ export class ChatService {
       );
     }
 
-    const recipient = await this.prisma.user.findUnique({
-      where: { id: dto.recipientUserId },
-      include: { doctorProfile: true, patientProfile: true },
-    });
-    if (!recipient) {
-      throw new NotFoundException(
-        `Recipient user ${dto.recipientUserId} not found`,
-      );
-    }
-
-    const sender = await this.prisma.user.findUnique({
-      where: { id: userId },
-      include: { doctorProfile: true, patientProfile: true },
-    });
-
     // Check if direct conversation already exists between these 2 users
     const existing = await this.prisma.conversation.findFirst({
       where: {
         appointmentId: dto.appointmentId || null,
-        type: dto.type || ConversationType.DIRECT,
+        type: (dto.type as any) || ConversationType.DIRECT,
         AND: [
           { participants: { some: { userId } } },
           { participants: { some: { userId: dto.recipientUserId } } },
         ],
       },
       include: {
-        participants: {
-          include: {
-            user: {
-              select: {
-                id: true,
-                name: true,
-                email: true,
-                role: true,
-                doctorProfile: {
-                  select: { specialty: true, roomNumber: true },
-                },
-                patientProfile: { select: { bloodGroup: true, phone: true } },
-              },
-            },
-          },
-        },
+        participants: true,
       },
     });
 
@@ -100,13 +72,13 @@ export class ChatService {
     }
 
     // Auto-generate title if not specified
-    const title = dto.title || `Chat with ${recipient.name || recipient.email}`;
+    const title = dto.title || `Chat between ${userId} & ${dto.recipientUserId}`;
 
     // Create new conversation
     const conversation = await this.prisma.conversation.create({
       data: {
         title,
-        type: dto.type || ConversationType.DIRECT,
+        type: (dto.type as any) || ConversationType.DIRECT,
         status: ConversationStatus.ACTIVE,
         appointmentId: dto.appointmentId,
         participants: {
@@ -117,22 +89,7 @@ export class ChatService {
         },
       },
       include: {
-        participants: {
-          include: {
-            user: {
-              select: {
-                id: true,
-                name: true,
-                email: true,
-                role: true,
-                doctorProfile: {
-                  select: { specialty: true, roomNumber: true },
-                },
-                patientProfile: { select: { bloodGroup: true, phone: true } },
-              },
-            },
-          },
-        },
+        participants: true,
       },
     });
 
@@ -161,9 +118,6 @@ export class ChatService {
           userId: senderUserId,
         },
       },
-      include: {
-        user: { select: { id: true, name: true, email: true, role: true } },
-      },
     });
 
     if (!participant) {
@@ -176,21 +130,10 @@ export class ChatService {
       data: {
         conversationId,
         senderId: senderUserId,
-        senderRole: participant.user.role,
         message: dto.message,
-        type: dto.type || MessageType.TEXT,
+        type: (dto.type as any) || MessageType.TEXT,
         isInternalNote: dto.isInternalNote || false,
         attachments: (dto.attachments as any) || [],
-      },
-      include: {
-        sender: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-            role: true,
-          },
-        },
       },
     });
 
@@ -242,24 +185,15 @@ export class ChatService {
     };
 
     if (query.type) {
-      where.type = query.type;
+      where.type = query.type as any;
     }
     if (query.status) {
-      where.status = query.status;
+      where.status = query.status as any;
     }
     if (query.search) {
       where.OR = [
         { title: { contains: query.search, mode: 'insensitive' } },
         { lastMessage: { contains: query.search, mode: 'insensitive' } },
-        {
-          participants: {
-            some: {
-              user: {
-                name: { contains: query.search, mode: 'insensitive' },
-              },
-            },
-          },
-        },
       ];
     }
 
@@ -270,28 +204,12 @@ export class ChatService {
         take: limit,
         orderBy: { lastMessageAt: 'desc' },
         include: {
-          participants: {
-            include: {
-              user: {
-                select: {
-                  id: true,
-                  name: true,
-                  email: true,
-                  role: true,
-                  doctorProfile: {
-                    select: { specialty: true, roomNumber: true },
-                  },
-                  patientProfile: { select: { bloodGroup: true, phone: true } },
-                },
-              },
-            },
-          },
+          participants: true,
         },
       }),
       this.prisma.conversation.count({ where }),
     ]);
 
-    // Format list with recipient info and user's specific unreadCount
     const formatted = items.map((c) => {
       const myParticipant = c.participants.find((p) => p.userId === userId);
       const recipient = c.participants.find((p) => p.userId !== userId);
@@ -305,7 +223,7 @@ export class ChatService {
         lastMessageAt: c.lastMessageAt,
         unreadCount: myParticipant?.unreadCount || 0,
         createdAt: c.createdAt,
-        recipient: recipient ? recipient.user : null,
+        recipientUserId: recipient?.userId || null,
         participants: c.participants,
       };
     });
@@ -354,16 +272,6 @@ export class ChatService {
         skip,
         take: limit,
         orderBy: { createdAt: 'asc' },
-        include: {
-          sender: {
-            select: {
-              id: true,
-              name: true,
-              email: true,
-              role: true,
-            },
-          },
-        },
       }),
       this.prisma.chatMessage.count({ where: { conversationId } }),
     ]);
@@ -452,7 +360,7 @@ export class ChatService {
 
     const updated = await this.prisma.conversation.update({
       where: { id: conversationId },
-      data: { status },
+      data: { status: status as any },
     });
 
     return {
@@ -469,7 +377,7 @@ export class ChatService {
     const aggregations = await this.prisma.chatParticipant.aggregate({
       where: {
         userId,
-        conversation: { status: ConversationStatus.ACTIVE },
+        conversation: { status: ConversationStatus.ACTIVE as any },
       },
       _sum: {
         unreadCount: true,

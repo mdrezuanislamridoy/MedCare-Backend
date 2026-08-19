@@ -135,20 +135,22 @@ export class DoctorController {
 
   @MessagePattern(PATTERNS.DOCTOR.DOCTOR_COMPLETE_CONSULTATION)
   async doctorCompleteConsultation(
-    @Payload() payload: { userId: string; appointmentId: string },
+    @Payload() payload: { userId: string; appointmentId: string; dto?: SaveConsultationNotesDto },
   ) {
     return this.doctorService.doctorCompleteConsultation(
       payload.userId,
       payload.appointmentId,
+      payload.dto || ({} as any),
     );
   }
 
   @MessagePattern(PATTERNS.DOCTOR.DOCTOR_CREATE_PRESCRIPTION)
   async doctorCreatePrescription(
-    @Payload() payload: { userId: string; dto: CreateDoctorPrescriptionDto },
+    @Payload() payload: { userId: string; appointmentId?: string; dto: CreateDoctorPrescriptionDto },
   ) {
     return this.doctorService.doctorCreatePrescription(
       payload.userId,
+      payload.appointmentId || payload.dto?.appointmentId,
       payload.dto,
     );
   }
@@ -167,7 +169,7 @@ export class DoctorController {
   async doctorGetPrescription(
     @Payload() payload: { userId: string; id: string },
   ) {
-    return this.doctorService.doctorGetPrescriptionDetails(
+    return this.doctorService.doctorGetPrescription(
       payload.userId,
       payload.id,
     );
@@ -187,7 +189,7 @@ export class DoctorController {
   async doctorGetAppointment(
     @Payload() payload: { userId: string; id: string },
   ) {
-    return this.doctorService.doctorGetAppointmentDetails(
+    return this.doctorService.doctorGetAppointment(
       payload.userId,
       payload.id,
     );
@@ -197,7 +199,7 @@ export class DoctorController {
   async doctorGetVideoToken(
     @Payload() payload: { userId: string; appointmentId: string },
   ) {
-    return this.doctorService.doctorGetVideoSessionToken(
+    return this.doctorService.doctorGetVideoToken(
       payload.userId,
       payload.appointmentId,
     );
@@ -212,7 +214,7 @@ export class DoctorController {
   async doctorGetPatientRecords(
     @Payload() payload: { userId: string; patientId: string },
   ) {
-    return this.doctorService.doctorGetPatientMedicalRecords(
+    return this.doctorService.doctorGetPatientRecords(
       payload.userId,
       payload.patientId,
     );
@@ -232,7 +234,7 @@ export class DoctorController {
 
   @MessagePattern(PATTERNS.DOCTOR.DOCTOR_GET_EARNINGS)
   async doctorGetEarnings(@Payload() payload: { userId: string }) {
-    return this.doctorService.doctorGetEarningsSummary(payload.userId);
+    return this.doctorService.doctorGetEarnings(payload.userId);
   }
 
   @MessagePattern(PATTERNS.DOCTOR.DOCTOR_REQUEST_PAYOUT)

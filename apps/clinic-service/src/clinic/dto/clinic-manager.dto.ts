@@ -366,12 +366,34 @@ export class ClinicRoomFilterDto {
   status?: RoomStatus;
 
   @ApiPropertyOptional({
+    example: '3rd Floor',
+    description: 'Filter by floor',
+  })
+  @IsOptional()
+  @IsString()
+  floor?: string;
+
+  @ApiPropertyOptional({
     example: '302',
     description: 'Search room number or room name',
   })
   @IsOptional()
   @IsString()
   search?: string;
+
+  @ApiPropertyOptional({ example: 1, default: 1 })
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  page?: number;
+
+  @ApiPropertyOptional({ example: 20, default: 20 })
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  limit?: number;
 }
 
 export class ClinicAppointmentFilterDto {

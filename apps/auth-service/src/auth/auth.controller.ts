@@ -7,8 +7,12 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 import { Roles } from '../../../../libs/auth/src';
 import { UserRole } from '@medcare/contracts';
+import { CurrentUser } from '../../../../src/common/decorators/current-user.decorator';
+import { RolesGuard } from '../../../../src/common/guards/roles.guard';
+import type { AuthUser } from './strategies/jwt.strategy';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { GoogleAuthDto } from './dto/google-auth.dto';
 import { LoginDto } from './dto/login.dto';
@@ -17,6 +21,8 @@ import { ResetPasswordDto } from './dto/reset-password.dto';
 import { UpdateUserRoleDto } from './dto/update-user-role.dto';
 import { VerifyEmailDto } from './dto/verify-email.dto';
 import { AuthService } from './auth.service';
+
+const JwtAuthGuard = AuthGuard('jwt');
 
 @Controller('auth')
 export class AuthController {

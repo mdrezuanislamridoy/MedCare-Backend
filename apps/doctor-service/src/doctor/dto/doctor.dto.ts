@@ -144,71 +144,16 @@ export class DoctorScheduleDayDto {
 }
 
 export class DoctorScheduleDto {
-  @ApiProperty({
+  @ApiPropertyOptional({ example: true })
+  isAvailableToday?: boolean;
+
+  @ApiPropertyOptional()
+  schedules?: any[];
+
+  @ApiPropertyOptional({
     type: [DoctorScheduleDayDto],
-    example: [
-      {
-        dayOfWeek: 'Monday',
-        isEnabled: true,
-        startTime: '09:00',
-        endTime: '17:00',
-        breakStartTime: '13:00',
-        breakEndTime: '14:00',
-        slotDurationMin: 30,
-      },
-      {
-        dayOfWeek: 'Tuesday',
-        isEnabled: true,
-        startTime: '09:00',
-        endTime: '17:00',
-        breakStartTime: '13:00',
-        breakEndTime: '14:00',
-        slotDurationMin: 30,
-      },
-      {
-        dayOfWeek: 'Wednesday',
-        isEnabled: true,
-        startTime: '09:00',
-        endTime: '17:00',
-        breakStartTime: '13:00',
-        breakEndTime: '14:00',
-        slotDurationMin: 30,
-      },
-      {
-        dayOfWeek: 'Thursday',
-        isEnabled: true,
-        startTime: '09:00',
-        endTime: '17:00',
-        breakStartTime: '13:00',
-        breakEndTime: '14:00',
-        slotDurationMin: 30,
-      },
-      {
-        dayOfWeek: 'Friday',
-        isEnabled: true,
-        startTime: '09:00',
-        endTime: '16:00',
-        breakStartTime: '13:00',
-        breakEndTime: '14:00',
-        slotDurationMin: 30,
-      },
-      {
-        dayOfWeek: 'Saturday',
-        isEnabled: false,
-        startTime: '10:00',
-        endTime: '14:00',
-        slotDurationMin: 30,
-      },
-      {
-        dayOfWeek: 'Sunday',
-        isEnabled: false,
-        startTime: '00:00',
-        endTime: '00:00',
-        slotDurationMin: 30,
-      },
-    ],
   })
-  days!: DoctorScheduleDayDto[];
+  days?: DoctorScheduleDayDto[];
 
   @ApiPropertyOptional({ example: 150, description: 'Consultation fee in USD' })
   consultationFee?: number;
@@ -221,6 +166,9 @@ export class DoctorScheduleDto {
 }
 
 export class SaveConsultationNotesDto {
+  @ApiPropertyOptional()
+  patientId?: string;
+
   @ApiPropertyOptional({
     example:
       'Chest discomfort on exertion, shortness of breath for past 2 weeks',
@@ -236,11 +184,17 @@ export class SaveConsultationNotesDto {
   })
   clinicalNotes?: string;
 
+  @ApiPropertyOptional()
+  internalNotes?: string;
+
   @ApiPropertyOptional({
     example:
       'Prescribe ACE inhibitor (Lisinopril 10mg). Low sodium diet. Follow-up lipid panel & ECG in 4 weeks.',
   })
   treatmentPlan?: string;
+
+  @ApiPropertyOptional()
+  followUpDate?: string;
 
   @ApiPropertyOptional({
     example: {
@@ -293,6 +247,9 @@ export class CreateDoctorPrescriptionDto {
 
   @ApiPropertyOptional({ example: '2026-09-15' })
   followUpDate?: string;
+
+  @ApiPropertyOptional()
+  instructions?: string;
 
   @ApiProperty({
     type: [PrescriptionMedicineDto],
@@ -386,6 +343,12 @@ export class DoctorReviewFilterDto {
 export class DoctorPayoutRequestDto {
   @ApiProperty({ example: 1500, description: 'Payout amount requested in USD' })
   amount!: number;
+
+  @ApiPropertyOptional({ example: 'BANK_TRANSFER' })
+  payoutMethod?: string;
+
+  @ApiPropertyOptional()
+  accountDetails?: any;
 
   @ApiPropertyOptional({ example: 'Chase Bank NA' })
   bankName?: string;

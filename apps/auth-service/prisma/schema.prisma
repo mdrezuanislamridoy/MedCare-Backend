@@ -27,8 +27,8 @@ enum AccountStatus {
 model User {
   id               String            @id @default(uuid())
   email            String            @unique
-  passwordHash     String
-  name             String
+  passwordHash     String?
+  name             String?
   role             UserRole          @default(PATIENT)
   phone            String?
   avatarUrl        String?

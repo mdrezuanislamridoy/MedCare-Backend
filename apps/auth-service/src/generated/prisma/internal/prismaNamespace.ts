@@ -1048,7 +1048,7 @@ export interface PrismaClientOptionsWithAdapter extends PrismaClientBaseOptions 
    * @example
    * ```ts
    * import { PrismaPg } from '@prisma/adapter-pg'
-   * import { PrismaClient } from '@medcare/contracts'
+   * import { PrismaClient } from './generated/prisma/client'
    * 
    * const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL })
    * const prisma = new PrismaClient({ adapter })

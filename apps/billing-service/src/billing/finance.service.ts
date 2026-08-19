@@ -12,6 +12,8 @@ import {
 } from './dto/finance.dto';
 import {
   InvoiceStatus,
+  TransactionStatus,
+  PaymentStatus,
 } from '@medcare/contracts';
 
 @Injectable()
@@ -28,26 +30,17 @@ export class FinanceService {
       where.status = filter.status;
     }
     if (filter.provider) {
-      where.provider = { contains: filter.provider, mode: 'insensitive' };
+      where.provider = filter.provider as any;
     }
     if (filter.startDate || filter.endDate) {
-      where.createdAt = {};
-      if (filter.startDate) where.createdAt.gte = new Date(filter.startDate);
-      if (filter.endDate) where.createdAt.lte = new Date(filter.endDate);
+      where.paidAt = {};
+      if (filter.startDate) where.paidAt.gte = new Date(filter.startDate);
+      if (filter.endDate) where.paidAt.lte = new Date(filter.endDate);
     }
     if (filter.q) {
       where.OR = [
-        { transactionNumber: { contains: filter.q, mode: 'insensitive' } },
-        {
-          patient: {
-            user: { name: { contains: filter.q, mode: 'insensitive' } },
-          },
-        },
-        {
-          doctor: {
-            user: { name: { contains: filter.q, mode: 'insensitive' } },
-          },
-        },
+        { transactionRef: { contains: filter.q, mode: 'insensitive' } },
+        { patientId: { contains: filter.q, mode: 'insensitive' } },
       ];
     }
 
@@ -57,21 +50,9 @@ export class FinanceService {
         skip,
         take: limit,
         include: {
-          patient: {
-            include: {
-              user: { select: { id: true, name: true, email: true } },
-            },
-          },
-          doctor: {
-            include: {
-              user: { select: { id: true, name: true, email: true } },
-            },
-          },
-          appointment: {
-            select: { id: true, appointmentNumber: true, date: true },
-          },
+          invoice: true,
         },
-        orderBy: { createdAt: 'desc' },
+        orderBy: { paidAt: 'desc' },
       }),
       this.prisma.transaction.count({ where }),
     ]);
@@ -90,7 +71,7 @@ export class FinanceService {
   async processRefund(id: string, dto: ProcessRefundDto, actorId?: string) {
     const transaction = await this.prisma.transaction.findUnique({
       where: { id },
-      include: { appointment: true },
+      include: { invoice: true },
     });
 
     if (!transaction) {
@@ -105,35 +86,22 @@ export class FinanceService {
       where: { id },
       data: {
         status: TransactionStatus.REFUNDED,
-        refundReason: dto.reason,
-        refundedAt: new Date(),
+        metadata: {
+          refundReason: dto.reason,
+          refundedAt: new Date().toISOString(),
+          refundedBy: actorId,
+        },
       },
     });
 
-    if (transaction.appointmentId) {
-      await this.prisma.appointment
+    if (transaction.invoiceId) {
+      await this.prisma.invoice
         .update({
-          where: { id: transaction.appointmentId },
-          data: { paymentStatus: PaymentStatus.REFUNDED },
+          where: { id: transaction.invoiceId },
+          data: { status: InvoiceStatus.REFUNDED },
         })
         .catch(() => null);
     }
-
-    await this.prisma.auditLog
-      .create({
-        data: {
-          actorId,
-          actorName: 'Admin',
-          action: `Refund Processed for ${transaction.transactionNumber}`,
-          resource: `Transaction ${transaction.transactionNumber} ($${transaction.amount})`,
-          details: JSON.stringify({
-            reason: dto.reason,
-            amount: dto.amount || transaction.amount,
-          }),
-          result: 'success',
-        },
-      })
-      .catch(() => null);
 
     return updated;
   }
@@ -141,7 +109,7 @@ export class FinanceService {
   async getFinanceSummary() {
     const [completed, refunded, pending] = await Promise.all([
       this.prisma.transaction.aggregate({
-        where: { status: TransactionStatus.COMPLETED },
+        where: { status: 'SUCCESS' },
         _sum: { amount: true },
         _count: true,
       }),
@@ -151,7 +119,7 @@ export class FinanceService {
         _count: true,
       }),
       this.prisma.transaction.aggregate({
-        where: { status: TransactionStatus.PENDING },
+        where: { status: 'PENDING' },
         _sum: { amount: true },
         _count: true,
       }),
@@ -179,37 +147,20 @@ export class FinanceService {
 
   // --- Patient Portal Methods ---
 
-  private async getPatientIdFromUserId(userId: string): Promise<string> {
-    let profile = await this.prisma.patientProfile.findUnique({
-      where: { userId },
-    });
-    if (!profile) {
-      profile = await this.prisma.patientProfile.create({
-        data: { userId },
-      });
-    }
-    return profile.id;
-  }
-
   async patientGetSummary(userId: string) {
-    const patientId = await this.getPatientIdFromUserId(userId);
-
-    const [paidSum, pendingAppointments, transactionCount] = await Promise.all([
+    const [paidSum, transactionCount] = await Promise.all([
       this.prisma.transaction.aggregate({
-        where: { patientId, status: TransactionStatus.COMPLETED },
+        where: { patientId: userId, status: 'SUCCESS' },
         _sum: { amount: true },
       }),
-      this.prisma.appointment.count({
-        where: { patientId, paymentStatus: PaymentStatus.PENDING },
-      }),
       this.prisma.transaction.count({
-        where: { patientId },
+        where: { patientId: userId },
       }),
     ]);
 
     return {
       totalPaid: paidSum._sum.amount || 0,
-      pendingCount: pendingAppointments,
+      pendingCount: 0,
       totalTransactions: transactionCount,
     };
   }
@@ -218,38 +169,25 @@ export class FinanceService {
     userId: string,
     filter: { page?: number; limit?: number },
   ) {
-    const patientId = await this.getPatientIdFromUserId(userId);
     const page = Math.max(1, Number(filter.page) || 1);
     const limit = Math.min(100, Math.max(1, Number(filter.limit) || 20));
     const skip = (page - 1) * limit;
 
-    const [transactions, total] = await Promise.all([
-      this.prisma.transaction.findMany({
-        where: { patientId },
+    const [invoices, total] = await Promise.all([
+      this.prisma.invoice.findMany({
+        where: { patientId: userId },
         skip,
         take: limit,
         include: {
-          doctor: {
-            include: {
-              user: { select: { name: true, email: true } },
-            },
-          },
-          appointment: {
-            select: {
-              appointmentNumber: true,
-              date: true,
-              time: true,
-              type: true,
-            },
-          },
+          transactions: true,
         },
         orderBy: { createdAt: 'desc' },
       }),
-      this.prisma.transaction.count({ where: { patientId } }),
+      this.prisma.invoice.count({ where: { patientId: userId } }),
     ]);
 
     return {
-      data: transactions,
+      data: invoices,
       meta: {
         page,
         limit,
@@ -260,42 +198,36 @@ export class FinanceService {
   }
 
   async patientPayAppointment(userId: string, dto: PatientPaymentDto) {
-    const patientId = await this.getPatientIdFromUserId(userId);
-    const appointment = await this.prisma.appointment.findUnique({
-      where: { id: dto.appointmentId },
-      include: { doctor: true },
-    });
+    const invoiceNumber = `INV-${Date.now().toString().slice(-6)}`;
+    const transactionRef = `TXN-${Date.now().toString().slice(-8)}`;
 
-    if (!appointment) {
-      throw new NotFoundException('Appointment not found');
-    }
-
-    if (appointment.patientId !== patientId) {
-      throw new ForbiddenException('Access denied to this appointment');
-    }
-
-    const transactionNumber = `TXN-${Date.now().toString().slice(-8)}`;
-
-    const transaction = await this.prisma.transaction.create({
+    const invoice = await this.prisma.invoice.create({
       data: {
-        transactionNumber,
-        patientId,
-        doctorId: appointment.doctorId,
-        appointmentId: appointment.id,
+        invoiceNumber,
+        patientId: userId,
+        appointmentId: dto.appointmentId,
         amount: dto.amount,
-        provider: dto.provider || 'SSLCommerz',
-        status: TransactionStatus.COMPLETED,
+        totalAmount: dto.amount,
+        status: InvoiceStatus.PAID,
+        items: [{ description: 'Medical Consultation', amount: dto.amount, quantity: 1 }],
       },
     });
 
-    await this.prisma.appointment.update({
-      where: { id: appointment.id },
-      data: { paymentStatus: PaymentStatus.PAID },
+    const transaction = await this.prisma.transaction.create({
+      data: {
+        invoiceId: invoice.id,
+        patientId: userId,
+        amount: dto.amount,
+        provider: (dto.provider as any) || 'STRIPE',
+        transactionRef,
+        status: 'SUCCESS',
+      },
     });
 
     return {
       success: true,
       transaction,
+      invoice,
       message: 'Payment completed successfully',
     };
   }
@@ -304,22 +236,8 @@ export class FinanceService {
     userId: string,
     data: { appointmentId: string; provider?: string; returnUrl?: string },
   ) {
-    const patientId = await this.getPatientIdFromUserId(userId);
-    const appointment = await this.prisma.appointment.findUnique({
-      where: { id: data.appointmentId },
-      include: { doctor: { include: { user: true } } },
-    });
-
-    if (!appointment) {
-      throw new NotFoundException('Appointment not found');
-    }
-
-    if (appointment.patientId !== patientId) {
-      throw new ForbiddenException('Access denied to this appointment');
-    }
-
     const provider = data.provider || 'SSLCommerz';
-    const amount = 50.0; // Standard consultation fee
+    const amount = 50.0;
     const sessionId = `CS_${Date.now()}_${Math.random().toString(36).substring(7)}`;
 
     return {
@@ -327,47 +245,42 @@ export class FinanceService {
       provider,
       amount,
       currency: 'USD',
-      appointmentId: appointment.id,
-      appointmentNumber: appointment.appointmentNumber,
-      doctorName: appointment.doctor.user.name,
+      appointmentId: data.appointmentId,
       checkoutUrl: `/api/patient/payments/gateway-redirect?session=${sessionId}&provider=${provider}`,
       status: 'INITIATED',
     };
   }
 
   async handlePaymentWebhook(provider: string, payload: any) {
-    const appointmentId =
-      payload.appointmentId || payload.tran_id?.replace('TXN-', '');
-    const status =
-      payload.status === 'VALID' || payload.status === 'SUCCESS'
-        ? TransactionStatus.COMPLETED
-        : TransactionStatus.FAILED;
+    const appointmentId = payload.appointmentId || payload.tran_id?.replace('TXN-', '');
+    const status = payload.status === 'VALID' || payload.status === 'SUCCESS' ? 'SUCCESS' : 'FAILED';
 
-    if (appointmentId) {
-      const appointment = await this.prisma.appointment.findFirst({
-        where: {
-          OR: [{ id: appointmentId }, { appointmentNumber: appointmentId }],
+    if (appointmentId && status === 'SUCCESS') {
+      const transactionRef = payload.tran_id || `TXN-${Date.now().toString().slice(-8)}`;
+      const invoiceNumber = `INV-${Date.now().toString().slice(-6)}`;
+
+      const invoice = await this.prisma.invoice.create({
+        data: {
+          invoiceNumber,
+          patientId: payload.patientId || 'patient-default',
+          appointmentId,
+          amount: payload.amount || 50,
+          totalAmount: payload.amount || 50,
+          status: InvoiceStatus.PAID,
+          items: [{ description: 'Consultation Fee', amount: payload.amount || 50, quantity: 1 }],
         },
       });
 
-      if (appointment && status === TransactionStatus.COMPLETED) {
-        await this.prisma.appointment.update({
-          where: { id: appointment.id },
-          data: { paymentStatus: PaymentStatus.PAID },
-        });
-
-        await this.prisma.transaction.create({
-          data: {
-            transactionNumber: `TXN-${Date.now().toString().slice(-8)}`,
-            patientId: appointment.patientId,
-            doctorId: appointment.doctorId,
-            appointmentId: appointment.id,
-            amount: payload.amount || 50,
-            provider,
-            status: TransactionStatus.COMPLETED,
-          },
-        });
-      }
+      await this.prisma.transaction.create({
+        data: {
+          invoiceId: invoice.id,
+          patientId: payload.patientId || 'patient-default',
+          amount: payload.amount || 50,
+          provider: (provider.toUpperCase() as any) || 'STRIPE',
+          transactionRef,
+          status: 'SUCCESS',
+        },
+      });
     }
 
     return { received: true, provider, status };
