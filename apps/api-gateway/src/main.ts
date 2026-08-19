@@ -41,7 +41,15 @@ async function bootstrap() {
     .build();
 
   const document = SwaggerModule.createDocument(app, swaggerConfig);
-  SwaggerModule.setup('api/docs', app, document);
+  const swaggerCustomOptions = {
+    swaggerOptions: {
+      docExpansion: 'list',
+      filter: true,
+      showRequestDuration: true,
+    },
+  };
+  SwaggerModule.setup('api/docs', app, document, swaggerCustomOptions);
+  SwaggerModule.setup('docs', app, document, swaggerCustomOptions);
 
   const port = process.env.PORT || 3000;
   await app.listen(port);
