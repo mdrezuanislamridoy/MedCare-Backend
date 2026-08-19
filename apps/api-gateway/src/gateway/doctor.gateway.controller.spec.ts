@@ -1,8 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { DoctorGatewayController } from './doctor.gateway.controller';
 import { DoctorService } from '../microservices/doctor/doctor.service';
-import { LiveQueueEventService } from '../common/events/live-queue-event.service';
-import { UserRole } from '../../generated/prisma/client';
+import { LiveQueueEventService } from '../../../../src/common/events/live-queue-event.service';
+import { UserRole } from '@medcare/contracts';
 
 describe('DoctorGatewayController', () => {
   let controller: DoctorGatewayController;

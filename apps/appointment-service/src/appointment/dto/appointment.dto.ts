@@ -13,7 +13,7 @@ import {
   AppointmentType,
   PaymentStatus,
   QueueStatus,
-} from '../../../../generated/prisma/client';
+} from '@medcare/contracts';
 
 export class AppointmentFilterDto {
   @ApiPropertyOptional({

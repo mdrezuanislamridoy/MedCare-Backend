@@ -11,7 +11,7 @@ import { Type } from 'class-transformer';
 import {
   NotificationAudience,
   NotificationPriority,
-} from '../../../../generated/prisma/client';
+} from '@medcare/contracts';
 
 export class BroadcastNotificationDto {
   @ApiProperty({

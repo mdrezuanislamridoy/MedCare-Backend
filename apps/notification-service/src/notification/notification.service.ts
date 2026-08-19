@@ -4,6 +4,10 @@ import {
   BroadcastNotificationDto,
   NotificationFilterDto,
 } from './dto/notification.dto';
+import {
+  NotificationAudience,
+  NotificationPriority,
+} from '@medcare/contracts';
 
 @Injectable()
 export class NotificationService {
@@ -56,21 +60,11 @@ export class NotificationService {
       data: {
         title: dto.title,
         message: dto.message,
-        priority,
-        audience,
+        priority: priority as any,
+        audience: audience as any,
         sentById: senderId,
       },
     });
-
-    try {
-      await this.redis.set(
-        `broadcast:latest:${notification.id}`,
-        JSON.stringify(notification),
-        3600 * 24, // 24 hours
-      );
-    } catch {
-      // ignore redis write error
-    }
 
     await this.prisma.auditLog
       .create({

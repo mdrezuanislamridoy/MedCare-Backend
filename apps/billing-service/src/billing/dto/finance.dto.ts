@@ -10,7 +10,7 @@ import {
   Min,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { TransactionStatus } from '../../../../generated/prisma/client';
+import { TransactionStatus } from '@medcare/contracts';
 
 export class TransactionFilterDto {
   @ApiPropertyOptional({

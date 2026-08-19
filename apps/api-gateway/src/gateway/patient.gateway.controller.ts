@@ -25,11 +25,11 @@ import {
   ApiBody,
 } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
-import { RolesGuard } from '../common/guards/roles.guard';
-import { Roles } from '../common/decorators/roles.decorator';
-import { UserRole, RecordCategory } from '../../generated/prisma/client';
-import type { AuthenticatedRequest } from '../common/types/authenticated-request.type';
+import { JwtAuthGuard } from '../../../../src/common/guards/jwt-auth.guard';
+import { RolesGuard } from '../../../../src/common/guards/roles.guard';
+import { Roles } from '../../../../libs/auth/src';
+import { UserRole, RecordCategory } from '@medcare/contracts';
+import type { AuthenticatedRequest } from '../../../../src/common/types/authenticated-request.type';
 import {
   medicalRecordStorage,
   medicalRecordFileFilter,
@@ -46,14 +46,14 @@ import { NotificationService } from '../microservices/notification/notification.
 import {
   UpdatePatientProfileDto,
   CreateMedicalRecordDto,
-} from '../microservices/patient/dto/patient.dto';
+} from '../../../patient-service/src/patient/dto/patient.dto';
 import {
   BookAppointmentDto,
   PatientAppointmentFilterDto,
   RescheduleAppointmentDto,
-} from '../microservices/appointment/dto/appointment.dto';
-import { PatientDoctorSearchDto } from '../microservices/doctor/dto/doctor.dto';
-import { PatientPaymentDto } from '../microservices/finance/dto/finance.dto';
+} from '../../../appointment-service/src/appointment/dto/appointment.dto';
+import { PatientDoctorSearchDto } from '../../../doctor-service/src/doctor/dto/doctor.dto';
+import { PatientPaymentDto } from '../../../billing-service/src/billing/dto/finance.dto';
 import { SubmitReviewDto } from '../microservices/review/dto/review.dto';
 
 @ApiTags('Patient Portal')

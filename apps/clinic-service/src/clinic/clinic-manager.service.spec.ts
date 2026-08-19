@@ -9,7 +9,7 @@ import {
   StaffRole,
   StaffShiftStatus,
   UserRole,
-} from '../../../generated/prisma/client';
+} from '@medcare/contracts';
 
 describe('ClinicService - Clinic Manager Operations', () => {
   let service: ClinicService;

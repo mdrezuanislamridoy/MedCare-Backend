@@ -19,12 +19,12 @@ import { PatientService } from '../microservices/patient/patient.service';
 import {
   PatientFilterDto,
   UpdatePatientStatusDto,
-} from '../microservices/patient/dto/patient.dto';
-import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
-import { RolesGuard } from '../common/guards/roles.guard';
-import { Roles } from '../common/decorators/roles.decorator';
-import { UserRole } from '../../generated/prisma/client';
-import type { AuthenticatedRequest } from '../common/types/authenticated-request.type';
+} from '../../../patient-service/src/patient/dto/patient.dto';
+import { JwtAuthGuard } from '../../../../src/common/guards/jwt-auth.guard';
+import { RolesGuard } from '../../../../src/common/guards/roles.guard';
+import { Roles } from '../../../../libs/auth/src';
+import { UserRole } from '@medcare/contracts';
+import type { AuthenticatedRequest } from '../../../../src/common/types/authenticated-request.type';
 
 @ApiTags('Admin Patient Management')
 @ApiBearerAuth('JWT-auth')

@@ -20,12 +20,12 @@ import {
 } from '@nestjs/swagger';
 import { Observable, interval, map, merge } from 'rxjs';
 import { SupportService } from '../microservices/support/support.service';
-import { LiveSupportEventService } from '../common/events/live-support-event.service';
-import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
-import { RolesGuard } from '../common/guards/roles.guard';
-import { Roles } from '../common/decorators/roles.decorator';
-import { UserRole } from '../../generated/prisma/client';
-import type { AuthenticatedRequest } from '../common/types/authenticated-request.type';
+import { LiveSupportEventService } from '../../../../src/common/events/live-support-event.service';
+import { JwtAuthGuard } from '../../../../src/common/guards/jwt-auth.guard';
+import { RolesGuard } from '../../../../src/common/guards/roles.guard';
+import { Roles } from '../../../../libs/auth/src';
+import { UserRole } from '@medcare/contracts';
+import type { AuthenticatedRequest } from '../../../../src/common/types/authenticated-request.type';
 import {
   TicketFilterDto,
   CreateTicketDto,

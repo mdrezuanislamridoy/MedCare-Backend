@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { PatientService } from './patient.service';
 import { PrismaService } from '../../common/database/prisma/prisma.service';
-import { RecordCategory } from '../../../generated/prisma/client';
+import { RecordCategory } from '@medcare/contracts';
 
 describe('PatientService', () => {
   let service: PatientService;

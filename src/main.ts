@@ -7,7 +7,7 @@ import * as express from 'express';
 import {
   getMicroserviceServerOptions,
   getTransportConfig,
-} from './microservices/common/microservices.transport';
+} from '../libs/broker/src';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);

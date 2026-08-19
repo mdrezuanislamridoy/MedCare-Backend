@@ -21,12 +21,12 @@ import {
 } from '@nestjs/swagger';
 import { Observable, interval, map, merge } from 'rxjs';
 import { DoctorService } from '../microservices/doctor/doctor.service';
-import { LiveQueueEventService } from '../common/events/live-queue-event.service';
-import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
-import { RolesGuard } from '../common/guards/roles.guard';
-import { Roles } from '../common/decorators/roles.decorator';
-import { UserRole } from '../../generated/prisma/client';
-import type { AuthenticatedRequest } from '../common/types/authenticated-request.type';
+import { LiveQueueEventService } from '../../../../src/common/events/live-queue-event.service';
+import { JwtAuthGuard } from '../../../../src/common/guards/jwt-auth.guard';
+import { RolesGuard } from '../../../../src/common/guards/roles.guard';
+import { Roles } from '../../../../libs/auth/src';
+import { UserRole } from '@medcare/contracts';
+import type { AuthenticatedRequest } from '../../../../src/common/types/authenticated-request.type';
 import {
   DoctorScheduleDto,
   SaveConsultationNotesDto,
@@ -38,7 +38,7 @@ import {
   DoctorPayoutRequestDto,
   DoctorReplyReviewDto,
   UpdateDoctorProfileDto,
-} from '../microservices/doctor/dto/doctor.dto';
+} from '../../../doctor-service/src/doctor/dto/doctor.dto';
 
 @ApiTags('Doctor Portal')
 @ApiBearerAuth('JWT-auth')

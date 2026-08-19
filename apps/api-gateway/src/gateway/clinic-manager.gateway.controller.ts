@@ -22,11 +22,11 @@ import {
 } from '@nestjs/swagger';
 import { Observable, interval, map, merge } from 'rxjs';
 import { ClinicService } from '../microservices/clinic/clinic.service';
-import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
-import { RolesGuard } from '../common/guards/roles.guard';
-import { Roles } from '../common/decorators/roles.decorator';
-import { UserRole } from '../../generated/prisma/client';
-import type { AuthenticatedRequest } from '../common/types/authenticated-request.type';
+import { JwtAuthGuard } from '../../../../src/common/guards/jwt-auth.guard';
+import { RolesGuard } from '../../../../src/common/guards/roles.guard';
+import { Roles } from '../../../../libs/auth/src';
+import { UserRole } from '@medcare/contracts';
+import type { AuthenticatedRequest } from '../../../../src/common/types/authenticated-request.type';
 import {
   UpdateClinicBranchProfileDto,
   AssignDoctorToClinicDto,
@@ -40,7 +40,7 @@ import {
   ClinicAppointmentFilterDto,
   ClinicFinancialFilterDto,
   ClinicReportFilterDto,
-} from '../microservices/clinic/dto/clinic-manager.dto';
+} from '../../../clinic-service/src/clinic/dto/clinic-manager.dto';
 
 @ApiTags('Clinic Manager Portal')
 @ApiBearerAuth('JWT-auth')

@@ -15,8 +15,8 @@ import { DoctorService } from '../microservices/doctor/doctor.service';
 import { ClinicService } from '../microservices/clinic/clinic.service';
 import { AnalyticsService } from '../microservices/analytics/analytics.service';
 import { ReviewService } from '../microservices/review/review.service';
-import { PatientDoctorSearchDto } from '../microservices/doctor/dto/doctor.dto';
-import { ClinicFilterDto } from '../microservices/clinic/dto/clinic.dto';
+import { PatientDoctorSearchDto } from '../../../doctor-service/src/doctor/dto/doctor.dto';
+import { ClinicFilterDto } from '../../../clinic-service/src/clinic/dto/clinic.dto';
 
 @ApiTags('Public & Landing Page')
 @Controller('public')

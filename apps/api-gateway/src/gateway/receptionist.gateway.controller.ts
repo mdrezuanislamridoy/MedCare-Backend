@@ -20,18 +20,18 @@ import {
   ApiParam,
 } from '@nestjs/swagger';
 import { interval, map, merge, Observable } from 'rxjs';
-import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
-import { RolesGuard } from '../common/guards/roles.guard';
-import { Roles } from '../common/decorators/roles.decorator';
-import { Public } from '../common/decorators/public.decorator';
-import { UserRole, QueueStatus } from '../../generated/prisma/client';
-import type { AuthenticatedRequest } from '../common/types/authenticated-request.type';
+import { JwtAuthGuard } from '../../../../src/common/guards/jwt-auth.guard';
+import { RolesGuard } from '../../../../src/common/guards/roles.guard';
+import { Roles } from '../../../../libs/auth/src';
+import { Public } from '../../../../libs/auth/src';
+import { UserRole, QueueStatus } from '@medcare/contracts';
+import type { AuthenticatedRequest } from '../../../../src/common/types/authenticated-request.type';
 
 import { AppointmentService } from '../microservices/appointment/appointment.service';
 import { DoctorService } from '../microservices/doctor/doctor.service';
 import { PatientService } from '../microservices/patient/patient.service';
 import { AuditService } from '../microservices/audit/audit.service';
-import { LiveQueueEventService } from '../common/events/live-queue-event.service';
+import { LiveQueueEventService } from '../../../../src/common/events/live-queue-event.service';
 
 import {
   AppointmentFilterDto,
@@ -39,7 +39,7 @@ import {
   ReceptionistUpdateQueueDto,
   ReceptionistWalkInBookingDto,
   RescheduleAppointmentDto,
-} from '../microservices/appointment/dto/appointment.dto';
+} from '../../../appointment-service/src/appointment/dto/appointment.dto';
 
 @ApiTags('Receptionist Portal')
 @ApiBearerAuth('JWT-auth')

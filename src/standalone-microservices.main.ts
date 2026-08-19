@@ -3,23 +3,19 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { MicroserviceOptions } from '@nestjs/microservices';
 import { CommonModule } from './common/common.module';
-import { AnalyticsModule } from './microservices/analytics/analytics.module';
-import { DoctorModule } from './microservices/doctor/doctor.module';
-import { PatientModule } from './microservices/patient/patient.module';
-import { ClinicModule } from './microservices/clinic/clinic.module';
-import { AppointmentModule } from './microservices/appointment/appointment.module';
-import { FinanceModule } from './microservices/finance/finance.module';
-import { ReviewModule } from './microservices/review/review.module';
-import { NotificationModule } from './microservices/notification/notification.module';
-import { AuditModule } from './microservices/audit/audit.module';
-import { RbacModule } from './microservices/rbac/rbac.module';
-import { SystemModule } from './microservices/system/system.module';
-import { SupportModule } from './microservices/support/support.module';
-import { ChatModule } from './microservices/chat/chat.module';
+import { AnalyticsModule } from '../apps/analytics-service/src/analytics/analytics.module';
+import { DoctorModule } from '../apps/doctor-service/src/doctor/doctor.module';
+import { PatientModule } from '../apps/patient-service/src/patient/patient.module';
+import { ClinicModule } from '../apps/clinic-service/src/clinic/clinic.module';
+import { AppointmentModule } from '../apps/appointment-service/src/appointment/appointment.module';
+import { FinanceModule } from '../apps/billing-service/src/billing/finance.module';
+import { NotificationModule } from '../apps/notification-service/src/notification/notification.module';
+import { AuditModule } from '../apps/audit-service/src/audit/audit.module';
+import { ChatModule } from '../apps/chat-service/src/chat/chat.module';
 import {
   getMicroserviceServerOptions,
   getTransportConfig,
-} from './microservices/common/microservices.transport';
+} from '../libs/broker/src';
 import { validateEnv } from './common/config/env.validation';
 
 @Module({
@@ -35,12 +31,8 @@ import { validateEnv } from './common/config/env.validation';
     ClinicModule,
     AppointmentModule,
     FinanceModule,
-    ReviewModule,
     NotificationModule,
     AuditModule,
-    RbacModule,
-    SystemModule,
-    SupportModule,
     ChatModule,
   ],
 })

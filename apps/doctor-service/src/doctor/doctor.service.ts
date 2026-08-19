@@ -9,6 +9,8 @@ import {
   AccountStatus,
   VerificationStatus,
   AppointmentStatus,
+  AppointmentType,
+  TransactionStatus,
   QueueStatus,
   PayoutStatus,
 } from '@medcare/contracts';
@@ -336,19 +338,6 @@ export class DoctorService {
       },
     });
 
-    try {
-      await this.auditService.recordLog({
-        actorId: doctor.userId,
-        actorName: doctor.user.name || 'Doctor',
-        action: 'DOCTOR_SAVE_CONSULTATION_NOTES',
-        resource: appointmentId,
-        details: `Saved diagnosis '${dto.diagnosis}' for patient`,
-        result: 'success',
-      });
-    } catch {
-      // Non-blocking
-    }
-
     return saved;
   }
 
@@ -397,19 +386,6 @@ export class DoctorService {
           status: TransactionStatus.COMPLETED,
         },
       });
-    }
-
-    try {
-      await this.auditService.recordLog({
-        actorId: doctor.userId,
-        actorName: doctor.user.name || 'Doctor',
-        action: 'DOCTOR_COMPLETE_CONSULTATION',
-        resource: appointmentId,
-        details: `Completed consultation for appointment ${appointment.appointmentNumber}`,
-        result: 'success',
-      });
-    } catch {
-      // Non-blocking
     }
 
     return {
@@ -503,19 +479,6 @@ export class DoctorService {
         doctor: { include: { user: { select: { name: true } } } },
       },
     });
-
-    try {
-      await this.auditService.recordLog({
-        actorId: doctor.userId,
-        actorName: doctor.user.name || 'Doctor',
-        action: 'DOCTOR_ISSUE_PRESCRIPTION',
-        resource: prescription.id,
-        details: `Issued prescription for appointment ${appointment.appointmentNumber} with ${dto.medicines.length} medicines`,
-        result: 'success',
-      });
-    } catch {
-      // Non-blocking
-    }
 
     return prescription;
   }
@@ -1186,14 +1149,14 @@ export class DoctorService {
 
     return this.prisma.doctorProfile.update({
       where: { id },
-      data: { accountStatus: status },
+      data: { accountStatus: status as any },
       include: { user: true },
     });
   }
 
   async listVerificationQueue(status?: VerificationStatus) {
     return this.prisma.doctorVerification.findMany({
-      where: { status: status || VerificationStatus.PENDING },
+      where: { status: (status as any) || VerificationStatus.PENDING },
       include: {
         doctor: {
           include: {
@@ -1219,17 +1182,17 @@ export class DoctorService {
     const updatedVerification = await this.prisma.doctorVerification.update({
       where: { id },
       data: {
-        status: dto.decision,
+        status: dto.decision as any,
         notes: dto.notes,
         reviewedById: dto.adminId,
         reviewedAt: new Date(),
       },
     });
 
-    if (dto.decision === 'APPROVED') {
+    if (dto.decision === 'APPROVED' || dto.decision === 'VERIFIED') {
       await this.prisma.doctorProfile.update({
         where: { id: verification.doctorId },
-        data: { verificationStatus: VerificationStatus.APPROVED },
+        data: { verificationStatus: VerificationStatus.VERIFIED },
       });
     } else if (dto.decision === 'REJECTED') {
       await this.prisma.doctorProfile.update({
@@ -1248,7 +1211,7 @@ export class DoctorService {
 
     const where: any = {
       accountStatus: AccountStatus.ACTIVE,
-      verificationStatus: VerificationStatus.APPROVED,
+      verificationStatus: VerificationStatus.VERIFIED,
     };
 
     if (dto.specialty) {
@@ -1396,7 +1359,7 @@ export class DoctorService {
 
     const where: any = {
       accountStatus: AccountStatus.ACTIVE,
-      verificationStatus: VerificationStatus.APPROVED,
+      verificationStatus: VerificationStatus.VERIFIED,
     };
     if (clinicId) where.clinicId = clinicId;
 
@@ -1478,7 +1441,7 @@ export class DoctorService {
 
     const where: any = {
       accountStatus: AccountStatus.ACTIVE,
-      verificationStatus: VerificationStatus.APPROVED,
+      verificationStatus: VerificationStatus.VERIFIED,
     };
     if (clinicId) where.clinicId = clinicId;
 

@@ -4,8 +4,8 @@ import { AppointmentService } from '../microservices/appointment/appointment.ser
 import { DoctorService } from '../microservices/doctor/doctor.service';
 import { PatientService } from '../microservices/patient/patient.service';
 import { AuditService } from '../microservices/audit/audit.service';
-import { LiveQueueEventService } from '../common/events/live-queue-event.service';
-import { QueueStatus, UserRole } from '../../generated/prisma/client';
+import { LiveQueueEventService } from '../../../../src/common/events/live-queue-event.service';
+import { QueueStatus, UserRole } from '@medcare/contracts';
 
 describe('ReceptionistGatewayController', () => {
   let controller: ReceptionistGatewayController;

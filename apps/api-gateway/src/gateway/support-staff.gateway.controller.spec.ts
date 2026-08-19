@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { SupportStaffGatewayController } from './support-staff.gateway.controller';
 import { SupportService } from '../microservices/support/support.service';
-import { LiveSupportEventService } from '../common/events/live-support-event.service';
+import { LiveSupportEventService } from '../../../../src/common/events/live-support-event.service';
 import {
   TicketCategory,
   TicketPriority,
@@ -9,7 +9,7 @@ import {
   ComplaintCategory,
   ComplaintStatus,
   UserRole,
-} from '../../generated/prisma/client';
+} from '@medcare/contracts';
 
 describe('SupportStaffGatewayController', () => {
   let controller: SupportStaffGatewayController;

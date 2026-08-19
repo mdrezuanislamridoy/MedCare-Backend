@@ -13,7 +13,7 @@ import { Type } from 'class-transformer';
 import {
   AccountStatus,
   RecordCategory,
-} from '../../../../generated/prisma/client';
+} from '@medcare/contracts';
 
 export class PatientFilterDto {
   @ApiPropertyOptional({

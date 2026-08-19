@@ -8,7 +8,7 @@ import {
   ConversationType,
   MessageType,
   UserRole,
-} from '../../../generated/prisma/client';
+} from '@medcare/contracts';
 
 describe('ChatService', () => {
   let service: ChatService;

@@ -16,7 +16,7 @@ import {
   StaffRole,
   StaffShiftStatus,
   AppointmentStatus,
-} from '../../../../generated/prisma/client';
+} from '@medcare/contracts';
 
 export class UpdateClinicBranchProfileDto {
   @ApiPropertyOptional({

@@ -8,6 +8,7 @@ import { Subject, Observable } from 'rxjs';
 import { PrismaService } from '../prisma/prisma.service';
 import {
   AccountStatus,
+  AppointmentStatus,
   RoomStatus,
   StaffShiftStatus,
   UserRole,
@@ -271,7 +272,7 @@ export class ClinicService {
   ) {
     const clinic = await this.prisma.clinic.update({
       where: { id },
-      data: { status },
+      data: { status: status as any },
     });
 
     await this.prisma.auditLog
@@ -448,7 +449,7 @@ export class ClinicService {
     const limit = Math.min(100, Math.max(1, Number(filter.limit) || 20));
     const skip = (page - 1) * limit;
 
-    const where: Prisma.DoctorProfileWhereInput = {
+    const where: any = {
       clinicId: clinic.id,
     };
 
@@ -583,7 +584,7 @@ export class ClinicService {
     const limit = Math.min(100, Math.max(1, Number(filter.limit) || 20));
     const skip = (page - 1) * limit;
 
-    const where: Prisma.ClinicStaffWhereInput = {
+    const where: any = {
       clinicId: clinic.id,
     };
 
@@ -629,8 +630,8 @@ export class ClinicService {
         name: dto.name,
         email: dto.email,
         phone: dto.phone,
-        role: dto.role,
-        shiftStatus: dto.shiftStatus || StaffShiftStatus.OFF_DUTY,
+        role: dto.role as any,
+        shiftStatus: (dto.shiftStatus || StaffShiftStatus.OFF_DUTY) as any,
         shiftStart: dto.shiftStart,
         shiftEnd: dto.shiftEnd,
         assignedDepartment: dto.assignedDepartment,
@@ -678,8 +679,8 @@ export class ClinicService {
         ...(dto.name && { name: dto.name }),
         ...(dto.email !== undefined && { email: dto.email }),
         ...(dto.phone !== undefined && { phone: dto.phone }),
-        ...(dto.role && { role: dto.role }),
-        ...(dto.shiftStatus && { shiftStatus: dto.shiftStatus }),
+        ...(dto.role && { role: dto.role as any }),
+        ...(dto.shiftStatus && { shiftStatus: dto.shiftStatus as any }),
         ...(dto.shiftStart !== undefined && { shiftStart: dto.shiftStart }),
         ...(dto.shiftEnd !== undefined && { shiftEnd: dto.shiftEnd }),
         ...(dto.assignedDepartment !== undefined && {
@@ -725,7 +726,7 @@ export class ClinicService {
   ) {
     const clinic = await this.resolveManagerClinic(managerUserId, clinicId);
 
-    const where: Prisma.ClinicRoomWhereInput = {
+    const where: any = {
       clinicId: clinic.id,
     };
 
@@ -783,18 +784,11 @@ export class ClinicService {
         roomNumber: dto.roomNumber,
         name: dto.name,
         floor: dto.floor,
-        type: dto.type,
-        status: dto.status || RoomStatus.AVAILABLE,
+        type: dto.type as any,
+        status: (dto.status || RoomStatus.AVAILABLE) as any,
         capacity: dto.capacity || 1,
         equipment: (dto.equipment as any) || [],
         currentDoctorId: dto.currentDoctorId,
-      },
-      include: {
-        currentDoctor: {
-          include: {
-            user: { select: { id: true, name: true, email: true } },
-          },
-        },
       },
     });
 
@@ -831,20 +825,13 @@ export class ClinicService {
         ...(dto.roomNumber && { roomNumber: dto.roomNumber }),
         ...(dto.name && { name: dto.name }),
         ...(dto.floor !== undefined && { floor: dto.floor }),
-        ...(dto.type && { type: dto.type }),
-        ...(dto.status && { status: dto.status }),
+        ...(dto.type && { type: dto.type as any }),
+        ...(dto.status && { status: dto.status as any }),
         ...(dto.capacity !== undefined && { capacity: dto.capacity }),
         ...(dto.equipment && { equipment: dto.equipment as any }),
         ...(dto.currentDoctorId !== undefined && {
           currentDoctorId: dto.currentDoctorId,
         }),
-      },
-      include: {
-        currentDoctor: {
-          include: {
-            user: { select: { id: true, name: true, email: true } },
-          },
-        },
       },
     });
 
@@ -893,7 +880,7 @@ export class ClinicService {
     const limit = Math.min(100, Math.max(1, Number(filter.limit) || 20));
     const skip = (page - 1) * limit;
 
-    const where: Prisma.AppointmentWhereInput = {
+    const where: any = {
       clinicId: clinic.id,
     };
 
@@ -974,7 +961,7 @@ export class ClinicService {
   ) {
     const clinic = await this.resolveManagerClinic(managerUserId, clinicId);
 
-    const where: Prisma.AppointmentWhereInput = {
+    const where: any = {
       clinicId: clinic.id,
       status: AppointmentStatus.COMPLETED,
     };

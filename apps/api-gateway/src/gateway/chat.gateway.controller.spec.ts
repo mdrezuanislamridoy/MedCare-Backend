@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ChatGatewayController } from './chat.gateway.controller';
 import { ChatService } from '../microservices/chat/chat.service';
-import { UserRole, ConversationStatus } from '../../generated/prisma/client';
+import { UserRole, ConversationStatus } from '@medcare/contracts';
 
 describe('ChatGatewayController', () => {
   let controller: ChatGatewayController;

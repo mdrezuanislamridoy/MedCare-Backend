@@ -6,7 +6,7 @@ import { DoctorService } from '../microservices/doctor/doctor.service';
 import { FinanceService } from '../microservices/finance/finance.service';
 import { ReviewService } from '../microservices/review/review.service';
 import { NotificationService } from '../microservices/notification/notification.service';
-import { UserRole } from '../../generated/prisma/client';
+import { UserRole } from '@medcare/contracts';
 
 describe('PatientGatewayController', () => {
   let controller: PatientGatewayController;

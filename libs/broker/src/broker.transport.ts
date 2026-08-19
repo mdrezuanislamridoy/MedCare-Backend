@@ -24,6 +24,8 @@ export function getBrokerConfig(): BrokerConfig {
   };
 }
 
+export const getTransportConfig = getBrokerConfig;
+
 export function getMicroserviceServerOptions(serviceName?: string, customPort?: number): MicroserviceOptions {
   const config = getBrokerConfig();
 

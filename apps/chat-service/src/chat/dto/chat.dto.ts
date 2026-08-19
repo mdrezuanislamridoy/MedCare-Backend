@@ -14,7 +14,7 @@ import {
   ConversationType,
   ConversationStatus,
   MessageType,
-} from '../../../../generated/prisma/client';
+} from '@medcare/contracts';
 
 export class StartConversationDto {
   @ApiProperty({

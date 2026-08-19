@@ -10,7 +10,7 @@ import {
   QueueStatus,
   TransactionStatus,
   UserRole,
-} from '../../../generated/prisma/client';
+} from '@medcare/contracts';
 
 describe('DoctorService', () => {
   let service: DoctorService;

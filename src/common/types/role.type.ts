@@ -1,3 +1,3 @@
-import { UserRole } from '../../../generated/prisma/client';
+import { UserRole } from '@medcare/contracts';
 
 export { UserRole };

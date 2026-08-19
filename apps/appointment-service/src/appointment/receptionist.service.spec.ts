@@ -7,7 +7,7 @@ import {
   AppointmentType,
   PaymentStatus,
   QueueStatus,
-} from '../../../generated/prisma/client';
+} from '@medcare/contracts';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 
 describe('ReceptionistAppointmentService', () => {

@@ -4,7 +4,8 @@ import {
   VerificationStatus,
   AppointmentStatus,
   AppointmentType,
-} from '../../../../generated/prisma/client';
+  PayoutStatus,
+} from '@medcare/contracts';
 
 export class DoctorFilterDto {
   @ApiPropertyOptional({
@@ -28,7 +29,7 @@ export class DoctorFilterDto {
 
   @ApiPropertyOptional({
     enum: VerificationStatus,
-    example: VerificationStatus.APPROVED,
+    example: VerificationStatus.VERIFIED,
     description: 'Filter by verification status',
   })
   verificationStatus?: VerificationStatus;

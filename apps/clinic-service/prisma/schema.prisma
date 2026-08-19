@@ -47,17 +47,21 @@ model Clinic {
 }
 
 model ClinicRoom {
-  id          String     @id @default(uuid())
-  clinicId    String
-  clinic      Clinic     @relation(fields: [clinicId], references: [id], onDelete: Cascade)
-  roomNumber  String
-  type        String     @default("CONSULTATION")
-  status      RoomStatus @default(AVAILABLE)
-  capacity    Int        @default(1)
+  id              String     @id @default(uuid())
+  clinicId        String
+  clinic          Clinic     @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  roomNumber      String
+  name            String?
+  floor           String?
+  type            String     @default("CONSULTATION")
+  status          RoomStatus @default(AVAILABLE)
+  capacity        Int        @default(1)
+  equipment       Json?
+  currentDoctorId String?
   assignedDoctorId String?
-  notes       String?
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  notes           String?
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
 
   @@unique([clinicId, roomNumber])
 }

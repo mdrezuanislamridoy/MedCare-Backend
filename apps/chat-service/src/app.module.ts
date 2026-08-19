@@ -3,8 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { KafkaModule } from '../../../libs/kafka/src';
 import { LoggerModule } from '../../../libs/logger/src';
 import { PrismaModule } from './prisma/prisma.module';
-import { ChatModule } from '../../../src/microservices/chat/chat.module';
-import { AuditModule } from '../../../src/microservices/audit/audit.module';
+import { ChatModule } from './chat/chat.module';
 import { validateEnv } from '../../../src/common/config/env.validation';
 
 @Module({
@@ -14,7 +13,6 @@ import { validateEnv } from '../../../src/common/config/env.validation';
     LoggerModule,
     PrismaModule,
     ChatModule,
-    AuditModule,
   ],
 })
 export class AppModule {}

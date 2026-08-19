@@ -112,7 +112,7 @@ export class PatientService {
 
     const updated = await this.prisma.patientProfile.update({
       where: { id },
-      data: { status },
+      data: { status: status as any },
     });
 
     await this.prisma.auditLog
@@ -302,7 +302,7 @@ export class PatientService {
       data: {
         patientId: profile.id,
         title: data.title,
-        category: data.category,
+        category: data.category as any,
         fileUrl: data.fileUrl,
         fileType: data.fileType,
         fileSize: data.fileSize,

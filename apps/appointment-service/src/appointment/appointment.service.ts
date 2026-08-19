@@ -18,6 +18,8 @@ import {
 } from './dto/appointment.dto';
 import {
   AppointmentStatus,
+  AppointmentType,
+  PaymentStatus,
   QueueStatus,
 } from '@medcare/contracts';
 

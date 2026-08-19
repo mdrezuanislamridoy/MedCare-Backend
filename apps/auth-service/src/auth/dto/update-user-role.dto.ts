@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEnum } from 'class-validator';
-import { UserRole } from '../../../generated/prisma/client';
+import { UserRole } from '@medcare/contracts';
 
 export class UpdateUserRoleDto {
   @ApiProperty({

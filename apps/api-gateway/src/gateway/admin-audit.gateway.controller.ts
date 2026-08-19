@@ -6,11 +6,11 @@ import {
   ApiBearerAuth,
 } from '@nestjs/swagger';
 import { AuditService } from '../microservices/audit/audit.service';
-import { AuditFilterDto } from '../microservices/audit/dto/audit.dto';
-import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
-import { RolesGuard } from '../common/guards/roles.guard';
-import { Roles } from '../common/decorators/roles.decorator';
-import { UserRole } from '../../generated/prisma/client';
+import { AuditFilterDto } from '../../../audit-service/src/audit/dto/audit.dto';
+import { JwtAuthGuard } from '../../../../src/common/guards/jwt-auth.guard';
+import { RolesGuard } from '../../../../src/common/guards/roles.guard';
+import { Roles } from '../../../../libs/auth/src';
+import { UserRole } from '@medcare/contracts';
 
 @ApiTags('Admin Audit Logs')
 @ApiBearerAuth('JWT-auth')

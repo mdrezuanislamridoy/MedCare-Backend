@@ -235,7 +235,7 @@ export class ChatService {
     const limit = Math.min(50, Math.max(1, Number(query.limit) || 20));
     const skip = (page - 1) * limit;
 
-    const where: Prisma.ConversationWhereInput = {
+    const where: any = {
       participants: {
         some: { userId },
       },
