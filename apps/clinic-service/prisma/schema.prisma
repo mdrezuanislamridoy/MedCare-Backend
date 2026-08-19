@@ -1,0 +1,78 @@
+datasource db {
+  provider = "postgresql"
+}
+
+generator client {
+  provider = "prisma-client"
+  output   = "./generated/client"
+}
+
+enum AccountStatus {
+  ACTIVE
+  PENDING
+  SUSPENDED
+  DEACTIVATED
+}
+
+enum RoomStatus {
+  AVAILABLE
+  OCCUPIED
+  MAINTENANCE
+  CLOSED
+}
+
+enum StaffShiftStatus {
+  ON_DUTY
+  OFF_DUTY
+  ON_LEAVE
+}
+
+model Clinic {
+  id          String        @id @default(uuid())
+  name        String
+  location    String
+  address     String?
+  city        String?
+  state       String?
+  postalCode  String?
+  phone       String?
+  email       String?
+  managerId   String?
+  status      AccountStatus @default(ACTIVE)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  rooms       ClinicRoom[]
+  staff       ClinicStaff[]
+}
+
+model ClinicRoom {
+  id          String     @id @default(uuid())
+  clinicId    String
+  clinic      Clinic     @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  roomNumber  String
+  type        String     @default("CONSULTATION") // CONSULTATION, SURGERY, ICU, LAB
+  status      RoomStatus @default(AVAILABLE)
+  capacity    Int        @default(1)
+  assignedDoctorId String?
+  notes       String?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  @@unique([clinicId, roomNumber])
+}
+
+model ClinicStaff {
+  id          String           @id @default(uuid())
+  clinicId    String
+  clinic      Clinic           @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  userId      String?
+  name        String
+  role        String           // NURSE, RECEPTIONIST, LAB_TECH, CLEANER
+  phone       String?
+  email       String?
+  shiftStatus StaffShiftStatus @default(ON_DUTY)
+  shiftHours  String?          // "08:00 - 16:00"
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+}

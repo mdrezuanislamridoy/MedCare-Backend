@@ -1,0 +1,72 @@
+datasource db {
+  provider = "postgresql"
+}
+
+generator client {
+  provider = "prisma-client"
+  output   = "./generated/client"
+}
+
+enum AppointmentStatus {
+  PENDING
+  CONFIRMED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  NO_SHOW
+}
+
+enum AppointmentType {
+  IN_PERSON
+  VIDEO_CONSULTATION
+}
+
+enum QueueStatus {
+  WAITING
+  CALLED
+  IN_ROOM
+  COMPLETED
+  NO_SHOW
+  CANCELLED
+}
+
+model Appointment {
+  id              String            @id @default(uuid())
+  patientId       String
+  doctorId        String
+  clinicId        String?
+  date            DateTime
+  startTime       String            // "10:00"
+  endTime         String            // "10:30"
+  type            AppointmentType   @default(IN_PERSON)
+  status          AppointmentStatus @default(PENDING)
+  reason          String?
+  notes           String?
+  videoRoomId     String?
+  fee             Float             @default(50.0)
+  isPaid          Boolean           @default(false)
+  isFlagged       Boolean           @default(false)
+  flagReason      String?
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  queue           PatientQueue?
+}
+
+model PatientQueue {
+  id              String       @id @default(uuid())
+  appointmentId   String       @unique
+  appointment     Appointment  @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
+  patientId       String
+  doctorId        String?
+  clinicId        String
+  tokenNumber     Int
+  status          QueueStatus  @default(WAITING)
+  roomNumber      String?
+  estimatedWaitMin Int         @default(15)
+  calledAt        DateTime?
+  completedAt     DateTime?
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  @@index([clinicId, status])
+}

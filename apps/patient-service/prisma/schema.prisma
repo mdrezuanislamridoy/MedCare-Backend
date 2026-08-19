@@ -1,0 +1,65 @@
+datasource db {
+  provider = "postgresql"
+}
+
+generator client {
+  provider = "prisma-client"
+  output   = "./generated/client"
+}
+
+enum RecordCategory {
+  LAB_REPORT
+  IMAGING
+  DISCHARGE_SUMMARY
+  VACCINATION
+  OTHER
+}
+
+model PatientProfile {
+  id                    String          @id @default(uuid())
+  userId                String          @unique
+  dateOfBirth           DateTime?
+  gender                String?
+  bloodGroup            String?
+  height                Float?          // in cm
+  weight                Float?          // in kg
+  allergies             String[]
+  chronicConditions     String[]
+  emergencyName         String?
+  emergencyRelationship String?
+  emergencyPhone        String?
+  address               String?
+  city                  String?
+  createdAt             DateTime        @default(now())
+  updatedAt             DateTime        @updatedAt
+
+  medicalRecords        MedicalRecord[]
+  prescriptions         Prescription[]
+}
+
+model MedicalRecord {
+  id          String         @id @default(uuid())
+  patientId   String
+  patient     PatientProfile @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  title       String
+  category    RecordCategory @default(LAB_REPORT)
+  description String?
+  fileUrl     String
+  fileType    String?
+  fileSize    Int?
+  uploadedAt  DateTime       @default(now())
+}
+
+model Prescription {
+  id             String         @id @default(uuid())
+  patientId      String
+  patient        PatientProfile @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  doctorId       String
+  doctorName     String
+  appointmentId  String?
+  medications    Json           // Array of { name, dosage, frequency, duration, instructions }
+  diagnosis      String?
+  instructions   String?
+  issuedAt       DateTime       @default(now())
+  validUntil     DateTime?
+}

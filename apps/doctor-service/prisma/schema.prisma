@@ -1,0 +1,89 @@
+datasource db {
+  provider = "postgresql"
+}
+
+generator client {
+  provider = "prisma-client"
+  output   = "./generated/client"
+}
+
+enum VerificationStatus {
+  UNVERIFIED
+  PENDING
+  VERIFIED
+  REJECTED
+}
+
+enum PayoutStatus {
+  PENDING
+  APPROVED
+  PROCESSED
+  REJECTED
+}
+
+model DoctorProfile {
+  id                 String             @id @default(uuid())
+  userId             String             @unique
+  specialty          String
+  qualifications     String[]
+  bio                String?
+  consultationFee    Float              @default(50.0)
+  experienceYears    Int                @default(0)
+  verificationStatus VerificationStatus @default(UNVERIFIED)
+  licenseNumber      String?
+  documents          String[]
+  clinicId           String?
+  roomNumber         String?
+  isAvailableToday   Boolean            @default(true)
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+
+  schedules          DoctorSchedule[]
+  consultationNotes  ConsultationNote[]
+  payouts            DoctorPayout[]
+}
+
+model DoctorSchedule {
+  id          String        @id @default(uuid())
+  doctorId    String
+  doctor      DoctorProfile @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+  dayOfWeek   Int           // 0 = Sunday, 6 = Saturday
+  startTime   String        // "09:00"
+  endTime     String        // "17:00"
+  slotDuration Int          @default(30)
+  isAvailable Boolean       @default(true)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@unique([doctorId, dayOfWeek])
+}
+
+model ConsultationNote {
+  id             String        @id @default(uuid())
+  doctorId       String
+  doctor         DoctorProfile @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+  patientId      String
+  appointmentId  String        @unique
+  symptoms       String
+  diagnosis      String
+  treatmentPlan  String
+  vitals         Json?
+  internalNotes  String?
+  followUpDate   DateTime?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+}
+
+model DoctorPayout {
+  id              String       @id @default(uuid())
+  doctorId        String
+  doctor          DoctorProfile @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+  amount          Float
+  currency        String       @default("USD")
+  status          PayoutStatus @default(PENDING)
+  payoutMethod    String       @default("BANK_TRANSFER")
+  accountDetails  Json?
+  transactionRef  String?
+  requestedAt     DateTime     @default(now())
+  processedAt     DateTime?
+}
