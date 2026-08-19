@@ -8,8 +8,8 @@
  *
  * 🟢 You can import this file directly.
  */
-export type * from './models/User.js'
-export type * from './models/ProviderAccount.js'
-export type * from './models/AccessRequest.js'
-export type * from './models/RolePermission.js'
-export type * from './commonInputTypes.js'
+export type * from './models/User'
+export type * from './models/ProviderAccount'
+export type * from './models/AccessRequest'
+export type * from './models/RolePermission'
+export type * from './commonInputTypes'

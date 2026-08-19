@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { KafkaProducerService } from '../../../../libs/kafka/src';
-import { EVENTS } from '../../../../libs/contracts/src';
+import { KafkaProducerService } from '@medcare/kafka';
+import { EVENTS } from '@medcare/contracts';
 
 @Injectable()
 export class DoctorEventPublisher {

@@ -8,5 +8,5 @@
  *
  * 🟢 You can import this file directly.
  */
-export type * from './models/AuditLog.js'
-export type * from './commonInputTypes.js'
+export type * from './models/AuditLog'
+export type * from './commonInputTypes'

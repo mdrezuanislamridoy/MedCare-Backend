@@ -8,9 +8,12 @@ import { AuthService } from './auth.service';
 import { CodeService } from './code.service';
 import { JwtStrategy } from './strategies/jwt.strategy';
 
+import { PrismaModule } from '../prisma/prisma.module';
+
 @Module({
   imports: [
     ConfigModule,
+    PrismaModule,
     PassportModule,
     JwtModule.registerAsync({
       inject: [ConfigService],

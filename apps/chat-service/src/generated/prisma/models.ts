@@ -8,7 +8,7 @@
  *
  * 🟢 You can import this file directly.
  */
-export type * from './models/Conversation.js'
-export type * from './models/ChatParticipant.js'
-export type * from './models/ChatMessage.js'
-export type * from './commonInputTypes.js'
+export type * from './models/Conversation'
+export type * from './models/ChatParticipant'
+export type * from './models/ChatMessage'
+export type * from './commonInputTypes'

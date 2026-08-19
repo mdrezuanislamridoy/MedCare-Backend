@@ -8,7 +8,7 @@
  *
  * 🟢 You can import this file directly.
  */
-export type * from './models/Clinic.js'
-export type * from './models/ClinicRoom.js'
-export type * from './models/ClinicStaff.js'
-export type * from './commonInputTypes.js'
+export type * from './models/Clinic'
+export type * from './models/ClinicRoom'
+export type * from './models/ClinicStaff'
+export type * from './commonInputTypes'

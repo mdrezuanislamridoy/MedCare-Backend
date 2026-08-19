@@ -8,10 +8,8 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { Roles } from '../../../../libs/auth/src';
+import { Roles, CurrentUser, RolesGuard, JwtAuthGuard } from '@medcare/shared';
 import { UserRole } from '@medcare/contracts';
-import { CurrentUser } from '../../../../src/common/decorators/current-user.decorator';
-import { RolesGuard } from '../../../../src/common/guards/roles.guard';
 import type { AuthUser } from './strategies/jwt.strategy';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { GoogleAuthDto } from './dto/google-auth.dto';
@@ -22,7 +20,7 @@ import { UpdateUserRoleDto } from './dto/update-user-role.dto';
 import { VerifyEmailDto } from './dto/verify-email.dto';
 import { AuthService } from './auth.service';
 
-const JwtAuthGuard = AuthGuard('jwt');
+const JwtGuard = AuthGuard('jwt');
 
 @Controller('auth')
 export class AuthController {
@@ -53,25 +51,25 @@ export class AuthController {
     return this.authService.googleAuth(dto);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtGuard)
   @Get('me')
   me(@CurrentUser() user: AuthUser) {
     return this.authService.getProfile(user.id);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtGuard)
   @Post('email/verification-code')
   issueEmailVerificationCode(@CurrentUser() user: AuthUser) {
     return this.authService.issueEmailVerificationCode(user.id);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtGuard)
   @Post('email/verify')
   verifyEmail(@CurrentUser() user: AuthUser, @Body() dto: VerifyEmailDto) {
     return this.authService.verifyEmail(user.id, dto);
   }
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(JwtGuard, RolesGuard)
   @Roles(UserRole.SUPER_ADMIN)
   @Patch('users/:id/role')
   updateUserRole(@Param('id') id: string, @Body() dto: UpdateUserRoleDto) {
