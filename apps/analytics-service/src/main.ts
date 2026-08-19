@@ -4,12 +4,12 @@ import { AppModule } from './app.module';
 import {
   getMicroserviceServerOptions,
   getBrokerConfig,
-} from '../../../libs/broker/src';
+} from '../../../../libs/broker/src';
 
 async function bootstrap() {
   const options = getMicroserviceServerOptions(
-    'PATIENT_SERVICE',
-    parseInt(process.env.PATIENT_SERVICE_PORT || '3003', 10),
+    'ANALYTICS_SERVICE',
+    parseInt(process.env.ANALYTICS_SERVICE_PORT || '3010', 10),
   );
   const app = await NestFactory.createMicroservice<MicroserviceOptions>(
     AppModule,
@@ -17,7 +17,7 @@ async function bootstrap() {
   );
   const config = getBrokerConfig();
   await app.listen();
-  console.log(`🏥 MedCare Patient Service is listening [Broker: ${config.transportType}]`);
+  console.log(`📊 MedCare Analytics Service is listening [Broker: ${config.transportType}]`);
 }
 
 bootstrap();

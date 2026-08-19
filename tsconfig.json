@@ -18,7 +18,15 @@
       "@medcare/contracts": ["libs/contracts/src/index"],
       "@medcare/contracts/*": ["libs/contracts/src/*"],
       "@medcare/broker": ["libs/broker/src/index"],
-      "@medcare/broker/*": ["libs/broker/src/*"]
+      "@medcare/broker/*": ["libs/broker/src/*"],
+      "@medcare/kafka": ["libs/kafka/src/index"],
+      "@medcare/kafka/*": ["libs/kafka/src/*"],
+      "@medcare/auth": ["libs/auth/src/index"],
+      "@medcare/auth/*": ["libs/auth/src/*"],
+      "@medcare/logger": ["libs/logger/src/index"],
+      "@medcare/logger/*": ["libs/logger/src/*"],
+      "@medcare/common": ["libs/common/src/index"],
+      "@medcare/common/*": ["libs/common/src/*"]
     },
     "incremental": true,
     "skipLibCheck": true,
