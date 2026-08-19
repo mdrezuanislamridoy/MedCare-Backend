@@ -3,11 +3,11 @@ import {
   NotFoundException,
   ForbiddenException,
 } from '@nestjs/common';
-import { PrismaService } from '../../common/database/prisma/prisma.service';
+import { PrismaService } from '../prisma/prisma.service';
 import {
   AccountStatus,
   RecordCategory,
-} from '../../../generated/prisma/client';
+} from '@medcare/contracts';
 import {
   PatientFilterDto,
   UpdatePatientProfileDto,

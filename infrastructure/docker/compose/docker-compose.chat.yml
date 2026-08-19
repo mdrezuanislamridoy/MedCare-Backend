@@ -1,0 +1,32 @@
+services:
+  chat-db:
+    image: postgres:16-alpine
+    container_name: medcare-chat-db
+    environment:
+      POSTGRES_USER: medcare
+      POSTGRES_PASSWORD: medcare_secure_password_2026
+      POSTGRES_DB: chat_db
+    ports:
+      - "5439:5432"
+    volumes:
+      - chat_db_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  chat-service:
+    build:
+      context: ../../../
+      dockerfile: apps/chat-service/Dockerfile
+    container_name: medcare-chat-service
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://medcare:medcare_secure_password_2026@chat-db:5432/chat_db?schema=public
+      BROKER_TRANSPORT: TCP
+      CHAT_SERVICE_PORT: 3014
+    ports:
+      - "3014:3014"
+    depends_on:
+      - chat-db
+    restart: unless-stopped
+
+volumes:
+  chat_db_data:

@@ -1,0 +1,32 @@
+services:
+  doctor-db:
+    image: postgres:16-alpine
+    container_name: medcare-doctor-db
+    environment:
+      POSTGRES_USER: medcare
+      POSTGRES_PASSWORD: medcare_secure_password_2026
+      POSTGRES_DB: doctor_db
+    ports:
+      - "5434:5432"
+    volumes:
+      - doctor_db_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  doctor-service:
+    build:
+      context: ../../../
+      dockerfile: apps/doctor-service/Dockerfile
+    container_name: medcare-doctor-service
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://medcare:medcare_secure_password_2026@doctor-db:5432/doctor_db?schema=public
+      BROKER_TRANSPORT: TCP
+      DOCTOR_SERVICE_PORT: 3002
+    ports:
+      - "3002:3002"
+    depends_on:
+      - doctor-db
+    restart: unless-stopped
+
+volumes:
+  doctor_db_data:

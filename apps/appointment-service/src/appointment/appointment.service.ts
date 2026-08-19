@@ -5,8 +5,7 @@ import {
   NotFoundException,
   Optional,
 } from '@nestjs/common';
-import { PrismaService } from '../../common/database/prisma/prisma.service';
-import { LiveQueueEventService } from '../../common/events/live-queue-event.service';
+import { PrismaService } from '../prisma/prisma.service';
 import {
   AppointmentFilterDto,
   RescheduleAppointmentDto,
@@ -19,16 +18,13 @@ import {
 } from './dto/appointment.dto';
 import {
   AppointmentStatus,
-  PaymentStatus,
-  AppointmentType,
   QueueStatus,
-} from '../../../generated/prisma/client';
+} from '@medcare/contracts';
 
 @Injectable()
 export class AppointmentService {
   constructor(
     private readonly prisma: PrismaService,
-    @Optional() private readonly queueEventService?: LiveQueueEventService,
   ) {}
 
   async listAppointments(filter: AppointmentFilterDto) {

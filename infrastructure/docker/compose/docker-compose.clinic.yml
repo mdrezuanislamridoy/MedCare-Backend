@@ -1,0 +1,32 @@
+services:
+  clinic-db:
+    image: postgres:16-alpine
+    container_name: medcare-clinic-db
+    environment:
+      POSTGRES_USER: medcare
+      POSTGRES_PASSWORD: medcare_secure_password_2026
+      POSTGRES_DB: clinic_db
+    ports:
+      - "5438:5432"
+    volumes:
+      - clinic_db_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  clinic-service:
+    build:
+      context: ../../../
+      dockerfile: apps/clinic-service/Dockerfile
+    container_name: medcare-clinic-service
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://medcare:medcare_secure_password_2026@clinic-db:5432/clinic_db?schema=public
+      BROKER_TRANSPORT: TCP
+      CLINIC_SERVICE_PORT: 3005
+    ports:
+      - "3005:3005"
+    depends_on:
+      - clinic-db
+    restart: unless-stopped
+
+volumes:
+  clinic_db_data:

@@ -1,0 +1,32 @@
+services:
+  billing-db:
+    image: postgres:16-alpine
+    container_name: medcare-billing-db
+    environment:
+      POSTGRES_USER: medcare
+      POSTGRES_PASSWORD: medcare_secure_password_2026
+      POSTGRES_DB: billing_db
+    ports:
+      - "5437:5432"
+    volumes:
+      - billing_db_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  billing-service:
+    build:
+      context: ../../../
+      dockerfile: apps/billing-service/Dockerfile
+    container_name: medcare-billing-service
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://medcare:medcare_secure_password_2026@billing-db:5432/billing_db?schema=public
+      BROKER_TRANSPORT: TCP
+      BILLING_SERVICE_PORT: 3006
+    ports:
+      - "3006:3006"
+    depends_on:
+      - billing-db
+    restart: unless-stopped
+
+volumes:
+  billing_db_data:

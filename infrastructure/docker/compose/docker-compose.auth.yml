@@ -1,0 +1,32 @@
+services:
+  auth-db:
+    image: postgres:16-alpine
+    container_name: medcare-auth-db
+    environment:
+      POSTGRES_USER: medcare
+      POSTGRES_PASSWORD: medcare_secure_password_2026
+      POSTGRES_DB: auth_db
+    ports:
+      - "5433:5432"
+    volumes:
+      - auth_db_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  auth-service:
+    build:
+      context: ../../../
+      dockerfile: apps/auth-service/Dockerfile
+    container_name: medcare-auth-service
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://medcare:medcare_secure_password_2026@auth-db:5432/auth_db?schema=public
+      BROKER_TRANSPORT: TCP
+      AUTH_SERVICE_PORT: 3015
+    ports:
+      - "3015:3015"
+    depends_on:
+      - auth-db
+    restart: unless-stopped
+
+volumes:
+  auth_db_data:

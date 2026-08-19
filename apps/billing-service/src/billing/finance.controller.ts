@@ -1,6 +1,6 @@
 import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import { PATTERNS } from '../common/microservices.constants';
+import { PATTERNS } from '@medcare/contracts';
 import { FinanceService } from './finance.service';
 import {
   ProcessRefundDto,

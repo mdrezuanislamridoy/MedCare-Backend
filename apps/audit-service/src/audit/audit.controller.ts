@@ -1,6 +1,6 @@
 import { Controller } from '@nestjs/common';
 import { EventPattern, MessagePattern, Payload } from '@nestjs/microservices';
-import { PATTERNS, EVENTS } from '../common/microservices.constants';
+import { PATTERNS, EVENTS } from '@medcare/contracts';
 import { AuditService } from './audit.service';
 import { AuditFilterDto, CreateAuditLogDto } from './dto/audit.dto';
 

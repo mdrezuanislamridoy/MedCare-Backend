@@ -29,6 +29,7 @@
     - `infrastructure/docker/Dockerfile.gateway` (API Gateway image)
     - `infrastructure/docker/Dockerfile.microservice` (Multi-stage parameterized image for any microservice)
     - `infrastructure/docker/init-db/01-init-databases.sh` (PostgreSQL multi-database initializer)
+    - `infrastructure/docker/compose/` (Individual standalone docker-compose files per service: `docker-compose.auth.yml`, `docker-compose.doctor.yml`, `docker-compose.patient.yml`, `docker-compose.appointment.yml`, `docker-compose.billing.yml`, `docker-compose.clinic.yml`, `docker-compose.chat.yml`)
     - `docker-compose.yml` (Complete multi-container orchestration for Caddy, Gateway, 13 microservices, Redis/Kafka, and PostgreSQL)
   - **Database-per-Service & Multi-Database Engine**:
     - **Dedicated `prisma/schema.prisma` in each microservice (`apps/<service>/prisma/schema.prisma`)**

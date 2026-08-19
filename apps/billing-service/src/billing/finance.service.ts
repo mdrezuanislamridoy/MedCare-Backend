@@ -4,16 +4,15 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { PrismaService } from '../../common/database/prisma/prisma.service';
+import { PrismaService } from '../prisma/prisma.service';
 import {
   ProcessRefundDto,
   TransactionFilterDto,
   PatientPaymentDto,
 } from './dto/finance.dto';
 import {
-  PaymentStatus,
-  TransactionStatus,
-} from '../../../generated/prisma/client';
+  InvoiceStatus,
+} from '@medcare/contracts';
 
 @Injectable()
 export class FinanceService {

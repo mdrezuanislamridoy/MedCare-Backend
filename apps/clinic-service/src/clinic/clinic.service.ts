@@ -5,15 +5,13 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { Subject, Observable } from 'rxjs';
-import { PrismaService } from '../../common/database/prisma/prisma.service';
+import { PrismaService } from '../prisma/prisma.service';
 import {
   AccountStatus,
-  AppointmentStatus,
   RoomStatus,
   StaffShiftStatus,
-  Prisma,
   UserRole,
-} from '../../../generated/prisma/client';
+} from '@medcare/contracts';
 import {
   ClinicFilterDto,
   CreateClinicDto,

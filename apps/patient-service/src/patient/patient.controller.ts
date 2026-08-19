@@ -1,16 +1,12 @@
 import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import { PATTERNS } from '../common/microservices.constants';
+import { PATTERNS, AccountStatus, RecordCategory } from '@medcare/contracts';
 import { PatientService } from './patient.service';
 import {
   PatientFilterDto,
   UpdatePatientProfileDto,
   CreateMedicalRecordDto,
 } from './dto/patient.dto';
-import {
-  AccountStatus,
-  RecordCategory,
-} from '../../../generated/prisma/client';
 
 @Controller()
 export class PatientController {

@@ -1,0 +1,32 @@
+services:
+  appointment-db:
+    image: postgres:16-alpine
+    container_name: medcare-appointment-db
+    environment:
+      POSTGRES_USER: medcare
+      POSTGRES_PASSWORD: medcare_secure_password_2026
+      POSTGRES_DB: appointment_db
+    ports:
+      - "5436:5432"
+    volumes:
+      - appointment_db_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  appointment-service:
+    build:
+      context: ../../../
+      dockerfile: apps/appointment-service/Dockerfile
+    container_name: medcare-appointment-service
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://medcare:medcare_secure_password_2026@appointment-db:5432/appointment_db?schema=public
+      BROKER_TRANSPORT: TCP
+      APPOINTMENT_SERVICE_PORT: 3004
+    ports:
+      - "3004:3004"
+    depends_on:
+      - appointment-db
+    restart: unless-stopped
+
+volumes:
+  appointment_db_data:

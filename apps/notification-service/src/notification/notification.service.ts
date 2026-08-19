@@ -1,20 +1,14 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../common/database/prisma/prisma.service';
-import { RedisService } from '../../common/cache/redis/redis.service';
+import { PrismaService } from '../prisma/prisma.service';
 import {
   BroadcastNotificationDto,
   NotificationFilterDto,
 } from './dto/notification.dto';
-import {
-  NotificationAudience,
-  NotificationPriority,
-} from '../../../generated/prisma/client';
 
 @Injectable()
 export class NotificationService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly redis: RedisService,
   ) {}
 
   async listNotifications(filter: NotificationFilterDto) {

@@ -4,18 +4,14 @@ import {
   BadRequestException,
   ForbiddenException,
 } from '@nestjs/common';
-import { PrismaService } from '../../common/database/prisma/prisma.service';
-import { RedisService } from '../../common/cache/redis/redis.service';
-import { AuditService } from '../audit/audit.service';
+import { PrismaService } from '../prisma/prisma.service';
 import {
   AccountStatus,
   VerificationStatus,
   AppointmentStatus,
-  AppointmentType,
-  TransactionStatus,
   QueueStatus,
   PayoutStatus,
-} from '../../../generated/prisma/client';
+} from '@medcare/contracts';
 import {
   DoctorFilterDto,
   VerificationDecisionDto,
@@ -32,8 +28,6 @@ import {
 export class DoctorService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly redis: RedisService,
-    private readonly auditService: AuditService,
   ) {}
 
   // ==========================================

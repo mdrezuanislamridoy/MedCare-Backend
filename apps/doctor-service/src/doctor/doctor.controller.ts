@@ -1,6 +1,6 @@
 import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import { PATTERNS } from '../common/microservices.constants';
+import { PATTERNS, VerificationStatus } from '@medcare/contracts';
 import { DoctorService } from './doctor.service';
 import {
   DoctorFilterDto,
@@ -14,7 +14,6 @@ import {
   DoctorPayoutRequestDto,
   UpdateDoctorProfileDto,
 } from './dto/doctor.dto';
-import { VerificationStatus } from '../../../generated/prisma/client';
 
 @Controller()
 export class DoctorController {

@@ -1,6 +1,6 @@
 import { Controller } from '@nestjs/common';
 import { MessagePattern, EventPattern, Payload } from '@nestjs/microservices';
-import { PATTERNS, EVENTS } from '../common/microservices.constants';
+import { PATTERNS, EVENTS } from '@medcare/contracts';
 import { NotificationService } from './notification.service';
 import {
   BroadcastNotificationDto,
