@@ -4,7 +4,7 @@ import { AppModule } from './app.module';
 import {
   getMicroserviceServerOptions,
   getBrokerConfig,
-} from '../../../../libs/broker/src';
+} from '../../../libs/broker/src';
 
 async function bootstrap() {
   const options = getMicroserviceServerOptions(

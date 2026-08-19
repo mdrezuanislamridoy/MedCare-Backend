@@ -1,6 +1,6 @@
 import { Controller, Logger } from '@nestjs/common';
 import { EventPattern, Payload } from '@nestjs/microservices';
-import { EVENTS } from '../../../libs/contracts/src';
+import { EVENTS } from '../../../../libs/contracts/src';
 
 @Controller()
 export class DoctorEventConsumer {

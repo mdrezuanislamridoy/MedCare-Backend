@@ -4,26 +4,26 @@
 - **Frontend**: Next.js React Portal (`/Volumes/2BT/Ridoy/MedCare`)
   - Role-based modular portals (`patient`, `doctor`, `admin`, `super-admin`, `receptionist`, `clinic-manager`, `support-staff`)
 - **Backend**: NestJS Enterprise Microservices Monorepo + Caddy Ingress (`/Volumes/2BT/Ridoy/MedCare Backend`)
-  - **Edge Proxy**: Caddy (`infrastructure/caddy/Caddyfile`) with automatic TLS, Gzip/Zstd compression, and WebSocket proxying
-  - **13 Isolated Microservices**: `patient`, `appointment`, `doctor`, `clinic`, `finance`, `review`, `notification`, `audit`, `rbac`, `system`, `support`, `analytics`, `chat`
+  - **Edge Ingress**: Caddy (`infrastructure/caddy/Caddyfile`) with automatic TLS, Gzip/Zstd compression, and WebSocket proxying
+  - **13 Isolated Microservices (`apps/`)**:
+    - `apps/api-gateway/` (API Gateway, OpenAPI Swagger, ClientProxy routing)
+    - `apps/auth-service/` (Auth, JWT, OAuth, Password Management)
+    - `apps/doctor-service/` (Doctor clinical workspace, consultation notes, e-prescriptions)
+    - `apps/patient-service/` (Patient health metrics, medical records, booking)
+    - `apps/appointment-service/` (Appointment scheduling, 6-step check-in, live queue)
+    - `apps/billing-service/` (Invoices, Stripe/SSLCommerz payments, doctor payouts)
+    - `apps/clinic-service/` (Clinic branches, room inventory, staff roster)
+    - `apps/notification-service/` (Async email, SMS, push notifications)
+    - `apps/audit-service/` (Immutable compliance & security audit logs)
+    - `apps/analytics-service/` (Platform KPIs, financial reports, revenue stats)
+    - `apps/chat-service/` (Real-time WebSocket chat threads & attachments)
   - **Monorepo Shared Libraries (`libs/`)**:
-    - `libs/contracts`: Shared interfaces, message patterns (`PATTERNS`), domain events (`EVENTS`), and event payloads
-    - `libs/broker`: Connection factory supporting Redis, Kafka, and TCP transports + `BrokerClientModule`
-  - **Independent Bootstrap Entrypoints (`src/apps/*`)**:
-    - Gateway: `src/apps/gateway/main.ts`
-    - Doctor: `src/apps/doctor/main.ts`
-    - Patient: `src/apps/patient/main.ts`
-    - Appointment: `src/apps/appointment/main.ts`
-    - Clinic: `src/apps/clinic/main.ts`
-    - Finance: `src/apps/finance/main.ts`
-    - Notification: `src/apps/notification/main.ts`
-    - Audit: `src/apps/audit/main.ts`
-    - RBAC: `src/apps/rbac/main.ts`
-    - Analytics: `src/apps/analytics/main.ts`
-    - Review: `src/apps/review/main.ts`
-    - Support: `src/apps/support/main.ts`
-    - System: `src/apps/system/main.ts`
-    - Chat: `src/apps/chat/main.ts`
+    - `libs/contracts/`: Shared DTOs, message patterns (`PATTERNS`), domain events (`EVENTS`), and event payloads
+    - `libs/broker/`: Transport connection broker (Redis, Kafka, TCP) + `BrokerClientModule`
+    - `libs/kafka/`: Kafka producer/consumer helper module
+    - `libs/auth/`: JWT strategies, `@Roles()`, `@Public()`, and guards
+    - `libs/logger/`: Structured distributed tracing logger
+    - `libs/common/`: Prisma database client helper and global modules
   - **Infrastructure & Docker (`infrastructure/`)**:
     - `infrastructure/caddy/Caddyfile` (Caddy edge reverse proxy)
     - `infrastructure/docker/Dockerfile.gateway` (API Gateway image)
@@ -33,11 +33,10 @@
   - **Database-per-Service & Multi-Database Engine**:
     - Dedicated databases: `medcare_core`, `medcare_doctor`, `medcare_patient`, `medcare_appointment`, `medcare_clinic`, `medcare_finance`, `medcare_audit`, `medcare_chat`, `medcare_notification`, `medcare_support`, `medcare_analytics`, `medcare_review`, `medcare_system`
   - **Transport Layer**: Dual Mode (`Transport.TCP` for low-latency in-cluster RPC & `Transport.REDIS` / `Transport.KAFKA` for distributed pub/sub)
-  - **Client Proxy Mesh**: Global `MicroservicesClientModule` / `BrokerClientModule` providing typed client proxies (`ClientsModule`) across all services
   - **Asynchronous Domain Events (`@EventPattern`)**: `APPOINTMENT.BOOKED`, `PAYMENT.SUCCESS`, `QUEUE.STATE_CHANGED`, `NOTIFICATION.DISPATCH`, `AUDIT.RECORD`
   - **Execution Scripts**:
     - Gateway: `npm run start:gateway:dev`
-    - Individual Services: `npm run start:doctor:dev`, `npm run start:patient:dev`, `npm run start:appointment:dev`, etc.
+    - Individual Services: `npm run start:doctor:dev`, `npm run start:patient:dev`, `npm run start:appointment:dev`, `npm run start:billing:dev`, etc.
     - Hybrid Monolith: `npm run start:dev`
     - Standalone Cluster: `npm run start:microservices`
 - [x] **Receptionist / Front-Desk Portal Backend Roadmap:** Complete implementation details in [`RECEPTIONIST_BACKEND_STEPS.md`](file:///Volumes/2BT/Ridoy/MedCare%20Backend/RECEPTIONIST_BACKEND_STEPS.md).
