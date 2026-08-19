@@ -28,11 +28,13 @@ export type AggregatePatientQueue = {
 
 export type PatientQueueAvgAggregateOutputType = {
   tokenNumber: number | null
+  queueNumber: number | null
   estimatedWaitMin: number | null
 }
 
 export type PatientQueueSumAggregateOutputType = {
   tokenNumber: number | null
+  queueNumber: number | null
   estimatedWaitMin: number | null
 }
 
@@ -40,9 +42,12 @@ export type PatientQueueMinAggregateOutputType = {
   id: string | null
   appointmentId: string | null
   patientId: string | null
+  patientName: string | null
   doctorId: string | null
+  doctorName: string | null
   clinicId: string | null
   tokenNumber: number | null
+  queueNumber: number | null
   status: $Enums.QueueStatus | null
   roomNumber: string | null
   estimatedWaitMin: number | null
@@ -56,9 +61,12 @@ export type PatientQueueMaxAggregateOutputType = {
   id: string | null
   appointmentId: string | null
   patientId: string | null
+  patientName: string | null
   doctorId: string | null
+  doctorName: string | null
   clinicId: string | null
   tokenNumber: number | null
+  queueNumber: number | null
   status: $Enums.QueueStatus | null
   roomNumber: string | null
   estimatedWaitMin: number | null
@@ -72,9 +80,12 @@ export type PatientQueueCountAggregateOutputType = {
   id: number
   appointmentId: number
   patientId: number
+  patientName: number
   doctorId: number
+  doctorName: number
   clinicId: number
   tokenNumber: number
+  queueNumber: number
   status: number
   roomNumber: number
   estimatedWaitMin: number
@@ -88,11 +99,13 @@ export type PatientQueueCountAggregateOutputType = {
 
 export type PatientQueueAvgAggregateInputType = {
   tokenNumber?: true
+  queueNumber?: true
   estimatedWaitMin?: true
 }
 
 export type PatientQueueSumAggregateInputType = {
   tokenNumber?: true
+  queueNumber?: true
   estimatedWaitMin?: true
 }
 
@@ -100,9 +113,12 @@ export type PatientQueueMinAggregateInputType = {
   id?: true
   appointmentId?: true
   patientId?: true
+  patientName?: true
   doctorId?: true
+  doctorName?: true
   clinicId?: true
   tokenNumber?: true
+  queueNumber?: true
   status?: true
   roomNumber?: true
   estimatedWaitMin?: true
@@ -116,9 +132,12 @@ export type PatientQueueMaxAggregateInputType = {
   id?: true
   appointmentId?: true
   patientId?: true
+  patientName?: true
   doctorId?: true
+  doctorName?: true
   clinicId?: true
   tokenNumber?: true
+  queueNumber?: true
   status?: true
   roomNumber?: true
   estimatedWaitMin?: true
@@ -132,9 +151,12 @@ export type PatientQueueCountAggregateInputType = {
   id?: true
   appointmentId?: true
   patientId?: true
+  patientName?: true
   doctorId?: true
+  doctorName?: true
   clinicId?: true
   tokenNumber?: true
+  queueNumber?: true
   status?: true
   roomNumber?: true
   estimatedWaitMin?: true
@@ -235,9 +257,12 @@ export type PatientQueueGroupByOutputType = {
   id: string
   appointmentId: string
   patientId: string
+  patientName: string | null
   doctorId: string | null
+  doctorName: string | null
   clinicId: string
-  tokenNumber: number
+  tokenNumber: number | null
+  queueNumber: number | null
   status: $Enums.QueueStatus
   roomNumber: string | null
   estimatedWaitMin: number
@@ -274,9 +299,12 @@ export type PatientQueueWhereInput = {
   id?: Prisma.StringFilter<"PatientQueue"> | string
   appointmentId?: Prisma.StringFilter<"PatientQueue"> | string
   patientId?: Prisma.StringFilter<"PatientQueue"> | string
+  patientName?: Prisma.StringNullableFilter<"PatientQueue"> | string | null
   doctorId?: Prisma.StringNullableFilter<"PatientQueue"> | string | null
+  doctorName?: Prisma.StringNullableFilter<"PatientQueue"> | string | null
   clinicId?: Prisma.StringFilter<"PatientQueue"> | string
-  tokenNumber?: Prisma.IntFilter<"PatientQueue"> | number
+  tokenNumber?: Prisma.IntNullableFilter<"PatientQueue"> | number | null
+  queueNumber?: Prisma.IntNullableFilter<"PatientQueue"> | number | null
   status?: Prisma.EnumQueueStatusFilter<"PatientQueue"> | $Enums.QueueStatus
   roomNumber?: Prisma.StringNullableFilter<"PatientQueue"> | string | null
   estimatedWaitMin?: Prisma.IntFilter<"PatientQueue"> | number
@@ -291,9 +319,12 @@ export type PatientQueueOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   appointmentId?: Prisma.SortOrder
   patientId?: Prisma.SortOrder
+  patientName?: Prisma.SortOrderInput | Prisma.SortOrder
   doctorId?: Prisma.SortOrderInput | Prisma.SortOrder
+  doctorName?: Prisma.SortOrderInput | Prisma.SortOrder
   clinicId?: Prisma.SortOrder
-  tokenNumber?: Prisma.SortOrder
+  tokenNumber?: Prisma.SortOrderInput | Prisma.SortOrder
+  queueNumber?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   roomNumber?: Prisma.SortOrderInput | Prisma.SortOrder
   estimatedWaitMin?: Prisma.SortOrder
@@ -311,9 +342,12 @@ export type PatientQueueWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.PatientQueueWhereInput[]
   NOT?: Prisma.PatientQueueWhereInput | Prisma.PatientQueueWhereInput[]
   patientId?: Prisma.StringFilter<"PatientQueue"> | string
+  patientName?: Prisma.StringNullableFilter<"PatientQueue"> | string | null
   doctorId?: Prisma.StringNullableFilter<"PatientQueue"> | string | null
+  doctorName?: Prisma.StringNullableFilter<"PatientQueue"> | string | null
   clinicId?: Prisma.StringFilter<"PatientQueue"> | string
-  tokenNumber?: Prisma.IntFilter<"PatientQueue"> | number
+  tokenNumber?: Prisma.IntNullableFilter<"PatientQueue"> | number | null
+  queueNumber?: Prisma.IntNullableFilter<"PatientQueue"> | number | null
   status?: Prisma.EnumQueueStatusFilter<"PatientQueue"> | $Enums.QueueStatus
   roomNumber?: Prisma.StringNullableFilter<"PatientQueue"> | string | null
   estimatedWaitMin?: Prisma.IntFilter<"PatientQueue"> | number
@@ -328,9 +362,12 @@ export type PatientQueueOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   appointmentId?: Prisma.SortOrder
   patientId?: Prisma.SortOrder
+  patientName?: Prisma.SortOrderInput | Prisma.SortOrder
   doctorId?: Prisma.SortOrderInput | Prisma.SortOrder
+  doctorName?: Prisma.SortOrderInput | Prisma.SortOrder
   clinicId?: Prisma.SortOrder
-  tokenNumber?: Prisma.SortOrder
+  tokenNumber?: Prisma.SortOrderInput | Prisma.SortOrder
+  queueNumber?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   roomNumber?: Prisma.SortOrderInput | Prisma.SortOrder
   estimatedWaitMin?: Prisma.SortOrder
@@ -352,9 +389,12 @@ export type PatientQueueScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"PatientQueue"> | string
   appointmentId?: Prisma.StringWithAggregatesFilter<"PatientQueue"> | string
   patientId?: Prisma.StringWithAggregatesFilter<"PatientQueue"> | string
+  patientName?: Prisma.StringNullableWithAggregatesFilter<"PatientQueue"> | string | null
   doctorId?: Prisma.StringNullableWithAggregatesFilter<"PatientQueue"> | string | null
+  doctorName?: Prisma.StringNullableWithAggregatesFilter<"PatientQueue"> | string | null
   clinicId?: Prisma.StringWithAggregatesFilter<"PatientQueue"> | string
-  tokenNumber?: Prisma.IntWithAggregatesFilter<"PatientQueue"> | number
+  tokenNumber?: Prisma.IntNullableWithAggregatesFilter<"PatientQueue"> | number | null
+  queueNumber?: Prisma.IntNullableWithAggregatesFilter<"PatientQueue"> | number | null
   status?: Prisma.EnumQueueStatusWithAggregatesFilter<"PatientQueue"> | $Enums.QueueStatus
   roomNumber?: Prisma.StringNullableWithAggregatesFilter<"PatientQueue"> | string | null
   estimatedWaitMin?: Prisma.IntWithAggregatesFilter<"PatientQueue"> | number
@@ -367,9 +407,12 @@ export type PatientQueueScalarWhereWithAggregatesInput = {
 export type PatientQueueCreateInput = {
   id?: string
   patientId: string
+  patientName?: string | null
   doctorId?: string | null
+  doctorName?: string | null
   clinicId: string
-  tokenNumber: number
+  tokenNumber?: number | null
+  queueNumber?: number | null
   status?: $Enums.QueueStatus
   roomNumber?: string | null
   estimatedWaitMin?: number
@@ -384,9 +427,12 @@ export type PatientQueueUncheckedCreateInput = {
   id?: string
   appointmentId: string
   patientId: string
+  patientName?: string | null
   doctorId?: string | null
+  doctorName?: string | null
   clinicId: string
-  tokenNumber: number
+  tokenNumber?: number | null
+  queueNumber?: number | null
   status?: $Enums.QueueStatus
   roomNumber?: string | null
   estimatedWaitMin?: number
@@ -399,9 +445,12 @@ export type PatientQueueUncheckedCreateInput = {
 export type PatientQueueUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   patientId?: Prisma.StringFieldUpdateOperationsInput | string
+  patientName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   doctorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  doctorName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clinicId?: Prisma.StringFieldUpdateOperationsInput | string
-  tokenNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  tokenNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  queueNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   status?: Prisma.EnumQueueStatusFieldUpdateOperationsInput | $Enums.QueueStatus
   roomNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   estimatedWaitMin?: Prisma.IntFieldUpdateOperationsInput | number
@@ -416,9 +465,12 @@ export type PatientQueueUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   appointmentId?: Prisma.StringFieldUpdateOperationsInput | string
   patientId?: Prisma.StringFieldUpdateOperationsInput | string
+  patientName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   doctorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  doctorName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clinicId?: Prisma.StringFieldUpdateOperationsInput | string
-  tokenNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  tokenNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  queueNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   status?: Prisma.EnumQueueStatusFieldUpdateOperationsInput | $Enums.QueueStatus
   roomNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   estimatedWaitMin?: Prisma.IntFieldUpdateOperationsInput | number
@@ -432,9 +484,12 @@ export type PatientQueueCreateManyInput = {
   id?: string
   appointmentId: string
   patientId: string
+  patientName?: string | null
   doctorId?: string | null
+  doctorName?: string | null
   clinicId: string
-  tokenNumber: number
+  tokenNumber?: number | null
+  queueNumber?: number | null
   status?: $Enums.QueueStatus
   roomNumber?: string | null
   estimatedWaitMin?: number
@@ -447,9 +502,12 @@ export type PatientQueueCreateManyInput = {
 export type PatientQueueUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   patientId?: Prisma.StringFieldUpdateOperationsInput | string
+  patientName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   doctorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  doctorName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clinicId?: Prisma.StringFieldUpdateOperationsInput | string
-  tokenNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  tokenNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  queueNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   status?: Prisma.EnumQueueStatusFieldUpdateOperationsInput | $Enums.QueueStatus
   roomNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   estimatedWaitMin?: Prisma.IntFieldUpdateOperationsInput | number
@@ -463,9 +521,12 @@ export type PatientQueueUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   appointmentId?: Prisma.StringFieldUpdateOperationsInput | string
   patientId?: Prisma.StringFieldUpdateOperationsInput | string
+  patientName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   doctorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  doctorName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clinicId?: Prisma.StringFieldUpdateOperationsInput | string
-  tokenNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  tokenNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  queueNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   status?: Prisma.EnumQueueStatusFieldUpdateOperationsInput | $Enums.QueueStatus
   roomNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   estimatedWaitMin?: Prisma.IntFieldUpdateOperationsInput | number
@@ -484,9 +545,12 @@ export type PatientQueueCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   appointmentId?: Prisma.SortOrder
   patientId?: Prisma.SortOrder
+  patientName?: Prisma.SortOrder
   doctorId?: Prisma.SortOrder
+  doctorName?: Prisma.SortOrder
   clinicId?: Prisma.SortOrder
   tokenNumber?: Prisma.SortOrder
+  queueNumber?: Prisma.SortOrder
   status?: Prisma.SortOrder
   roomNumber?: Prisma.SortOrder
   estimatedWaitMin?: Prisma.SortOrder
@@ -498,6 +562,7 @@ export type PatientQueueCountOrderByAggregateInput = {
 
 export type PatientQueueAvgOrderByAggregateInput = {
   tokenNumber?: Prisma.SortOrder
+  queueNumber?: Prisma.SortOrder
   estimatedWaitMin?: Prisma.SortOrder
 }
 
@@ -505,9 +570,12 @@ export type PatientQueueMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   appointmentId?: Prisma.SortOrder
   patientId?: Prisma.SortOrder
+  patientName?: Prisma.SortOrder
   doctorId?: Prisma.SortOrder
+  doctorName?: Prisma.SortOrder
   clinicId?: Prisma.SortOrder
   tokenNumber?: Prisma.SortOrder
+  queueNumber?: Prisma.SortOrder
   status?: Prisma.SortOrder
   roomNumber?: Prisma.SortOrder
   estimatedWaitMin?: Prisma.SortOrder
@@ -521,9 +589,12 @@ export type PatientQueueMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   appointmentId?: Prisma.SortOrder
   patientId?: Prisma.SortOrder
+  patientName?: Prisma.SortOrder
   doctorId?: Prisma.SortOrder
+  doctorName?: Prisma.SortOrder
   clinicId?: Prisma.SortOrder
   tokenNumber?: Prisma.SortOrder
+  queueNumber?: Prisma.SortOrder
   status?: Prisma.SortOrder
   roomNumber?: Prisma.SortOrder
   estimatedWaitMin?: Prisma.SortOrder
@@ -535,6 +606,7 @@ export type PatientQueueMinOrderByAggregateInput = {
 
 export type PatientQueueSumOrderByAggregateInput = {
   tokenNumber?: Prisma.SortOrder
+  queueNumber?: Prisma.SortOrder
   estimatedWaitMin?: Prisma.SortOrder
 }
 
@@ -570,8 +642,8 @@ export type PatientQueueUncheckedUpdateOneWithoutAppointmentNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.PatientQueueUpdateToOneWithWhereWithoutAppointmentInput, Prisma.PatientQueueUpdateWithoutAppointmentInput>, Prisma.PatientQueueUncheckedUpdateWithoutAppointmentInput>
 }
 
-export type IntFieldUpdateOperationsInput = {
-  set?: number
+export type NullableIntFieldUpdateOperationsInput = {
+  set?: number | null
   increment?: number
   decrement?: number
   multiply?: number
@@ -582,6 +654,14 @@ export type EnumQueueStatusFieldUpdateOperationsInput = {
   set?: $Enums.QueueStatus
 }
 
+export type IntFieldUpdateOperationsInput = {
+  set?: number
+  increment?: number
+  decrement?: number
+  multiply?: number
+  divide?: number
+}
+
 export type NullableDateTimeFieldUpdateOperationsInput = {
   set?: Date | string | null
 }
@@ -589,9 +669,12 @@ export type NullableDateTimeFieldUpdateOperationsInput = {
 export type PatientQueueCreateWithoutAppointmentInput = {
   id?: string
   patientId: string
+  patientName?: string | null
   doctorId?: string | null
+  doctorName?: string | null
   clinicId: string
-  tokenNumber: number
+  tokenNumber?: number | null
+  queueNumber?: number | null
   status?: $Enums.QueueStatus
   roomNumber?: string | null
   estimatedWaitMin?: number
@@ -604,9 +687,12 @@ export type PatientQueueCreateWithoutAppointmentInput = {
 export type PatientQueueUncheckedCreateWithoutAppointmentInput = {
   id?: string
   patientId: string
+  patientName?: string | null
   doctorId?: string | null
+  doctorName?: string | null
   clinicId: string
-  tokenNumber: number
+  tokenNumber?: number | null
+  queueNumber?: number | null
   status?: $Enums.QueueStatus
   roomNumber?: string | null
   estimatedWaitMin?: number
@@ -635,9 +721,12 @@ export type PatientQueueUpdateToOneWithWhereWithoutAppointmentInput = {
 export type PatientQueueUpdateWithoutAppointmentInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   patientId?: Prisma.StringFieldUpdateOperationsInput | string
+  patientName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   doctorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  doctorName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clinicId?: Prisma.StringFieldUpdateOperationsInput | string
-  tokenNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  tokenNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  queueNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   status?: Prisma.EnumQueueStatusFieldUpdateOperationsInput | $Enums.QueueStatus
   roomNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   estimatedWaitMin?: Prisma.IntFieldUpdateOperationsInput | number
@@ -650,9 +739,12 @@ export type PatientQueueUpdateWithoutAppointmentInput = {
 export type PatientQueueUncheckedUpdateWithoutAppointmentInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   patientId?: Prisma.StringFieldUpdateOperationsInput | string
+  patientName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   doctorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  doctorName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clinicId?: Prisma.StringFieldUpdateOperationsInput | string
-  tokenNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  tokenNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  queueNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   status?: Prisma.EnumQueueStatusFieldUpdateOperationsInput | $Enums.QueueStatus
   roomNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   estimatedWaitMin?: Prisma.IntFieldUpdateOperationsInput | number
@@ -668,9 +760,12 @@ export type PatientQueueSelect<ExtArgs extends runtime.Types.Extensions.Internal
   id?: boolean
   appointmentId?: boolean
   patientId?: boolean
+  patientName?: boolean
   doctorId?: boolean
+  doctorName?: boolean
   clinicId?: boolean
   tokenNumber?: boolean
+  queueNumber?: boolean
   status?: boolean
   roomNumber?: boolean
   estimatedWaitMin?: boolean
@@ -685,9 +780,12 @@ export type PatientQueueSelectCreateManyAndReturn<ExtArgs extends runtime.Types.
   id?: boolean
   appointmentId?: boolean
   patientId?: boolean
+  patientName?: boolean
   doctorId?: boolean
+  doctorName?: boolean
   clinicId?: boolean
   tokenNumber?: boolean
+  queueNumber?: boolean
   status?: boolean
   roomNumber?: boolean
   estimatedWaitMin?: boolean
@@ -702,9 +800,12 @@ export type PatientQueueSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.
   id?: boolean
   appointmentId?: boolean
   patientId?: boolean
+  patientName?: boolean
   doctorId?: boolean
+  doctorName?: boolean
   clinicId?: boolean
   tokenNumber?: boolean
+  queueNumber?: boolean
   status?: boolean
   roomNumber?: boolean
   estimatedWaitMin?: boolean
@@ -719,9 +820,12 @@ export type PatientQueueSelectScalar = {
   id?: boolean
   appointmentId?: boolean
   patientId?: boolean
+  patientName?: boolean
   doctorId?: boolean
+  doctorName?: boolean
   clinicId?: boolean
   tokenNumber?: boolean
+  queueNumber?: boolean
   status?: boolean
   roomNumber?: boolean
   estimatedWaitMin?: boolean
@@ -731,7 +835,7 @@ export type PatientQueueSelectScalar = {
   updatedAt?: boolean
 }
 
-export type PatientQueueOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "appointmentId" | "patientId" | "doctorId" | "clinicId" | "tokenNumber" | "status" | "roomNumber" | "estimatedWaitMin" | "calledAt" | "completedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["patientQueue"]>
+export type PatientQueueOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "appointmentId" | "patientId" | "patientName" | "doctorId" | "doctorName" | "clinicId" | "tokenNumber" | "queueNumber" | "status" | "roomNumber" | "estimatedWaitMin" | "calledAt" | "completedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["patientQueue"]>
 export type PatientQueueInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   appointment?: boolean | Prisma.AppointmentDefaultArgs<ExtArgs>
 }
@@ -751,9 +855,12 @@ export type $PatientQueuePayload<ExtArgs extends runtime.Types.Extensions.Intern
     id: string
     appointmentId: string
     patientId: string
+    patientName: string | null
     doctorId: string | null
+    doctorName: string | null
     clinicId: string
-    tokenNumber: number
+    tokenNumber: number | null
+    queueNumber: number | null
     status: $Enums.QueueStatus
     roomNumber: string | null
     estimatedWaitMin: number
@@ -1188,9 +1295,12 @@ export interface PatientQueueFieldRefs {
   readonly id: Prisma.FieldRef<"PatientQueue", 'String'>
   readonly appointmentId: Prisma.FieldRef<"PatientQueue", 'String'>
   readonly patientId: Prisma.FieldRef<"PatientQueue", 'String'>
+  readonly patientName: Prisma.FieldRef<"PatientQueue", 'String'>
   readonly doctorId: Prisma.FieldRef<"PatientQueue", 'String'>
+  readonly doctorName: Prisma.FieldRef<"PatientQueue", 'String'>
   readonly clinicId: Prisma.FieldRef<"PatientQueue", 'String'>
   readonly tokenNumber: Prisma.FieldRef<"PatientQueue", 'Int'>
+  readonly queueNumber: Prisma.FieldRef<"PatientQueue", 'Int'>
   readonly status: Prisma.FieldRef<"PatientQueue", 'QueueStatus'>
   readonly roomNumber: Prisma.FieldRef<"PatientQueue", 'String'>
   readonly estimatedWaitMin: Prisma.FieldRef<"PatientQueue", 'Int'>

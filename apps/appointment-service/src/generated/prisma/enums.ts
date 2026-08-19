@@ -12,6 +12,7 @@
 export const AppointmentStatus = {
   PENDING: 'PENDING',
   CONFIRMED: 'CONFIRMED',
+  CHECKED_IN: 'CHECKED_IN',
   IN_PROGRESS: 'IN_PROGRESS',
   COMPLETED: 'COMPLETED',
   CANCELLED: 'CANCELLED',
@@ -23,7 +24,8 @@ export type AppointmentStatus = (typeof AppointmentStatus)[keyof typeof Appointm
 
 export const AppointmentType = {
   IN_PERSON: 'IN_PERSON',
-  VIDEO_CONSULTATION: 'VIDEO_CONSULTATION'
+  VIDEO_CONSULTATION: 'VIDEO_CONSULTATION',
+  VIDEO: 'VIDEO'
 } as const
 
 export type AppointmentType = (typeof AppointmentType)[keyof typeof AppointmentType]

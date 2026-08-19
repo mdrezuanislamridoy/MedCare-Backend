@@ -22,10 +22,10 @@ export class NotificationService {
 
     const where: any = {};
     if (filter.priority) {
-      where.priority = filter.priority;
+      where.priority = filter.priority as any;
     }
     if (filter.audience) {
-      where.audience = filter.audience;
+      where.audience = filter.audience as any;
     }
 
     const [notifications, total] = await Promise.all([
@@ -33,9 +33,6 @@ export class NotificationService {
         where,
         skip,
         take: limit,
-        include: {
-          sentBy: { select: { id: true, name: true, email: true } },
-        },
         orderBy: { createdAt: 'desc' },
       }),
       this.prisma.notification.count({ where }),
@@ -66,19 +63,6 @@ export class NotificationService {
       },
     });
 
-    await this.prisma.auditLog
-      .create({
-        data: {
-          actorId: senderId,
-          actorName: 'Admin',
-          action: `Broadcast Notification Sent (${priority})`,
-          resource: `Notification "${dto.title}" to ${audience}`,
-          details: JSON.stringify(dto),
-          result: 'success',
-        },
-      })
-      .catch(() => null);
-
     return notification;
   }
 
@@ -88,7 +72,7 @@ export class NotificationService {
     const notifications = await this.prisma.notification.findMany({
       where: {
         audience: {
-          in: [NotificationAudience.ALL, NotificationAudience.PATIENTS],
+          in: [NotificationAudience.ALL, NotificationAudience.PATIENTS] as any,
         },
       },
       take: 20,

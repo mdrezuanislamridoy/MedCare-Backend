@@ -683,6 +683,10 @@ export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof
 export const PatientProfileScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
+  name: 'name',
+  email: 'email',
+  phone: 'phone',
+  status: 'status',
   dateOfBirth: 'dateOfBirth',
   gender: 'gender',
   bloodGroup: 'bloodGroup',
@@ -727,7 +731,8 @@ export const PrescriptionScalarFieldEnum = {
   diagnosis: 'diagnosis',
   instructions: 'instructions',
   issuedAt: 'issuedAt',
-  validUntil: 'validUntil'
+  validUntil: 'validUntil',
+  createdAt: 'createdAt'
 } as const
 
 export type PrescriptionScalarFieldEnum = (typeof PrescriptionScalarFieldEnum)[keyof typeof PrescriptionScalarFieldEnum]

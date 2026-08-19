@@ -18,6 +18,10 @@ enum RecordCategory {
 model PatientProfile {
   id                    String          @id @default(uuid())
   userId                String          @unique
+  name                  String?
+  email                 String?
+  phone                 String?
+  status                String          @default("ACTIVE")
   dateOfBirth           DateTime?
   gender                String?
   bloodGroup            String?
@@ -62,4 +66,5 @@ model Prescription {
   instructions   String?
   issuedAt       DateTime       @default(now())
   validUntil     DateTime?
+  createdAt      DateTime       @default(now())
 }
