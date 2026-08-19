@@ -5,19 +5,16 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-RUN corepack enable && corepack prepare pnpm@latest --activate
-
-COPY package.json pnpm-lock.yaml* package-lock.json* ./
-COPY prisma ./prisma/
+COPY package.json package-lock.json* pnpm-lock.yaml* ./
 COPY prisma.config.ts ./
 
-RUN if [ -f pnpm-lock.yaml ]; then pnpm install --frozen-lockfile; \
-    elif [ -f package-lock.json ]; then npm ci; \
+RUN if [ -f package-lock.json ]; then npm ci; \
+    elif [ -f pnpm-lock.yaml ]; then corepack enable && pnpm install --frozen-lockfile; \
     else npm install; fi
 
 COPY . .
 
-RUN npx prisma generate
+RUN npm run prisma:generate:all
 RUN npm run build
 
 # ==========================================
@@ -32,11 +29,9 @@ ENV PORT=3000
 COPY --from=builder /app/package.json ./
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/prisma ./prisma
-COPY --from=builder /app/generated ./generated
 
 RUN mkdir -p /app/uploads
 
 EXPOSE 3000
 
-CMD ["node", "dist/apps/gateway/main"]
+CMD ["node", "dist/apps/api-gateway/src/main"]

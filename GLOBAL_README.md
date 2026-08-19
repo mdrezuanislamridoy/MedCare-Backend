@@ -100,3 +100,23 @@ npm run start:audit:dev
 npm run start:analytics:dev
 npm run start:chat:dev
 ```
+
+---
+
+## 🐳 Docker Workflows
+
+### 1. Local Dev Databases & Redis:
+```bash
+npm run docker:dev
+```
+
+### 2. Full Microservices Stack in Docker (Live Reload):
+```bash
+npm run docker:dev:full
+```
+
+### 3. Production Multi-Container Stack (Caddy + All 11 Services):
+```bash
+docker compose up -d --build
+```
+

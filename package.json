@@ -53,7 +53,9 @@
     "start:analytics:dev": "nest start --watch --entryFile ../apps/analytics-service/src/main",
     "start:chat:dev": "nest start --watch --entryFile ../apps/chat-service/src/main",
     "docker:dev": "docker compose -f docker-compose.dev.yml up -d",
-    "docker:dev:down": "docker compose -f docker-compose.dev.yml down",
+    "docker:dev:full": "docker compose -f docker-compose.dev.yml --profile full up -d --build",
+    "docker:dev:down": "docker compose -f docker-compose.dev.yml --profile full down",
+    "docker:dev:clean": "docker compose -f docker-compose.dev.yml --profile full down -v",
     "docker:dev:logs": "docker compose -f docker-compose.dev.yml logs -f"
   },
   "dependencies": {

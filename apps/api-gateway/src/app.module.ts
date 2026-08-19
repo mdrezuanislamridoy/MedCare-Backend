@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { BrokerClientModule } from '../../../libs/broker/src';
-import { validateEnv } from '../../../src/common/config/env.validation';
+import { BrokerClientModule } from '@medcare/broker';
+import { SharedModule } from '@medcare/shared';
 
 // Clean Domain Proxy Controllers
 import { AuthGatewayController } from './modules/auth/auth.controller';
@@ -22,9 +22,10 @@ import { SupportStaffGatewayController } from './modules/support/support.control
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      validate: validateEnv,
     }),
-    BrokerClientModule,
+    // Gateway routes to ALL microservices, so register all clients
+    BrokerClientModule.forAll(),
+    SharedModule,
   ],
   controllers: [
     AuthGatewayController,

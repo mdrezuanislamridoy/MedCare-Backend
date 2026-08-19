@@ -32,7 +32,6 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=3000
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-medcare}:${POSTGRES_PASSWORD:-medcare_secure_pass}@medcare-postgres:5432/medcare_core?schema=public
       - REDIS_URL=redis://medcare-redis:6379
       - REDIS_HOST=medcare-redis
       - REDIS_PORT=6379
@@ -50,19 +49,45 @@ services:
       - medcare-net
 
   # ==========================================
-  # 2. DOCTOR MICROSERVICE
+  # 2. AUTH MICROSERVICE
+  # ==========================================
+  medcare-auth-service:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/Dockerfile.microservice
+      args:
+        APP_NAME: auth-service
+    container_name: medcare-auth-service
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-medcare}:${POSTGRES_PASSWORD:-medcare_secure_pass}@medcare-postgres:5432/auth_db?schema=public
+      - REDIS_HOST=medcare-redis
+      - REDIS_PORT=6379
+      - MICROSERVICE_TRANSPORT=REDIS
+      - JWT_SECRET=${JWT_SECRET:-medcare_enterprise_super_secret_jwt_key_2026}
+    depends_on:
+      medcare-postgres:
+        condition: service_healthy
+      medcare-redis:
+        condition: service_healthy
+    networks:
+      - medcare-net
+
+  # ==========================================
+  # 3. DOCTOR MICROSERVICE
   # ==========================================
   medcare-doctor-service:
     build:
       context: .
       dockerfile: infrastructure/docker/Dockerfile.microservice
       args:
-        APP_NAME: doctor
+        APP_NAME: doctor-service
     container_name: medcare-doctor-service
     restart: unless-stopped
     environment:
       - NODE_ENV=production
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-medcare}:${POSTGRES_PASSWORD:-medcare_secure_pass}@medcare-postgres:5432/medcare_doctor?schema=public
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-medcare}:${POSTGRES_PASSWORD:-medcare_secure_pass}@medcare-postgres:5432/doctor_db?schema=public
       - REDIS_HOST=medcare-redis
       - REDIS_PORT=6379
       - MICROSERVICE_TRANSPORT=REDIS
@@ -76,19 +101,19 @@ services:
       - medcare-net
 
   # ==========================================
-  # 3. PATIENT MICROSERVICE
+  # 4. PATIENT MICROSERVICE
   # ==========================================
   medcare-patient-service:
     build:
       context: .
       dockerfile: infrastructure/docker/Dockerfile.microservice
       args:
-        APP_NAME: patient
+        APP_NAME: patient-service
     container_name: medcare-patient-service
     restart: unless-stopped
     environment:
       - NODE_ENV=production
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-medcare}:${POSTGRES_PASSWORD:-medcare_secure_pass}@medcare-postgres:5432/medcare_patient?schema=public
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-medcare}:${POSTGRES_PASSWORD:-medcare_secure_pass}@medcare-postgres:5432/patient_db?schema=public
       - REDIS_HOST=medcare-redis
       - REDIS_PORT=6379
       - MICROSERVICE_TRANSPORT=REDIS
@@ -102,19 +127,19 @@ services:
       - medcare-net
 
   # ==========================================
-  # 4. APPOINTMENT MICROSERVICE
+  # 5. APPOINTMENT MICROSERVICE
   # ==========================================
   medcare-appointment-service:
     build:
       context: .
       dockerfile: infrastructure/docker/Dockerfile.microservice
       args:
-        APP_NAME: appointment
+        APP_NAME: appointment-service
     container_name: medcare-appointment-service
     restart: unless-stopped
     environment:
       - NODE_ENV=production
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-medcare}:${POSTGRES_PASSWORD:-medcare_secure_pass}@medcare-postgres:5432/medcare_appointment?schema=public
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-medcare}:${POSTGRES_PASSWORD:-medcare_secure_pass}@medcare-postgres:5432/appointment_db?schema=public
       - REDIS_HOST=medcare-redis
       - REDIS_PORT=6379
       - MICROSERVICE_TRANSPORT=REDIS
@@ -128,19 +153,19 @@ services:
       - medcare-net
 
   # ==========================================
-  # 5. CLINIC MICROSERVICE
+  # 6. CLINIC MICROSERVICE
   # ==========================================
   medcare-clinic-service:
     build:
       context: .
       dockerfile: infrastructure/docker/Dockerfile.microservice
       args:
-        APP_NAME: clinic
+        APP_NAME: clinic-service
     container_name: medcare-clinic-service
     restart: unless-stopped
     environment:
       - NODE_ENV=production
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-medcare}:${POSTGRES_PASSWORD:-medcare_secure_pass}@medcare-postgres:5432/medcare_clinic?schema=public
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-medcare}:${POSTGRES_PASSWORD:-medcare_secure_pass}@medcare-postgres:5432/clinic_db?schema=public
       - REDIS_HOST=medcare-redis
       - REDIS_PORT=6379
       - MICROSERVICE_TRANSPORT=REDIS
@@ -154,19 +179,19 @@ services:
       - medcare-net
 
   # ==========================================
-  # 6. FINANCE & BILLING MICROSERVICE
+  # 7. BILLING MICROSERVICE
   # ==========================================
-  medcare-finance-service:
+  medcare-billing-service:
     build:
       context: .
       dockerfile: infrastructure/docker/Dockerfile.microservice
       args:
-        APP_NAME: finance
-    container_name: medcare-finance-service
+        APP_NAME: billing-service
+    container_name: medcare-billing-service
     restart: unless-stopped
     environment:
       - NODE_ENV=production
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-medcare}:${POSTGRES_PASSWORD:-medcare_secure_pass}@medcare-postgres:5432/medcare_finance?schema=public
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-medcare}:${POSTGRES_PASSWORD:-medcare_secure_pass}@medcare-postgres:5432/billing_db?schema=public
       - REDIS_HOST=medcare-redis
       - REDIS_PORT=6379
       - MICROSERVICE_TRANSPORT=REDIS
@@ -180,19 +205,19 @@ services:
       - medcare-net
 
   # ==========================================
-  # 7. NOTIFICATION MICROSERVICE
+  # 8. NOTIFICATION MICROSERVICE
   # ==========================================
   medcare-notification-service:
     build:
       context: .
       dockerfile: infrastructure/docker/Dockerfile.microservice
       args:
-        APP_NAME: notification
+        APP_NAME: notification-service
     container_name: medcare-notification-service
     restart: unless-stopped
     environment:
       - NODE_ENV=production
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-medcare}:${POSTGRES_PASSWORD:-medcare_secure_pass}@medcare-postgres:5432/medcare_notification?schema=public
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-medcare}:${POSTGRES_PASSWORD:-medcare_secure_pass}@medcare-postgres:5432/notification_db?schema=public
       - REDIS_HOST=medcare-redis
       - REDIS_PORT=6379
       - MICROSERVICE_TRANSPORT=REDIS
@@ -206,19 +231,19 @@ services:
       - medcare-net
 
   # ==========================================
-  # 8. AUDIT & COMPLIANCE MICROSERVICE
+  # 9. AUDIT MICROSERVICE
   # ==========================================
   medcare-audit-service:
     build:
       context: .
       dockerfile: infrastructure/docker/Dockerfile.microservice
       args:
-        APP_NAME: audit
+        APP_NAME: audit-service
     container_name: medcare-audit-service
     restart: unless-stopped
     environment:
       - NODE_ENV=production
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-medcare}:${POSTGRES_PASSWORD:-medcare_secure_pass}@medcare-postgres:5432/medcare_audit?schema=public
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-medcare}:${POSTGRES_PASSWORD:-medcare_secure_pass}@medcare-postgres:5432/audit_db?schema=public
       - REDIS_HOST=medcare-redis
       - REDIS_PORT=6379
       - MICROSERVICE_TRANSPORT=REDIS
@@ -232,45 +257,19 @@ services:
       - medcare-net
 
   # ==========================================
-  # 9. RBAC & SECURITY MICROSERVICE
-  # ==========================================
-  medcare-rbac-service:
-    build:
-      context: .
-      dockerfile: infrastructure/docker/Dockerfile.microservice
-      args:
-        APP_NAME: rbac
-    container_name: medcare-rbac-service
-    restart: unless-stopped
-    environment:
-      - NODE_ENV=production
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-medcare}:${POSTGRES_PASSWORD:-medcare_secure_pass}@medcare-postgres:5432/medcare_core?schema=public
-      - REDIS_HOST=medcare-redis
-      - REDIS_PORT=6379
-      - MICROSERVICE_TRANSPORT=REDIS
-      - JWT_SECRET=${JWT_SECRET:-medcare_enterprise_super_secret_jwt_key_2026}
-    depends_on:
-      medcare-postgres:
-        condition: service_healthy
-      medcare-redis:
-        condition: service_healthy
-    networks:
-      - medcare-net
-
-  # ==========================================
-  # 10. CHAT & MESSAGING MICROSERVICE
+  # 10. CHAT MICROSERVICE
   # ==========================================
   medcare-chat-service:
     build:
       context: .
       dockerfile: infrastructure/docker/Dockerfile.microservice
       args:
-        APP_NAME: chat
+        APP_NAME: chat-service
     container_name: medcare-chat-service
     restart: unless-stopped
     environment:
       - NODE_ENV=production
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-medcare}:${POSTGRES_PASSWORD:-medcare_secure_pass}@medcare-postgres:5432/medcare_chat?schema=public
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-medcare}:${POSTGRES_PASSWORD:-medcare_secure_pass}@medcare-postgres:5432/chat_db?schema=public
       - REDIS_HOST=medcare-redis
       - REDIS_PORT=6379
       - MICROSERVICE_TRANSPORT=REDIS
@@ -291,12 +290,11 @@ services:
       context: .
       dockerfile: infrastructure/docker/Dockerfile.microservice
       args:
-        APP_NAME: analytics
+        APP_NAME: analytics-service
     container_name: medcare-analytics-service
     restart: unless-stopped
     environment:
       - NODE_ENV=production
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-medcare}:${POSTGRES_PASSWORD:-medcare_secure_pass}@medcare-postgres:5432/medcare_analytics?schema=public
       - REDIS_HOST=medcare-redis
       - REDIS_PORT=6379
       - MICROSERVICE_TRANSPORT=REDIS
@@ -317,17 +315,17 @@ services:
     container_name: medcare-postgres
     restart: unless-stopped
     ports:
-      - "5432:5432"
+      - "${DB_PORT:-5435}:5432"
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-medcare}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-medcare_secure_pass}
-      POSTGRES_DB: ${POSTGRES_DB:-medcare_core}
-      POSTGRES_MULTIPLE_DATABASES: "medcare_core,medcare_doctor,medcare_patient,medcare_appointment,medcare_clinic,medcare_finance,medcare_audit,medcare_chat,medcare_notification,medcare_support,medcare_analytics,medcare_review,medcare_system"
+      POSTGRES_DB: ${POSTGRES_DB:-medcare_db}
+      POSTGRES_MULTIPLE_DATABASES: "auth_db,doctor_db,patient_db,appointment_db,clinic_db,billing_db,notification_db,audit_db,chat_db,medcare_db"
     volumes:
       - medcare_pgdata:/var/lib/postgresql/data
       - ./infrastructure/docker/init-db/01-init-databases.sh:/docker-entrypoint-initdb.d/01-init-databases.sh:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-medcare} -d ${POSTGRES_DB:-medcare_core}"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-medcare} -d ${POSTGRES_DB:-medcare_db}"]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -343,7 +341,7 @@ services:
     container_name: medcare-redis
     restart: unless-stopped
     ports:
-      - "6379:6379"
+      - "${REDIS_PORT:-6380}:6379"
     command: redis-server --appendonly yes
     volumes:
       - medcare_redisdata:/data
@@ -364,10 +362,10 @@ services:
     container_name: medcare-pgadmin
     restart: unless-stopped
     ports:
-      - "5050:80"
+      - "${PGADMIN_PORT:-5050}:80"
     environment:
-      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-admin@medcare.local}
-      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin}
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-admin@medcare.com}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin_secure_password_2026}
     depends_on:
       medcare-postgres:
         condition: service_healthy
