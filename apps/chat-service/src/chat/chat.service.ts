@@ -5,15 +5,8 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { Subject, Observable } from 'rxjs';
-import { PrismaService } from '../../common/database/prisma/prisma.service';
-import { RedisService } from '../../common/cache/redis/redis.service';
-import { AuditService } from '../audit/audit.service';
-import {
-  ConversationStatus,
-  ConversationType,
-  MessageType,
-  Prisma,
-} from '../../../generated/prisma/client';
+import { PrismaService } from '../prisma/prisma.service';
+import { ConversationStatus } from '@medcare/contracts';
 import {
   StartConversationDto,
   SendChatMessageDto,
@@ -35,8 +28,6 @@ export class ChatService {
 
   constructor(
     private readonly prisma: PrismaService,
-    private readonly redis: RedisService,
-    private readonly auditService: AuditService,
   ) {}
 
   getStream(): Observable<ChatLiveEvent> {

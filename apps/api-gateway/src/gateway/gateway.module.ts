@@ -1,20 +1,5 @@
 import { Module } from '@nestjs/common';
-import { CommonModule } from '../common/common.module';
-import { MicroservicesClientModule } from '../microservices/common/microservices-client.module';
-import { AnalyticsModule } from '../microservices/analytics/analytics.module';
-import { DoctorModule } from '../microservices/doctor/doctor.module';
-import { PatientModule } from '../microservices/patient/patient.module';
-import { ClinicModule } from '../microservices/clinic/clinic.module';
-import { AppointmentModule } from '../microservices/appointment/appointment.module';
-import { FinanceModule } from '../microservices/finance/finance.module';
-import { ReviewModule } from '../microservices/review/review.module';
-import { NotificationModule } from '../microservices/notification/notification.module';
-import { AuditModule } from '../microservices/audit/audit.module';
-import { RbacModule } from '../microservices/rbac/rbac.module';
-import { SystemModule } from '../microservices/system/system.module';
-import { SupportModule } from '../microservices/support/support.module';
-import { ChatModule } from '../microservices/chat/chat.module';
-
+import { BrokerClientModule } from '../../../../libs/broker/src';
 import { AdminAnalyticsGatewayController } from './admin-analytics.gateway.controller';
 import { AdminDoctorGatewayController } from './admin-doctor.gateway.controller';
 import { AdminPatientGatewayController } from './admin-patient.gateway.controller';
@@ -37,21 +22,7 @@ import { ClinicManagerGatewayController } from './clinic-manager.gateway.control
 
 @Module({
   imports: [
-    CommonModule,
-    MicroservicesClientModule,
-    AnalyticsModule,
-    DoctorModule,
-    PatientModule,
-    ClinicModule,
-    AppointmentModule,
-    FinanceModule,
-    ReviewModule,
-    NotificationModule,
-    AuditModule,
-    RbacModule,
-    SystemModule,
-    SupportModule,
-    ChatModule,
+    BrokerClientModule,
   ],
   controllers: [
     AdminAnalyticsGatewayController,
