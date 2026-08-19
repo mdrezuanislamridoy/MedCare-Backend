@@ -1,122 +1,96 @@
-# MedCare Project - Global Overview & Progress
+# MedCare Backend — Enterprise Microservices Architecture & System Blueprint
 
-## 📌 Project Architecture
-- **Frontend**: Next.js React Portal (`/Volumes/2BT/Ridoy/MedCare`)
-  - Role-based modular portals (`patient`, `doctor`, `admin`, `super-admin`, `receptionist`, `clinic-manager`, `support-staff`)
-- **Backend**: NestJS Enterprise Microservices Monorepo + Caddy Ingress (`/Volumes/2BT/Ridoy/MedCare Backend`)
-  - **Edge Ingress**: Caddy (`infrastructure/caddy/Caddyfile`) with automatic TLS, Gzip/Zstd compression, and WebSocket proxying
-  - **11 Isolated Microservices (`apps/`)**:
-    - `apps/api-gateway/` (Pure Microservices API Gateway, OpenAPI Swagger, ClientProxy routing in `src/modules/`)
-    - `apps/auth-service/` (Auth, JWT, OAuth, Password Management)
-    - `apps/doctor-service/` (Doctor clinical workspace, consultation notes, e-prescriptions)
-    - `apps/patient-service/` (Patient health metrics, medical records, booking)
-    - `apps/appointment-service/` (Appointment scheduling, 6-step check-in, live queue)
-    - `apps/billing-service/` (Invoices, Stripe/SSLCommerz payments, doctor payouts)
-    - `apps/clinic-service/` (Clinic branches, room inventory, staff roster)
-    - `apps/notification-service/` (Async email, SMS, push notifications)
-    - `apps/audit-service/` (Immutable compliance & security audit logs)
-    - `apps/analytics-service/` (Platform KPIs, financial reports, revenue stats)
-    - `apps/chat-service/` (Real-time WebSocket chat threads & attachments)
-  - **Monorepo Shared Libraries (`libs/`)**:
-    - `libs/contracts/`: Shared DTOs, message patterns (`PATTERNS`), domain events (`EVENTS`), and event payloads
-    - `libs/broker/`: Transport connection broker (Redis, Kafka, TCP) + `BrokerClientModule`
-    - `libs/kafka/`: Kafka producer/consumer helper module
-    - `libs/auth/`: JWT strategies, `@Roles()`, `@Public()`, and guards
-    - `libs/logger/`: Structured distributed tracing logger
-    - `libs/common/`: Shared Prisma base classes and modules
-  - **Infrastructure & Docker (`infrastructure/`)**:
-    - `infrastructure/caddy/Caddyfile` (Caddy edge reverse proxy)
-    - `infrastructure/docker/Dockerfile.gateway` (API Gateway image)
-    - `infrastructure/docker/Dockerfile.microservice` (Multi-stage parameterized image for any microservice)
-    - `infrastructure/docker/init-db/01-init-databases.sh` (PostgreSQL multi-database initializer)
-    - `infrastructure/docker/compose/` (Individual standalone docker-compose files per service)
-    - `docker-compose.yml` (Complete multi-container orchestration for Caddy, Gateway, 11 microservices, Redis, and PostgreSQL)
-  - **Database-per-Service & Multi-Database Engine**:
-    - **Dedicated `prisma/schema.prisma` in each microservice (`apps/<service>/prisma/schema.prisma`)**
-    - Dedicated database instances: `auth_db`, `doctor_db`, `patient_db`, `appointment_db`, `clinic_db`, `billing_db`, `audit_db`, `chat_db`, `notification_db`
-    - Dedicated Prisma clients generated in `apps/<service>/src/generated/prisma/`
-    - Automated provisioning via `infrastructure/docker/init-db/01-init-databases.sh`
+## Executive Architecture Summary
+MedCare is a distributed, high-throughput healthcare platform built on NestJS 11, TypeScript, PostgreSQL (Multi-Database per Service), Redis, Prisma 7, and Docker.
 
 ---
 
-## 🛠️ Prisma Generation & Migration Commands
+## 1. System Topology & Communication
 
-### 1. Generate Prisma Clients (Code Generation)
-- **Generate all services at once:**
-  ```bash
-  npm run prisma:generate:all
-  ```
-- **Generate for a specific service:**
-  ```bash
-  npm run prisma:generate:auth
-  npm run prisma:generate:doctor
-  npm run prisma:generate:patient
-  npm run prisma:generate:appointment
-  npm run prisma:generate:clinic
-  npm run prisma:generate:billing
-  npm run prisma:generate:notification
-  npm run prisma:generate:audit
-  npm run prisma:generate:chat
-  ```
+```mermaid
+flowchart TD
+    Client["Clients (Web / iOS / Android)"] -->|HTTPS / WSS| Caddy["Caddy Reverse Proxy (:80 / :443)"]
+    Caddy --> Gateway["API Gateway (:3000)\n• Ingress / Swagger\n• JWT Guards & RBAC\n• Rate Limiting"]
 
-### 2. Database Push / Migration (Schema & Table Sync)
-- **Push all schemas to databases at once (Development Sync):**
-  ```bash
-  npm run prisma:push:all
-  ```
-- **Run migration for a specific service (Production Migrations):**
-  ```bash
-  npm run prisma:migrate:auth
-  npm run prisma:migrate:doctor
-  npm run prisma:migrate:patient
-  npm run prisma:migrate:appointment
-  npm run prisma:migrate:clinic
-  npm run prisma:migrate:billing
-  npm run prisma:migrate:notification
-  npm run prisma:migrate:audit
-  npm run prisma:migrate:chat
-  ```
+    Gateway -->|TCP / Redis RPC| AuthSvc["Auth Service (:3001)\nauth_db"]
+    Gateway -->|TCP / Redis RPC| DoctorSvc["Doctor Service (:3002)\ndoctor_db"]
+    Gateway -->|TCP / Redis RPC| PatientSvc["Patient Service (:3003)\npatient_db"]
+    Gateway -->|TCP / Redis RPC| ApptSvc["Appointment Service (:3004)\nappointment_db"]
+    Gateway -->|TCP / Redis RPC| ClinicSvc["Clinic Service (:3005)\nclinic_db"]
+    Gateway -->|TCP / Redis RPC| BillingSvc["Billing Service (:3006)\nbilling_db"]
+    Gateway -->|TCP / Redis RPC| NotifSvc["Notification Service (:3007)\nnotification_db"]
+    Gateway -->|TCP / Redis RPC| AuditSvc["Audit Service (:3008)\naudit_db"]
+    Gateway -->|TCP / Redis RPC| ChatSvc["Chat Service (:3009)\nchat_db"]
+    Gateway -->|TCP / Redis RPC| AnalyticsSvc["Analytics Service (:3010)"]
 
----
-
-## 🚀 Running the Project
-
-### Hybrid Mode (Gateway + Microservices concurrently):
-```bash
-npm run start:dev
+    ApptSvc -.->|Pub/Sub: appointment.booked| RedisBroker[("Redis Broker & Apache Kafka")]
+    BillingSvc -.->|Pub/Sub: payment.succeeded| RedisBroker
+    RedisBroker -.-> NotifSvc
+    RedisBroker -.-> AuditSvc
+    RedisBroker -.-> AnalyticsSvc
 ```
 
-### Individual Microservices:
+---
+
+## 2. Microservice Inventory & Port Allocation
+
+| Component | Port | Database | Responsibilities |
+| :--- | :--- | :--- | :--- |
+| **API Gateway** | `HTTP :3000` | — | Ingress routing, Swagger documentation, JWT authentication, rate limiting |
+| **Auth Service** | `TCP :3001` | `auth_db` | Authentication, password encryption, OAuth2 SSO, refresh tokens |
+| **Doctor Service** | `TCP :3002` | `doctor_db` | Doctor profiles, weekly schedules, consultation notes, payouts |
+| **Patient Service** | `TCP :3003` | `patient_db` | Medical records, vital signs, digital prescriptions |
+| **Appointment Service** | `TCP :3004` | `appointment_db` | Bookings, live queue tokens, 6-step check-in wizard |
+| **Clinic Service** | `TCP :3005` | `clinic_db` | Multi-branch clinics, consultation rooms, staff rosters |
+| **Billing Service** | `TCP :3006` | `billing_db` | Invoices, payments, gateway webhooks, refunds |
+| **Notification Service** | `TCP :3007` | `notification_db` | Multi-channel broadcasts, email templates, SMS queue |
+| **Audit Service** | `TCP :3008` | `audit_db` | HIPAA-compliant immutable audit trail, security logs |
+| **Chat Service** | `TCP :3009` | `chat_db` | Real-time teleconsultation messaging, attachments |
+| **Analytics Service** | `TCP :3010` | In-Memory / Broker | Real-time clinic load KPIs, revenue forecasts |
+
+---
+
+## 3. Database Isolation Matrix
+
+```
+PostgreSQL Cluster (:5435)
+  ├── 📂 auth_db         (AuthService)
+  ├── 📂 doctor_db       (DoctorService)
+  ├── 📂 patient_db      (PatientService)
+  ├── 📂 appointment_db  (AppointmentService)
+  ├── 📂 clinic_db       (ClinicService)
+  ├── 📂 billing_db      (BillingService)
+  ├── 📂 notification_db (NotificationService)
+  ├── 📂 audit_db        (AuditService)
+  └── 📂 chat_db         (ChatService)
+```
+
+---
+
+## 4. Key Developer Commands
+
 ```bash
+# 1. Start Docker Infrastructure (PostgreSQL, Redis, pgAdmin, Mailpit)
+npm run docker:dev
+
+# 2. Generate Prisma Clients for All 9 Services
+npm run prisma:generate:all
+
+# 3. Push Schemas to Isolated Databases
+npm run prisma:push:all
+
+# 4. Start API Gateway (Local Node)
 npm run start:gateway:dev
+
+# 5. Start Individual Microservices
 npm run start:auth:dev
 npm run start:doctor:dev
-npm run start:patient:dev
 npm run start:appointment:dev
-npm run start:billing:dev
-npm run start:clinic:dev
-npm run start:notification:dev
-npm run start:audit:dev
-npm run start:analytics:dev
-npm run start:chat:dev
-```
 
----
+# 6. Run Unit Tests & Linting
+npm run test
+npm run lint
 
-## 🐳 Docker Workflows
-
-### 1. Local Dev Databases & Redis:
-```bash
-npm run docker:dev
-```
-
-### 2. Full Microservices Stack in Docker (Live Reload):
-```bash
-npm run docker:dev:full
-```
-
-### 3. Production Multi-Container Stack (Caddy + All 11 Services):
-```bash
+# 7. Production Multi-Container Docker Stack
 docker compose up -d --build
 ```
-
