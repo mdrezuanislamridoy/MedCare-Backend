@@ -1,0 +1,56 @@
+# ==========================================
+# MedCare Caddy Reverse Proxy & Edge Ingress
+# ==========================================
+{
+    # Global options
+    auto_https off
+    admin off
+}
+
+:80 {
+    # Logging
+    log {
+        output stdout
+        format console
+    }
+
+    # Security Headers
+    header {
+        Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+        X-Content-Type-Options "nosniff"
+        X-Frame-Options "DENY"
+        X-XSS-Protection "1; mode=block"
+        Referrer-Policy "strict-origin-when-cross-origin"
+    }
+
+    # Enable Gzip and Zstandard compression
+    encode zstd gzip
+
+    # Health check endpoint for container orchestrator
+    handle /healthz {
+        respond "OK" 200
+    }
+
+    # Static uploads serving directly or through gateway
+    handle /uploads/* {
+        reverse_proxy medcare-api-gateway:3000
+    }
+
+    # WebSocket Real-Time Chat & Socket.io proxying
+    handle /socket.io/* {
+        reverse_proxy medcare-api-gateway:3000 {
+            header_up Host {host}
+            header_up X-Real-IP {remote_host}
+        }
+    }
+
+    # Central API Gateway Reverse Proxy
+    handle /* {
+        reverse_proxy medcare-api-gateway:3000 {
+            header_up Host {host}
+            header_up X-Real-IP {remote_host}
+            header_up X-Forwarded-For {remote_host}
+            header_up X-Forwarded-Proto {scheme}
+        }
+    }
+}

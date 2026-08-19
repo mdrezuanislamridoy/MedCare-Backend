@@ -14,6 +14,12 @@
     "sourceMap": true,
     "outDir": "./dist",
     "baseUrl": "./",
+    "paths": {
+      "@medcare/contracts": ["libs/contracts/src/index"],
+      "@medcare/contracts/*": ["libs/contracts/src/*"],
+      "@medcare/broker": ["libs/broker/src/index"],
+      "@medcare/broker/*": ["libs/broker/src/*"]
+    },
     "incremental": true,
     "skipLibCheck": true,
     "strictNullChecks": true,

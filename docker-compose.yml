@@ -1,23 +1,44 @@
 services:
   # ==========================================
-  # MedCare API (NestJS REST API Gateway & Microservices)
+  # 0. CADDY (Edge Reverse Proxy, HTTPS & Ingress)
   # ==========================================
-  medcare-api:
+  medcare-caddy:
+    image: caddy:2-alpine
+    container_name: medcare-caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./infrastructure/caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - medcare_caddy_data:/data
+      - medcare_caddy_config:/config
+    depends_on:
+      - medcare-api-gateway
+    networks:
+      - medcare-net
+
+  # ==========================================
+  # 1. API GATEWAY (Central REST Gateway)
+  # ==========================================
+  medcare-api-gateway:
     build:
       context: .
-      dockerfile: Dockerfile
-    container_name: medcare-api
+      dockerfile: infrastructure/docker/Dockerfile.gateway
+    container_name: medcare-api-gateway
     restart: unless-stopped
     ports:
       - "${PORT:-3000}:3000"
     environment:
       - NODE_ENV=production
       - PORT=3000
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-medcare}:${POSTGRES_PASSWORD:-medcare_secure_pass}@medcare-postgres:5432/${POSTGRES_DB:-medcare_db}?schema=public
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-medcare}:${POSTGRES_PASSWORD:-medcare_secure_pass}@medcare-postgres:5432/medcare_core?schema=public
       - REDIS_URL=redis://medcare-redis:6379
+      - REDIS_HOST=medcare-redis
+      - REDIS_PORT=6379
+      - MICROSERVICE_TRANSPORT=REDIS
       - JWT_SECRET=${JWT_SECRET:-medcare_enterprise_super_secret_jwt_key_2026}
       - JWT_EXPIRES_IN=${JWT_EXPIRES_IN:-1d}
-      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID:-}
     volumes:
       - medcare_uploads:/app/uploads
     depends_on:
@@ -29,7 +50,267 @@ services:
       - medcare-net
 
   # ==========================================
-  # PostgreSQL Database (Primary Storage)
+  # 2. DOCTOR MICROSERVICE
+  # ==========================================
+  medcare-doctor-service:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/Dockerfile.microservice
+      args:
+        APP_NAME: doctor
+    container_name: medcare-doctor-service
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-medcare}:${POSTGRES_PASSWORD:-medcare_secure_pass}@medcare-postgres:5432/medcare_doctor?schema=public
+      - REDIS_HOST=medcare-redis
+      - REDIS_PORT=6379
+      - MICROSERVICE_TRANSPORT=REDIS
+      - JWT_SECRET=${JWT_SECRET:-medcare_enterprise_super_secret_jwt_key_2026}
+    depends_on:
+      medcare-postgres:
+        condition: service_healthy
+      medcare-redis:
+        condition: service_healthy
+    networks:
+      - medcare-net
+
+  # ==========================================
+  # 3. PATIENT MICROSERVICE
+  # ==========================================
+  medcare-patient-service:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/Dockerfile.microservice
+      args:
+        APP_NAME: patient
+    container_name: medcare-patient-service
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-medcare}:${POSTGRES_PASSWORD:-medcare_secure_pass}@medcare-postgres:5432/medcare_patient?schema=public
+      - REDIS_HOST=medcare-redis
+      - REDIS_PORT=6379
+      - MICROSERVICE_TRANSPORT=REDIS
+      - JWT_SECRET=${JWT_SECRET:-medcare_enterprise_super_secret_jwt_key_2026}
+    depends_on:
+      medcare-postgres:
+        condition: service_healthy
+      medcare-redis:
+        condition: service_healthy
+    networks:
+      - medcare-net
+
+  # ==========================================
+  # 4. APPOINTMENT MICROSERVICE
+  # ==========================================
+  medcare-appointment-service:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/Dockerfile.microservice
+      args:
+        APP_NAME: appointment
+    container_name: medcare-appointment-service
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-medcare}:${POSTGRES_PASSWORD:-medcare_secure_pass}@medcare-postgres:5432/medcare_appointment?schema=public
+      - REDIS_HOST=medcare-redis
+      - REDIS_PORT=6379
+      - MICROSERVICE_TRANSPORT=REDIS
+      - JWT_SECRET=${JWT_SECRET:-medcare_enterprise_super_secret_jwt_key_2026}
+    depends_on:
+      medcare-postgres:
+        condition: service_healthy
+      medcare-redis:
+        condition: service_healthy
+    networks:
+      - medcare-net
+
+  # ==========================================
+  # 5. CLINIC MICROSERVICE
+  # ==========================================
+  medcare-clinic-service:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/Dockerfile.microservice
+      args:
+        APP_NAME: clinic
+    container_name: medcare-clinic-service
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-medcare}:${POSTGRES_PASSWORD:-medcare_secure_pass}@medcare-postgres:5432/medcare_clinic?schema=public
+      - REDIS_HOST=medcare-redis
+      - REDIS_PORT=6379
+      - MICROSERVICE_TRANSPORT=REDIS
+      - JWT_SECRET=${JWT_SECRET:-medcare_enterprise_super_secret_jwt_key_2026}
+    depends_on:
+      medcare-postgres:
+        condition: service_healthy
+      medcare-redis:
+        condition: service_healthy
+    networks:
+      - medcare-net
+
+  # ==========================================
+  # 6. FINANCE & BILLING MICROSERVICE
+  # ==========================================
+  medcare-finance-service:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/Dockerfile.microservice
+      args:
+        APP_NAME: finance
+    container_name: medcare-finance-service
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-medcare}:${POSTGRES_PASSWORD:-medcare_secure_pass}@medcare-postgres:5432/medcare_finance?schema=public
+      - REDIS_HOST=medcare-redis
+      - REDIS_PORT=6379
+      - MICROSERVICE_TRANSPORT=REDIS
+      - JWT_SECRET=${JWT_SECRET:-medcare_enterprise_super_secret_jwt_key_2026}
+    depends_on:
+      medcare-postgres:
+        condition: service_healthy
+      medcare-redis:
+        condition: service_healthy
+    networks:
+      - medcare-net
+
+  # ==========================================
+  # 7. NOTIFICATION MICROSERVICE
+  # ==========================================
+  medcare-notification-service:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/Dockerfile.microservice
+      args:
+        APP_NAME: notification
+    container_name: medcare-notification-service
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-medcare}:${POSTGRES_PASSWORD:-medcare_secure_pass}@medcare-postgres:5432/medcare_notification?schema=public
+      - REDIS_HOST=medcare-redis
+      - REDIS_PORT=6379
+      - MICROSERVICE_TRANSPORT=REDIS
+      - JWT_SECRET=${JWT_SECRET:-medcare_enterprise_super_secret_jwt_key_2026}
+    depends_on:
+      medcare-postgres:
+        condition: service_healthy
+      medcare-redis:
+        condition: service_healthy
+    networks:
+      - medcare-net
+
+  # ==========================================
+  # 8. AUDIT & COMPLIANCE MICROSERVICE
+  # ==========================================
+  medcare-audit-service:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/Dockerfile.microservice
+      args:
+        APP_NAME: audit
+    container_name: medcare-audit-service
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-medcare}:${POSTGRES_PASSWORD:-medcare_secure_pass}@medcare-postgres:5432/medcare_audit?schema=public
+      - REDIS_HOST=medcare-redis
+      - REDIS_PORT=6379
+      - MICROSERVICE_TRANSPORT=REDIS
+      - JWT_SECRET=${JWT_SECRET:-medcare_enterprise_super_secret_jwt_key_2026}
+    depends_on:
+      medcare-postgres:
+        condition: service_healthy
+      medcare-redis:
+        condition: service_healthy
+    networks:
+      - medcare-net
+
+  # ==========================================
+  # 9. RBAC & SECURITY MICROSERVICE
+  # ==========================================
+  medcare-rbac-service:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/Dockerfile.microservice
+      args:
+        APP_NAME: rbac
+    container_name: medcare-rbac-service
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-medcare}:${POSTGRES_PASSWORD:-medcare_secure_pass}@medcare-postgres:5432/medcare_core?schema=public
+      - REDIS_HOST=medcare-redis
+      - REDIS_PORT=6379
+      - MICROSERVICE_TRANSPORT=REDIS
+      - JWT_SECRET=${JWT_SECRET:-medcare_enterprise_super_secret_jwt_key_2026}
+    depends_on:
+      medcare-postgres:
+        condition: service_healthy
+      medcare-redis:
+        condition: service_healthy
+    networks:
+      - medcare-net
+
+  # ==========================================
+  # 10. CHAT & MESSAGING MICROSERVICE
+  # ==========================================
+  medcare-chat-service:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/Dockerfile.microservice
+      args:
+        APP_NAME: chat
+    container_name: medcare-chat-service
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-medcare}:${POSTGRES_PASSWORD:-medcare_secure_pass}@medcare-postgres:5432/medcare_chat?schema=public
+      - REDIS_HOST=medcare-redis
+      - REDIS_PORT=6379
+      - MICROSERVICE_TRANSPORT=REDIS
+      - JWT_SECRET=${JWT_SECRET:-medcare_enterprise_super_secret_jwt_key_2026}
+    depends_on:
+      medcare-postgres:
+        condition: service_healthy
+      medcare-redis:
+        condition: service_healthy
+    networks:
+      - medcare-net
+
+  # ==========================================
+  # 11. ANALYTICS MICROSERVICE
+  # ==========================================
+  medcare-analytics-service:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/Dockerfile.microservice
+      args:
+        APP_NAME: analytics
+    container_name: medcare-analytics-service
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-medcare}:${POSTGRES_PASSWORD:-medcare_secure_pass}@medcare-postgres:5432/medcare_analytics?schema=public
+      - REDIS_HOST=medcare-redis
+      - REDIS_PORT=6379
+      - MICROSERVICE_TRANSPORT=REDIS
+      - JWT_SECRET=${JWT_SECRET:-medcare_enterprise_super_secret_jwt_key_2026}
+    depends_on:
+      medcare-postgres:
+        condition: service_healthy
+      medcare-redis:
+        condition: service_healthy
+    networks:
+      - medcare-net
+
+  # ==========================================
+  # POSTGRESQL MULTI-DATABASE ENGINE
   # ==========================================
   medcare-postgres:
     image: postgres:16-alpine
@@ -40,11 +321,13 @@ services:
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-medcare}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-medcare_secure_pass}
-      POSTGRES_DB: ${POSTGRES_DB:-medcare_db}
+      POSTGRES_DB: ${POSTGRES_DB:-medcare_core}
+      POSTGRES_MULTIPLE_DATABASES: "medcare_core,medcare_doctor,medcare_patient,medcare_appointment,medcare_clinic,medcare_finance,medcare_audit,medcare_chat,medcare_notification,medcare_support,medcare_analytics,medcare_review,medcare_system"
     volumes:
       - medcare_pgdata:/var/lib/postgresql/data
+      - ./infrastructure/docker/init-db/01-init-databases.sh:/docker-entrypoint-initdb.d/01-init-databases.sh:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-medcare} -d ${POSTGRES_DB:-medcare_db}"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-medcare} -d ${POSTGRES_DB:-medcare_core}"]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -53,7 +336,7 @@ services:
       - medcare-net
 
   # ==========================================
-  # Redis (Cache, Sessions & Real-time Live Queue)
+  # REDIS (EVENT BROKER & DISTRIBUTED TRANSPORT)
   # ==========================================
   medcare-redis:
     image: redis:7-alpine
@@ -74,7 +357,7 @@ services:
       - medcare-net
 
   # ==========================================
-  # pgAdmin (Database Web GUI - Optional)
+  # PGADMIN (DATABASE GUI)
   # ==========================================
   medcare-pgadmin:
     image: dpage/pgadmin4:latest
@@ -92,7 +375,7 @@ services:
       - medcare-net
 
 # ==========================================
-# Persistent Volumes & Networks
+# PERSISTENT VOLUMES & NETWORKS
 # ==========================================
 volumes:
   medcare_pgdata:
@@ -101,6 +384,10 @@ volumes:
     name: medcare_redisdata
   medcare_uploads:
     name: medcare_uploads
+  medcare_caddy_data:
+    name: medcare_caddy_data
+  medcare_caddy_config:
+    name: medcare_caddy_config
 
 networks:
   medcare-net:

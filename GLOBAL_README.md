@@ -3,15 +3,43 @@
 ## 📌 Project Architecture
 - **Frontend**: Next.js React Portal (`/Volumes/2BT/Ridoy/MedCare`)
   - Role-based modular portals (`patient`, `doctor`, `admin`, `super-admin`, `receptionist`, `clinic-manager`, `support-staff`)
-- **Backend**: NestJS Microservices + API Gateway (`/Volumes/2BT/Ridoy/MedCare Backend`)
-  - **13 Domain Microservices**: `patient`, `appointment`, `doctor`, `clinic`, `finance`, `review`, `notification`, `audit`, `rbac`, `system`, `support`, `analytics`, `chat`
-  - **Transport Layer**: Dual Mode (`Transport.TCP` for low-latency in-cluster RPC & `Transport.REDIS` for distributed pub/sub)
-  - **Client Proxy Mesh**: Global `MicroservicesClientModule` providing typed client proxies (`ClientsModule`) across all 13 services
+- **Backend**: NestJS Enterprise Microservices Monorepo + Caddy Ingress (`/Volumes/2BT/Ridoy/MedCare Backend`)
+  - **Edge Proxy**: Caddy (`infrastructure/caddy/Caddyfile`) with automatic TLS, Gzip/Zstd compression, and WebSocket proxying
+  - **13 Isolated Microservices**: `patient`, `appointment`, `doctor`, `clinic`, `finance`, `review`, `notification`, `audit`, `rbac`, `system`, `support`, `analytics`, `chat`
+  - **Monorepo Shared Libraries (`libs/`)**:
+    - `libs/contracts`: Shared interfaces, message patterns (`PATTERNS`), domain events (`EVENTS`), and event payloads
+    - `libs/broker`: Connection factory supporting Redis, Kafka, and TCP transports + `BrokerClientModule`
+  - **Independent Bootstrap Entrypoints (`src/apps/*`)**:
+    - Gateway: `src/apps/gateway/main.ts`
+    - Doctor: `src/apps/doctor/main.ts`
+    - Patient: `src/apps/patient/main.ts`
+    - Appointment: `src/apps/appointment/main.ts`
+    - Clinic: `src/apps/clinic/main.ts`
+    - Finance: `src/apps/finance/main.ts`
+    - Notification: `src/apps/notification/main.ts`
+    - Audit: `src/apps/audit/main.ts`
+    - RBAC: `src/apps/rbac/main.ts`
+    - Analytics: `src/apps/analytics/main.ts`
+    - Review: `src/apps/review/main.ts`
+    - Support: `src/apps/support/main.ts`
+    - System: `src/apps/system/main.ts`
+    - Chat: `src/apps/chat/main.ts`
+  - **Infrastructure & Docker (`infrastructure/`)**:
+    - `infrastructure/caddy/Caddyfile` (Caddy edge reverse proxy)
+    - `infrastructure/docker/Dockerfile.gateway` (API Gateway image)
+    - `infrastructure/docker/Dockerfile.microservice` (Multi-stage parameterized image for any microservice)
+    - `infrastructure/docker/init-db/01-init-databases.sh` (PostgreSQL multi-database initializer)
+    - `docker-compose.yml` (Complete multi-container orchestration for Caddy, Gateway, 13 microservices, Redis/Kafka, and PostgreSQL)
+  - **Database-per-Service & Multi-Database Engine**:
+    - Dedicated databases: `medcare_core`, `medcare_doctor`, `medcare_patient`, `medcare_appointment`, `medcare_clinic`, `medcare_finance`, `medcare_audit`, `medcare_chat`, `medcare_notification`, `medcare_support`, `medcare_analytics`, `medcare_review`, `medcare_system`
+  - **Transport Layer**: Dual Mode (`Transport.TCP` for low-latency in-cluster RPC & `Transport.REDIS` / `Transport.KAFKA` for distributed pub/sub)
+  - **Client Proxy Mesh**: Global `MicroservicesClientModule` / `BrokerClientModule` providing typed client proxies (`ClientsModule`) across all services
   - **Asynchronous Domain Events (`@EventPattern`)**: `APPOINTMENT.BOOKED`, `PAYMENT.SUCCESS`, `QUEUE.STATE_CHANGED`, `NOTIFICATION.DISPATCH`, `AUDIT.RECORD`
-  - **Execution Modes**:
-    - **Hybrid Monolith/Dev**: `npm run start:dev` (runs HTTP REST API Gateway + boots all Microservice listeners concurrently)
-    - **Standalone Microservices Cluster**: `npm run start:microservices` (`src/standalone-microservices.main.ts`)
-  - **Database**: PostgreSQL with Prisma ORM (multi-file schema in `prisma/schema/`)
+  - **Execution Scripts**:
+    - Gateway: `npm run start:gateway:dev`
+    - Individual Services: `npm run start:doctor:dev`, `npm run start:patient:dev`, `npm run start:appointment:dev`, etc.
+    - Hybrid Monolith: `npm run start:dev`
+    - Standalone Cluster: `npm run start:microservices`
 - [x] **Receptionist / Front-Desk Portal Backend Roadmap:** Complete implementation details in [`RECEPTIONIST_BACKEND_STEPS.md`](file:///Volumes/2BT/Ridoy/MedCare%20Backend/RECEPTIONIST_BACKEND_STEPS.md).
 - [x] **Support Staff Portal Backend Roadmap:** Complete architecture and implementation steps in [`SUPPORT_STAFF_BACKEND_STEPS.md`](file:///Volumes/2BT/Ridoy/MedCare%20Backend/SUPPORT_STAFF_BACKEND_STEPS.md).
 - [x] **Doctor Portal Backend Roadmap:** Complete architecture and implementation steps in [`DOCTOR_BACKEND_STEPS.md`](file:///Volumes/2BT/Ridoy/MedCare%20Backend/DOCTOR_BACKEND_STEPS.md).
