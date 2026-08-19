@@ -15,7 +15,7 @@ import {
   ApiBearerAuth,
   ApiParam,
 } from '@nestjs/swagger';
-import { PatientService } from '../microservices/patient/patient.service';
+import { PatientService } from '../../../patient-service/src/patient/patient.service';
 import {
   PatientFilterDto,
   UpdatePatientStatusDto,

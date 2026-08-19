@@ -5,7 +5,7 @@ import {
   ApiResponse,
   ApiBearerAuth,
 } from '@nestjs/swagger';
-import { AnalyticsService } from '../microservices/analytics/analytics.service';
+import { AnalyticsService } from '../../../analytics-service/src/analytics/analytics.service';
 import { JwtAuthGuard } from '../../../../src/common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../../../src/common/guards/roles.guard';
 import { Roles } from '../../../../libs/auth/src';

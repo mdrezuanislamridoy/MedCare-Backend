@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { DoctorGatewayController } from './doctor.gateway.controller';
-import { DoctorService } from '../microservices/doctor/doctor.service';
+import { DoctorService } from '../../../doctor-service/src/doctor/doctor.service';
 import { LiveQueueEventService } from '../../../../src/common/events/live-queue-event.service';
 import { UserRole } from '@medcare/contracts';
 

@@ -1,9 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ReceptionistGatewayController } from './receptionist.gateway.controller';
-import { AppointmentService } from '../microservices/appointment/appointment.service';
-import { DoctorService } from '../microservices/doctor/doctor.service';
-import { PatientService } from '../microservices/patient/patient.service';
-import { AuditService } from '../microservices/audit/audit.service';
+import { AppointmentService } from '../../../appointment-service/src/appointment/appointment.service';
+import { DoctorService } from '../../../doctor-service/src/doctor/doctor.service';
+import { PatientService } from '../../../patient-service/src/patient/patient.service';
+import { AuditService } from '../../../audit-service/src/audit/audit.service';
 import { LiveQueueEventService } from '../../../../src/common/events/live-queue-event.service';
 import { QueueStatus, UserRole } from '@medcare/contracts';
 

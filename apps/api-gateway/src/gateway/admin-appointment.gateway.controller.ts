@@ -16,7 +16,7 @@ import {
   ApiBearerAuth,
   ApiParam,
 } from '@nestjs/swagger';
-import { AppointmentService } from '../microservices/appointment/appointment.service';
+import { AppointmentService } from '../../../appointment-service/src/appointment/appointment.service';
 import {
   AppointmentFilterDto,
   RescheduleAppointmentDto,

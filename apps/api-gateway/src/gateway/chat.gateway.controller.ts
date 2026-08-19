@@ -19,7 +19,7 @@ import {
   ApiParam,
 } from '@nestjs/swagger';
 import { Observable, interval, map, merge } from 'rxjs';
-import { ChatService } from '../microservices/chat/chat.service';
+import { ChatService } from '../../../chat-service/src/chat/chat.service';
 import { JwtAuthGuard } from '../../../../src/common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../../../src/common/guards/roles.guard';
 import { Roles } from '../../../../libs/auth/src';

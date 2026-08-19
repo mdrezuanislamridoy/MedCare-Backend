@@ -17,7 +17,7 @@ import {
   ApiBearerAuth,
   ApiParam,
 } from '@nestjs/swagger';
-import { ClinicService } from '../microservices/clinic/clinic.service';
+import { ClinicService } from '../../../clinic-service/src/clinic/clinic.service';
 import {
   ClinicFilterDto,
   CreateClinicDto,

@@ -19,7 +19,7 @@ import {
   ApiParam,
 } from '@nestjs/swagger';
 import { Observable, interval, map, merge } from 'rxjs';
-import { SupportService } from '../microservices/support/support.service';
+import { SupportService } from './services/support.service';
 import { LiveSupportEventService } from '../../../../src/common/events/live-support-event.service';
 import { JwtAuthGuard } from '../../../../src/common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../../../src/common/guards/roles.guard';
@@ -40,7 +40,7 @@ import {
   ResendNotificationDto,
   AssistRescheduleAppointmentDto,
   SupportActivityFilterDto,
-} from '../microservices/support/dto/support.dto';
+} from './dto/support.dto';
 
 @ApiTags('Support Staff Portal')
 @ApiBearerAuth('JWT-auth')

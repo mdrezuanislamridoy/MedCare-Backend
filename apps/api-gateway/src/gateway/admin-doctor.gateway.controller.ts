@@ -17,7 +17,7 @@ import {
   ApiParam,
   ApiQuery,
 } from '@nestjs/swagger';
-import { DoctorService } from '../microservices/doctor/doctor.service';
+import { DoctorService } from '../../../doctor-service/src/doctor/doctor.service';
 import {
   DoctorFilterDto,
   VerificationDecisionDto,

@@ -13,7 +13,7 @@ import {
   ApiResponse,
   ApiBearerAuth,
 } from '@nestjs/swagger';
-import { NotificationService } from '../microservices/notification/notification.service';
+import { NotificationService } from '../../../notification-service/src/notification/notification.service';
 import {
   BroadcastNotificationDto,
   NotificationFilterDto,

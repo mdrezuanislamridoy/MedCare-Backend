@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ClinicManagerGatewayController } from './clinic-manager.gateway.controller';
-import { ClinicService } from '../microservices/clinic/clinic.service';
+import { ClinicService } from '../../../clinic-service/src/clinic/clinic.service';
 import { UserRole, StaffRole, RoomType } from '@medcare/contracts';
 
 describe('ClinicManagerGatewayController', () => {

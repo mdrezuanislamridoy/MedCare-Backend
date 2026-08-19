@@ -1,11 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { PatientGatewayController } from './patient.gateway.controller';
-import { PatientService } from '../microservices/patient/patient.service';
-import { AppointmentService } from '../microservices/appointment/appointment.service';
-import { DoctorService } from '../microservices/doctor/doctor.service';
-import { FinanceService } from '../microservices/finance/finance.service';
-import { ReviewService } from '../microservices/review/review.service';
-import { NotificationService } from '../microservices/notification/notification.service';
+import { PatientService } from '../../../patient-service/src/patient/patient.service';
+import { AppointmentService } from '../../../appointment-service/src/appointment/appointment.service';
+import { DoctorService } from '../../../doctor-service/src/doctor/doctor.service';
+import { FinanceService } from '../../../billing-service/src/billing/finance.service';
+import { ReviewService } from './services/review.service';
+import { NotificationService } from '../../../notification-service/src/notification/notification.service';
 import { UserRole } from '@medcare/contracts';
 
 describe('PatientGatewayController', () => {

@@ -21,7 +21,7 @@ import {
   ApiQuery,
 } from '@nestjs/swagger';
 import { Observable, interval, map, merge } from 'rxjs';
-import { ClinicService } from '../microservices/clinic/clinic.service';
+import { ClinicService } from '../../../clinic-service/src/clinic/clinic.service';
 import { JwtAuthGuard } from '../../../../src/common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../../../src/common/guards/roles.guard';
 import { Roles } from '../../../../libs/auth/src';

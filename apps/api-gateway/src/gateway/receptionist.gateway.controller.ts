@@ -24,7 +24,7 @@ import { JwtAuthGuard } from '../../../../src/common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../../../src/common/guards/roles.guard';
 import { Roles } from '../../../../libs/auth/src';
 import { Public } from '../../../../libs/auth/src';
-import { UserRole, QueueStatus } from '@medcare/contracts';
+import { UserRole, QueueStatus, AppointmentStatus } from '@medcare/contracts';
 import type { AuthenticatedRequest } from '../../../../src/common/types/authenticated-request.type';
 
 import { AppointmentService } from '../../../appointment-service/src/appointment/appointment.service';
@@ -117,7 +117,7 @@ export class ReceptionistGatewayController {
   ) {
     return this.appointmentService.transitionStatus(
       id,
-      { status: 'CANCELLED', cancellationReason: reason },
+      { status: AppointmentStatus.CANCELLED, cancellationReason: reason },
       req.user?.id,
     );
   }
@@ -306,16 +306,16 @@ export class ReceptionistGatewayController {
     return {
       activeCount: activeQueue.length,
       currentlyCalled: currentlyCalled.map((q) => ({
-        queueNumber: q.queueNumber,
-        patientName: q.patient.user.name,
-        doctorName: q.doctor.user.name,
+        queueNumber: q.tokenNumber || q.queueNumber,
+        patientName: q.patientName || 'Patient',
+        doctorName: q.doctorName || 'Doctor',
         roomNumber: q.roomNumber || 'Room 101',
         status: q.status,
       })),
       waitingList: waitingList.map((q) => ({
-        queueNumber: q.queueNumber,
-        patientName: q.patient.user.name,
-        doctorName: q.doctor.user.name,
+        queueNumber: q.tokenNumber || q.queueNumber,
+        patientName: q.patientName || 'Patient',
+        doctorName: q.doctorName || 'Doctor',
         roomNumber: q.roomNumber || 'Room 101',
       })),
     };

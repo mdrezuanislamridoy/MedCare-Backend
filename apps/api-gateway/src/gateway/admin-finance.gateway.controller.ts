@@ -15,7 +15,7 @@ import {
   ApiBearerAuth,
   ApiParam,
 } from '@nestjs/swagger';
-import { FinanceService } from '../microservices/finance/finance.service';
+import { FinanceService } from '../../../billing-service/src/billing/finance.service';
 import {
   ProcessRefundDto,
   TransactionFilterDto,

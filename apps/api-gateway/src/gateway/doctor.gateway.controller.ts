@@ -20,7 +20,7 @@ import {
   ApiParam,
 } from '@nestjs/swagger';
 import { Observable, interval, map, merge } from 'rxjs';
-import { DoctorService } from '../microservices/doctor/doctor.service';
+import { DoctorService } from '../../../doctor-service/src/doctor/doctor.service';
 import { LiveQueueEventService } from '../../../../src/common/events/live-queue-event.service';
 import { JwtAuthGuard } from '../../../../src/common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../../../src/common/guards/roles.guard';

@@ -13,7 +13,7 @@ import {
   ApiParam,
   ApiBody,
 } from '@nestjs/swagger';
-import { FinanceService } from '../microservices/finance/finance.service';
+import { FinanceService } from '../../../billing-service/src/billing/finance.service';
 
 @ApiTags('Public Payments & Webhooks')
 @Controller('payments')

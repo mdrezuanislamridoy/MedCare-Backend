@@ -16,11 +16,11 @@ import {
   ApiBearerAuth,
 } from '@nestjs/swagger';
 import { Observable, interval, map, merge } from 'rxjs';
-import { SystemService } from '../microservices/system/system.service';
+import { SystemService } from './services/system.service';
 import {
   TriggerBackupDto,
   UpdatePlatformSettingsDto,
-} from '../microservices/system/dto/system.dto';
+} from './dto/system.dto';
 import { JwtAuthGuard } from '../../../../src/common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../../../src/common/guards/roles.guard';
 import { Roles } from '../../../../libs/auth/src';

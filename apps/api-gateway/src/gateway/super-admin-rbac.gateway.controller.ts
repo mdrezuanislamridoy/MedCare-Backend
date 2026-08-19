@@ -17,7 +17,7 @@ import {
   ApiBearerAuth,
   ApiParam,
 } from '@nestjs/swagger';
-import { RbacService } from '../microservices/rbac/rbac.service';
+import { RbacService } from './services/rbac.service';
 import {
   AccessRequestFilterDto,
   CreateRoleDto,
@@ -26,7 +26,7 @@ import {
   AdministratorFilterDto,
   CreateAdministratorDto,
   UpdateAdministratorStatusDto,
-} from '../microservices/rbac/dto/rbac.dto';
+} from './dto/rbac.dto';
 import { JwtAuthGuard } from '../../../../src/common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../../../src/common/guards/roles.guard';
 import { Roles } from '../../../../libs/auth/src';

@@ -34,14 +34,14 @@ import {
   medicalRecordStorage,
   medicalRecordFileFilter,
   MAX_FILE_SIZE_BYTES,
-} from '../common/utils/file-upload.util';
+} from '../../../../src/common/utils/file-upload.util';
 
-import { PatientService } from '../microservices/patient/patient.service';
-import { AppointmentService } from '../microservices/appointment/appointment.service';
-import { DoctorService } from '../microservices/doctor/doctor.service';
-import { FinanceService } from '../microservices/finance/finance.service';
-import { ReviewService } from '../microservices/review/review.service';
-import { NotificationService } from '../microservices/notification/notification.service';
+import { PatientService } from '../../../patient-service/src/patient/patient.service';
+import { AppointmentService } from '../../../appointment-service/src/appointment/appointment.service';
+import { DoctorService } from '../../../doctor-service/src/doctor/doctor.service';
+import { FinanceService } from '../../../billing-service/src/billing/finance.service';
+import { ReviewService } from './services/review.service';
+import { NotificationService } from '../../../notification-service/src/notification/notification.service';
 
 import {
   UpdatePatientProfileDto,
@@ -54,7 +54,7 @@ import {
 } from '../../../appointment-service/src/appointment/dto/appointment.dto';
 import { PatientDoctorSearchDto } from '../../../doctor-service/src/doctor/dto/doctor.dto';
 import { PatientPaymentDto } from '../../../billing-service/src/billing/dto/finance.dto';
-import { SubmitReviewDto } from '../microservices/review/dto/review.dto';
+import { SubmitReviewDto } from './dto/review.dto';
 
 @ApiTags('Patient Portal')
 @ApiBearerAuth('JWT-auth')

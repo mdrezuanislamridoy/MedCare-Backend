@@ -15,11 +15,11 @@ import {
   ApiBearerAuth,
   ApiParam,
 } from '@nestjs/swagger';
-import { ReviewService } from '../microservices/review/review.service';
+import { ReviewService } from './services/review.service';
 import {
   ModerateReviewDto,
   ReviewFilterDto,
-} from '../microservices/review/dto/review.dto';
+} from './dto/review.dto';
 import { JwtAuthGuard } from '../../../../src/common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../../../src/common/guards/roles.guard';
 import { Roles } from '../../../../libs/auth/src';
