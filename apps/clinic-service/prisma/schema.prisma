@@ -4,7 +4,7 @@ datasource db {
 
 generator client {
   provider = "prisma-client"
-  output   = "./generated/client"
+  output   = "../src/generated/prisma"
 }
 
 enum AccountStatus {
@@ -51,7 +51,7 @@ model ClinicRoom {
   clinicId    String
   clinic      Clinic     @relation(fields: [clinicId], references: [id], onDelete: Cascade)
   roomNumber  String
-  type        String     @default("CONSULTATION") // CONSULTATION, SURGERY, ICU, LAB
+  type        String     @default("CONSULTATION")
   status      RoomStatus @default(AVAILABLE)
   capacity    Int        @default(1)
   assignedDoctorId String?

@@ -5,6 +5,7 @@ import { KafkaModule } from '../../../libs/kafka/src';
 import { LoggerModule } from '../../../libs/logger/src';
 import { AppointmentModule } from '../../../src/microservices/appointment/appointment.module';
 import { AuditModule } from '../../../src/microservices/audit/audit.module';
+import { PrismaModule } from './prisma/prisma.module';
 import { AppointmentEventPublisher } from './events/appointment.publisher';
 import { AppointmentEventConsumer } from './events/appointment.consumer';
 import { validateEnv } from '../../../src/common/config/env.validation';
@@ -15,6 +16,7 @@ import { validateEnv } from '../../../src/common/config/env.validation';
     CommonModule,
     KafkaModule,
     LoggerModule,
+    PrismaModule,
     AppointmentModule,
     AuditModule,
   ],

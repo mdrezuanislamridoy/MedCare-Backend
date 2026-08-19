@@ -1,0 +1,70 @@
+datasource db {
+  provider = "postgresql"
+}
+
+generator client {
+  provider = "prisma-client"
+  output   = "./generated/client"
+}
+
+enum ConversationStatus {
+  ACTIVE
+  ARCHIVED
+  RESOLVED
+}
+
+enum ConversationType {
+  DIRECT
+  CONSULTATION
+  SUPPORT
+}
+
+enum MessageType {
+  TEXT
+  IMAGE
+  FILE
+  AUDIO
+  SYSTEM
+}
+
+model Conversation {
+  id            String             @id @default(uuid())
+  title         String?
+  type          ConversationType   @default(DIRECT)
+  status        ConversationStatus @default(ACTIVE)
+  appointmentId String?
+  lastMessage   String?
+  lastMessageAt DateTime?
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+
+  participants  ChatParticipant[]
+  messages      ChatMessage[]
+}
+
+model ChatParticipant {
+  id             String       @id @default(uuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  userId         String
+  unreadCount    Int          @default(0)
+  lastReadAt     DateTime?
+  joinedAt       DateTime     @default(now())
+
+  @@unique([conversationId, userId])
+}
+
+model ChatMessage {
+  id             String       @id @default(uuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  senderId       String
+  senderRole     String?
+  message        String
+  type           MessageType  @default(TEXT)
+  isInternalNote Boolean      @default(false)
+  attachments    Json?        // Array of { url, name, size, mimeType }
+  createdAt      DateTime     @default(now())
+
+  @@index([conversationId, createdAt])
+}

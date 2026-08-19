@@ -5,6 +5,7 @@ import { KafkaModule } from '../../../libs/kafka/src';
 import { LoggerModule } from '../../../libs/logger/src';
 import { PatientModule } from '../../../src/microservices/patient/patient.module';
 import { AuditModule } from '../../../src/microservices/audit/audit.module';
+import { PrismaModule } from './prisma/prisma.module';
 import { validateEnv } from '../../../src/common/config/env.validation';
 
 @Module({
@@ -13,6 +14,7 @@ import { validateEnv } from '../../../src/common/config/env.validation';
     CommonModule,
     KafkaModule,
     LoggerModule,
+    PrismaModule,
     PatientModule,
     AuditModule,
   ],

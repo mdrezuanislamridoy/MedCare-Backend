@@ -5,6 +5,7 @@ import { KafkaModule } from '../../../libs/kafka/src';
 import { LoggerModule } from '../../../libs/logger/src';
 import { DoctorModule } from '../../../src/microservices/doctor/doctor.module';
 import { AuditModule } from '../../../src/microservices/audit/audit.module';
+import { PrismaModule } from './prisma/prisma.module';
 import { DoctorEventPublisher } from './events/doctor.publisher';
 import { DoctorEventConsumer } from './events/doctor.consumer';
 import { validateEnv } from '../../../src/common/config/env.validation';
@@ -15,6 +16,7 @@ import { validateEnv } from '../../../src/common/config/env.validation';
     CommonModule,
     KafkaModule,
     LoggerModule,
+    PrismaModule,
     DoctorModule,
     AuditModule,
   ],

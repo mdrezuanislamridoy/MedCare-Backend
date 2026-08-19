@@ -31,7 +31,9 @@
     - `infrastructure/docker/init-db/01-init-databases.sh` (PostgreSQL multi-database initializer)
     - `docker-compose.yml` (Complete multi-container orchestration for Caddy, Gateway, 13 microservices, Redis/Kafka, and PostgreSQL)
   - **Database-per-Service & Multi-Database Engine**:
-    - Dedicated databases: `medcare_core`, `medcare_doctor`, `medcare_patient`, `medcare_appointment`, `medcare_clinic`, `medcare_finance`, `medcare_audit`, `medcare_chat`, `medcare_notification`, `medcare_support`, `medcare_analytics`, `medcare_review`, `medcare_system`
+    - **Dedicated `prisma/schema.prisma` in each microservice (`apps/<service>/prisma/schema.prisma`)**
+    - Dedicated database instances: `medcare_core`, `medcare_doctor`, `medcare_patient`, `medcare_appointment`, `medcare_clinic`, `medcare_finance`, `medcare_audit`, `medcare_chat`, `medcare_notification`, `medcare_support`, `medcare_analytics`, `medcare_review`, `medcare_system`
+    - Automated provisioning via `infrastructure/docker/init-db/01-init-databases.sh`
   - **Transport Layer**: Dual Mode (`Transport.TCP` for low-latency in-cluster RPC & `Transport.REDIS` / `Transport.KAFKA` for distributed pub/sub)
   - **Asynchronous Domain Events (`@EventPattern`)**: `APPOINTMENT.BOOKED`, `PAYMENT.SUCCESS`, `QUEUE.STATE_CHANGED`, `NOTIFICATION.DISPATCH`, `AUDIT.RECORD`
   - **Execution Scripts**:
