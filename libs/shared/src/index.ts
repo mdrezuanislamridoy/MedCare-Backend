@@ -5,6 +5,14 @@
 
 // Guards
 export * from './guards/throttle.guard';
+export * from './guards/jwt-auth.guard';
+export * from './guards/roles.guard';
+
+// Decorators
+export * from './decorators';
+
+// Types
+export * from './types';
 
 // Interceptors
 export * from './interceptors/correlation-id.interceptor';
