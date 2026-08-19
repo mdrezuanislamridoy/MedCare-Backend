@@ -15,7 +15,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { MICROSERVICES, PATTERNS } from '@medcare/contracts';
-import { JwtAuthGuard, Public } from '@medcare/shared';
+import { JwtAuthGuard, Public, CurrentUser } from '@medcare/shared';
 
 @ApiTags('Authentication & Identity')
 @Controller('auth')
@@ -41,11 +41,44 @@ export class AuthGatewayController {
   }
 
   @Public()
+  @ApiOperation({ summary: 'Google OAuth 2.0 Single Sign-On (SSO)' })
+  @ApiResponse({ status: 200, description: 'Google token verified, user logged in or registered' })
+  @Post('google')
+  async googleAuth(@Body() body: { idToken: string }) {
+    return this.authClient.send(PATTERNS.AUTH.GOOGLE_AUTH, body);
+  }
+
+  @Public()
+  @ApiOperation({ summary: 'Request password reset verification code' })
+  @ApiResponse({ status: 200, description: 'Reset code issued' })
+  @Post('forgot-password')
+  async forgotPassword(@Body() body: { email: string }) {
+    return this.authClient.send(PATTERNS.AUTH.FORGOT_PASSWORD, body);
+  }
+
+  @Public()
+  @ApiOperation({ summary: 'Reset password with verification code' })
+  @ApiResponse({ status: 200, description: 'Password reset successfully' })
+  @Post('reset-password')
+  async resetPassword(@Body() body: any) {
+    return this.authClient.send(PATTERNS.AUTH.RESET_PASSWORD, body);
+  }
+
+  @Public()
   @ApiOperation({ summary: 'Refresh expired JWT access token' })
   @ApiResponse({ status: 200, description: 'New JWT access token returned' })
   @Post('refresh')
   async refreshToken(@Body() body: any) {
     return this.authClient.send(PATTERNS.AUTH.REFRESH_TOKEN, body);
+  }
+
+  @ApiBearerAuth('JWT-auth')
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Get current authenticated user profile' })
+  @ApiResponse({ status: 200, description: 'Authenticated user profile returned' })
+  @Get('me')
+  async getProfile(@CurrentUser() user: any) {
+    return this.authClient.send(PATTERNS.AUTH.GET_PROFILE, { userId: user.id });
   }
 
   @ApiBearerAuth('JWT-auth')

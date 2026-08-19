@@ -226,6 +226,7 @@ export class AuthService {
           data: {
             email,
             name: payload.name || 'Google User',
+            avatarUrl: payload.picture,
             isEmailVerified: Boolean(payload.email_verified),
           },
         }));
@@ -234,6 +235,7 @@ export class AuthService {
         where: { id: userRecord.id },
         data: {
           lastLoginAt: now,
+          avatarUrl: userRecord.avatarUrl || payload.picture,
           isEmailVerified:
             userRecord.isEmailVerified || Boolean(payload.email_verified),
         },

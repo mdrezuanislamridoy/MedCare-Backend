@@ -21,6 +21,11 @@ export const PATTERNS = {
     REGISTER: 'auth.register',
     VERIFY_TOKEN: 'auth.verify_token',
     REFRESH_TOKEN: 'auth.refresh_token',
+    GOOGLE_AUTH: 'auth.google',
+    FORGOT_PASSWORD: 'auth.forgot_password',
+    RESET_PASSWORD: 'auth.reset_password',
+    GET_PROFILE: 'auth.get_profile',
+    UPDATE_ROLE: 'auth.update_role',
   },
   ANALYTICS: {
     GET_OVERVIEW: 'admin.analytics.overview',
