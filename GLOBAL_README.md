@@ -3,9 +3,15 @@
 ## 📌 Project Architecture
 - **Frontend**: Next.js React Portal (`/Volumes/2BT/Ridoy/MedCare`)
   - Role-based modular portals (`patient`, `doctor`, `admin`, `super-admin`, `receptionist`, `clinic-manager`, `support-staff`)
-- **Backend**: NestJS Microservices + Gateway (`/Volumes/2BT/Ridoy/MedCare Backend`)
-  - Microservices: `patient`, `appointment`, `doctor`, `clinic`, `finance`, `review`, `notification`, `analytics`, `audit`, `rbac`, `system`
-  - Database: PostgreSQL with Prisma ORM (multi-file schema in `prisma/schema/`)
+- **Backend**: NestJS Microservices + API Gateway (`/Volumes/2BT/Ridoy/MedCare Backend`)
+  - **13 Domain Microservices**: `patient`, `appointment`, `doctor`, `clinic`, `finance`, `review`, `notification`, `audit`, `rbac`, `system`, `support`, `analytics`, `chat`
+  - **Transport Layer**: Dual Mode (`Transport.TCP` for low-latency in-cluster RPC & `Transport.REDIS` for distributed pub/sub)
+  - **Client Proxy Mesh**: Global `MicroservicesClientModule` providing typed client proxies (`ClientsModule`) across all 13 services
+  - **Asynchronous Domain Events (`@EventPattern`)**: `APPOINTMENT.BOOKED`, `PAYMENT.SUCCESS`, `QUEUE.STATE_CHANGED`, `NOTIFICATION.DISPATCH`, `AUDIT.RECORD`
+  - **Execution Modes**:
+    - **Hybrid Monolith/Dev**: `npm run start:dev` (runs HTTP REST API Gateway + boots all Microservice listeners concurrently)
+    - **Standalone Microservices Cluster**: `npm run start:microservices` (`src/standalone-microservices.main.ts`)
+  - **Database**: PostgreSQL with Prisma ORM (multi-file schema in `prisma/schema/`)
 - [x] **Receptionist / Front-Desk Portal Backend Roadmap:** Complete implementation details in [`RECEPTIONIST_BACKEND_STEPS.md`](file:///Volumes/2BT/Ridoy/MedCare%20Backend/RECEPTIONIST_BACKEND_STEPS.md).
 - [x] **Support Staff Portal Backend Roadmap:** Complete architecture and implementation steps in [`SUPPORT_STAFF_BACKEND_STEPS.md`](file:///Volumes/2BT/Ridoy/MedCare%20Backend/SUPPORT_STAFF_BACKEND_STEPS.md).
 - [x] **Doctor Portal Backend Roadmap:** Complete architecture and implementation steps in [`DOCTOR_BACKEND_STEPS.md`](file:///Volumes/2BT/Ridoy/MedCare%20Backend/DOCTOR_BACKEND_STEPS.md).

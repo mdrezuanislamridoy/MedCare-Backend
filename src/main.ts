@@ -4,6 +4,10 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { join } from 'path';
 import * as express from 'express';
+import {
+  getMicroserviceServerOptions,
+  getTransportConfig,
+} from './microservices/common/microservices.transport';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -24,6 +28,16 @@ async function bootstrap() {
 
   // Serve static uploaded files (medical records, avatars, etc.)
   app.use('/uploads', express.static(join(process.cwd(), 'uploads')));
+
+  // Connect Microservices Transport Listener (TCP or Redis)
+  const microserviceOptions = getMicroserviceServerOptions();
+  app.connectMicroservice(microserviceOptions);
+  await app.startAllMicroservices();
+
+  const transportConfig = getTransportConfig();
+  console.log(
+    `⚡ MedCare Microservices Layer activated [Transport: ${transportConfig.transportType}]`,
+  );
 
   // Swagger OpenAPI Configuration
   const swaggerConfig = new DocumentBuilder()

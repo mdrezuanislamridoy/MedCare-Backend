@@ -11,6 +11,7 @@ export const MICROSERVICES = {
   RBAC: 'RBAC_SERVICE',
   SYSTEM: 'SYSTEM_SERVICE',
   SUPPORT: 'SUPPORT_SERVICE',
+  CHAT: 'CHAT_SERVICE',
 } as const;
 
 export const PATTERNS = {
@@ -68,6 +69,25 @@ export const PATTERNS = {
     CREATE: 'admin.clinics.create',
     UPDATE: 'admin.clinics.update',
     UPDATE_STATUS: 'admin.clinics.status.update',
+    // Clinic Manager Patterns
+    MANAGER_GET_BRANCH: 'clinic_manager.branch.get',
+    MANAGER_UPDATE_BRANCH: 'clinic_manager.branch.update',
+    MANAGER_GET_STATS: 'clinic_manager.stats.get',
+    MANAGER_LIST_DOCTORS: 'clinic_manager.doctors.list',
+    MANAGER_ASSIGN_DOCTOR: 'clinic_manager.doctors.assign',
+    MANAGER_REMOVE_DOCTOR: 'clinic_manager.doctors.remove',
+    MANAGER_LIST_STAFF: 'clinic_manager.staff.list',
+    MANAGER_CREATE_STAFF: 'clinic_manager.staff.create',
+    MANAGER_UPDATE_STAFF: 'clinic_manager.staff.update',
+    MANAGER_DELETE_STAFF: 'clinic_manager.staff.delete',
+    MANAGER_LIST_ROOMS: 'clinic_manager.rooms.list',
+    MANAGER_CREATE_ROOM: 'clinic_manager.rooms.create',
+    MANAGER_UPDATE_ROOM: 'clinic_manager.rooms.update',
+    MANAGER_DELETE_ROOM: 'clinic_manager.rooms.delete',
+    MANAGER_LIST_APPOINTMENTS: 'clinic_manager.appointments.list',
+    MANAGER_LIST_QUEUE: 'clinic_manager.queue.list',
+    MANAGER_FINANCIALS: 'clinic_manager.financials.summary',
+    MANAGER_REPORTS: 'clinic_manager.reports.summary',
   },
   APPOINTMENT: {
     LIST: 'admin.appointments.list',
@@ -142,5 +162,41 @@ export const PATTERNS = {
     ASSIST_RESCHEDULE: 'support.appointments.reschedule',
     CLEAR_APPOINTMENT_FLAG: 'support.appointments.flag.clear',
     LIST_ACTIVITY_LOGS: 'support.activities.list',
+  },
+  CHAT: {
+    LIST_CONVERSATIONS: 'chat.conversations.list',
+    GET_CONVERSATION_MESSAGES: 'chat.messages.list',
+    SEND_MESSAGE: 'chat.messages.send',
+    MARK_AS_READ: 'chat.messages.mark_read',
+    GET_UNREAD_COUNT: 'chat.unread_count.get',
+    START_CONVERSATION: 'chat.conversations.start',
+  },
+} as const;
+
+export const EVENTS = {
+  APPOINTMENT: {
+    BOOKED: 'event.appointment.booked',
+    CANCELLED: 'event.appointment.cancelled',
+    RESCHEDULED: 'event.appointment.rescheduled',
+    CHECKED_IN: 'event.appointment.checked_in',
+    COMPLETED: 'event.appointment.completed',
+  },
+  DOCTOR: {
+    VERIFICATION_SUBMITTED: 'event.doctor.verification_submitted',
+    VERIFICATION_DECIDED: 'event.doctor.verification_decided',
+    PAYOUT_REQUESTED: 'event.doctor.payout_requested',
+  },
+  PAYMENT: {
+    SUCCESS: 'event.payment.success',
+    REFUNDED: 'event.payment.refunded',
+  },
+  NOTIFICATION: {
+    DISPATCH: 'event.notification.dispatch',
+  },
+  AUDIT: {
+    RECORD: 'event.audit.record',
+  },
+  QUEUE: {
+    STATE_CHANGED: 'event.queue.state_changed',
   },
 } as const;

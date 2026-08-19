@@ -1,6 +1,6 @@
 import { Controller } from '@nestjs/common';
 import { EventPattern, MessagePattern, Payload } from '@nestjs/microservices';
-import { PATTERNS } from '../common/microservices.constants';
+import { PATTERNS, EVENTS } from '../common/microservices.constants';
 import { AuditService } from './audit.service';
 import { AuditFilterDto, CreateAuditLogDto } from './dto/audit.dto';
 
@@ -14,6 +14,7 @@ export class AuditController {
   }
 
   @EventPattern(PATTERNS.AUDIT.LOG_EVENT)
+  @EventPattern(EVENTS.AUDIT.RECORD)
   async recordLog(@Payload() dto: CreateAuditLogDto) {
     return this.auditService.recordLog(dto);
   }
