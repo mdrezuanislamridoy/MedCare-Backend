@@ -16,11 +16,16 @@ const services = [
 
 console.log('🔄 Generating Prisma Clients for all microservices...\n');
 
+const env = {
+  ...process.env,
+  DATABASE_URL: process.env.DATABASE_URL || 'postgresql://medcare:medcare_secure_pass@localhost:5432/medcare_db?schema=public',
+};
+
 for (const service of services) {
   const schemaPath = `apps/${service}/prisma/schema.prisma`;
   if (fs.existsSync(schemaPath)) {
     console.log(`📦 Generating: ${service}...`);
-    execSync(`npx prisma generate --schema=${schemaPath}`, { stdio: 'inherit' });
+    execSync(`npx prisma generate --schema=${schemaPath}`, { stdio: 'inherit', env });
 
     const genDir = path.resolve(__dirname, `../apps/${service}/src/generated/prisma`);
     if (fs.existsSync(genDir)) {

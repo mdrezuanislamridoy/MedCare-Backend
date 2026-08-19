@@ -6,11 +6,10 @@ FROM node:22-alpine AS builder
 
 WORKDIR /app
 
-COPY package.json package-lock.json* pnpm-lock.yaml* ./
+COPY package.json package-lock.json* ./
 COPY prisma.config.ts ./
 
-RUN if [ -f pnpm-lock.yaml ]; then corepack enable && pnpm install; \
-    else npm install; fi
+RUN npm install
 
 COPY . .
 
