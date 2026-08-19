@@ -1,4 +1,4 @@
-name: MedCare Microservices CI
+name: Distributed Microservices CI
 
 on:
   push:
@@ -13,56 +13,31 @@ on:
       - develop
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
+
+env:
+  NODE_ENV: test
+  DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/medcare_test?schema=public"
+  DATABASE_URL_AUTH: "postgresql://postgres:postgres@localhost:5432/auth_test?schema=public"
+  DATABASE_URL_DOCTOR: "postgresql://postgres:postgres@localhost:5432/doctor_test?schema=public"
+  DATABASE_URL_PATIENT: "postgresql://postgres:postgres@localhost:5432/patient_test?schema=public"
+  DATABASE_URL_APPOINTMENT: "postgresql://postgres:postgres@localhost:5432/appointment_test?schema=public"
+  DATABASE_URL_CLINIC: "postgresql://postgres:postgres@localhost:5432/clinic_test?schema=public"
+  DATABASE_URL_BILLING: "postgresql://postgres:postgres@localhost:5432/billing_test?schema=public"
+  DATABASE_URL_NOTIFICATION: "postgresql://postgres:postgres@localhost:5432/notification_test?schema=public"
+  DATABASE_URL_AUDIT: "postgresql://postgres:postgres@localhost:5432/audit_test?schema=public"
+  DATABASE_URL_CHAT: "postgresql://postgres:postgres@localhost:5432/chat_test?schema=public"
+  REDIS_URL: "redis://localhost:6379"
+  JWT_SECRET: "ci_pipeline_super_secret_jwt_key_2026"
 
 jobs:
   # =============================================================
-  # Job 1: Lint, Test & Monorepo Build
+  # Job 1: Global Code Quality & Linting
   # =============================================================
-  lint-test-and-build:
-    name: Code Quality, Unit Tests & Build
+  lint-and-quality:
+    name: 🔍 ESLint & Code Quality
     runs-on: ubuntu-latest
-
-    services:
-      postgres:
-        image: postgres:16-alpine
-        env:
-          POSTGRES_USER: medcare
-          POSTGRES_PASSWORD: medcare_secure_pass
-          POSTGRES_DB: medcare_db
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-
-      redis:
-        image: redis:7-alpine
-        ports:
-          - 6379:6379
-        options: >-
-          --health-cmd "redis-cli ping"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-
-    env:
-      NODE_ENV: test
-      DATABASE_URL: "postgresql://medcare:medcare_secure_pass@localhost:5432/medcare_db?schema=public"
-      DATABASE_URL_AUTH: "postgresql://medcare:medcare_secure_pass@localhost:5432/auth_db?schema=public"
-      DATABASE_URL_DOCTOR: "postgresql://medcare:medcare_secure_pass@localhost:5432/doctor_db?schema=public"
-      DATABASE_URL_PATIENT: "postgresql://medcare:medcare_secure_pass@localhost:5432/patient_db?schema=public"
-      DATABASE_URL_APPOINTMENT: "postgresql://medcare:medcare_secure_pass@localhost:5432/appointment_db?schema=public"
-      DATABASE_URL_CLINIC: "postgresql://medcare:medcare_secure_pass@localhost:5432/clinic_db?schema=public"
-      DATABASE_URL_BILLING: "postgresql://medcare:medcare_secure_pass@localhost:5432/billing_db?schema=public"
-      DATABASE_URL_NOTIFICATION: "postgresql://medcare:medcare_secure_pass@localhost:5432/notification_db?schema=public"
-      DATABASE_URL_AUDIT: "postgresql://medcare:medcare_secure_pass@localhost:5432/audit_db?schema=public"
-      DATABASE_URL_CHAT: "postgresql://medcare:medcare_secure_pass@localhost:5432/chat_db?schema=public"
-      REDIS_URL: "redis://localhost:6379"
-      JWT_SECRET: "ci_pipeline_super_secret_jwt_key_2026"
 
     steps:
       - name: 📥 Checkout Repository
@@ -83,40 +58,78 @@ jobs:
       - name: 🔍 Run ESLint
         run: npm run lint
 
-      - name: 🧪 Run Unit Tests
-        run: npm run test -- --passWithNoTests
-
-      - name: 🏗️ Build All Microservices
-        run: npm run build
-
   # =============================================================
-  # Job 2: Docker Image Build Validation
+  # Job 2: Distributed Per-Service Test & Build Matrix
   # =============================================================
-  docker-build-check:
-    name: Dockerfile Verification
+  microservices-ci:
+    name: ⚡ CI • ${{ matrix.service.name }}
     runs-on: ubuntu-latest
-    needs: lint-test-and-build
+    strategy:
+      fail-fast: false
+      matrix:
+        service:
+          - name: "API Gateway"
+            project: "api-gateway"
+            path: "apps/api-gateway"
+
+          - name: "Auth Service"
+            project: "auth-service"
+            path: "apps/auth-service"
+
+          - name: "Doctor Service"
+            project: "doctor-service"
+            path: "apps/doctor-service"
+
+          - name: "Patient Service"
+            project: "patient-service"
+            path: "apps/patient-service"
+
+          - name: "Appointment Service"
+            project: "appointment-service"
+            path: "apps/appointment-service"
+
+          - name: "Clinic Service"
+            project: "clinic-service"
+            path: "apps/clinic-service"
+
+          - name: "Billing Service"
+            project: "billing-service"
+            path: "apps/billing-service"
+
+          - name: "Notification Service"
+            project: "notification-service"
+            path: "apps/notification-service"
+
+          - name: "Audit Service"
+            project: "audit-service"
+            path: "apps/audit-service"
+
+          - name: "Chat Service"
+            project: "chat-service"
+            path: "apps/chat-service"
+
+          - name: "Analytics Service"
+            project: "analytics-service"
+            path: "apps/analytics-service"
 
     steps:
       - name: 📥 Checkout Repository
         uses: actions/checkout@v4
 
-      - name: 🐳 Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: 🛠️ Build API Gateway Image
-        uses: docker/build-push-action@v5
+      - name: ⚙️ Set up Node.js v22
+        uses: actions/setup-node@v4
         with:
-          context: .
-          file: ./infrastructure/docker/Dockerfile.gateway
-          push: false
-          tags: medcare-api-gateway:ci-test
+          node-version: 22
+          cache: 'npm'
 
-      - name: 🛠️ Build Doctor Service Image
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          file: ./infrastructure/docker/Dockerfile.microservice
-          build-args: APP_NAME=doctor-service
-          push: false
-          tags: medcare-doctor-service:ci-test
+      - name: 📦 Install Dependencies
+        run: npm install
+
+      - name: 🔄 Generate Prisma 7 Clients
+        run: npm run prisma:generate:all
+
+      - name: 🧪 Run Unit Tests for ${{ matrix.service.name }}
+        run: npx jest --passWithNoTests ${{ matrix.service.path }}
+
+      - name: 🏗️ Build ${{ matrix.service.name }}
+        run: npx nest build ${{ matrix.service.project }}
