@@ -54,7 +54,7 @@ export class DoctorService {
     });
 
     const totalEarnings = payouts
-      .filter((p) => p.status === PayoutStatus.PROCESSED || p.status === PayoutStatus.PAID)
+      .filter((p) => (p.status as any) === PayoutStatus.PROCESSED || (p.status as any) === PayoutStatus.PAID)
       .reduce((acc, curr) => acc + curr.amount, 0);
 
     return {
@@ -285,7 +285,7 @@ export class DoctorService {
     });
 
     const totalEarned = payouts
-      .filter((p) => p.status === PayoutStatus.PROCESSED || p.status === PayoutStatus.PAID)
+      .filter((p) => (p.status as any) === PayoutStatus.PROCESSED || (p.status as any) === PayoutStatus.PAID)
       .reduce((acc, curr) => acc + curr.amount, 0);
 
     return {
@@ -477,7 +477,7 @@ export class DoctorService {
     }
 
     const verificationStatus =
-      dto.decision === 'APPROVED' || dto.decision === 'VERIFIED'
+      (dto.decision as string) === 'APPROVED' || (dto.decision as string) === 'VERIFIED'
         ? VerificationStatus.VERIFIED
         : VerificationStatus.REJECTED;
 

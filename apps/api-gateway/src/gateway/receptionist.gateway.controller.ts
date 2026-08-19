@@ -27,10 +27,10 @@ import { Public } from '../../../../libs/auth/src';
 import { UserRole, QueueStatus } from '@medcare/contracts';
 import type { AuthenticatedRequest } from '../../../../src/common/types/authenticated-request.type';
 
-import { AppointmentService } from '../microservices/appointment/appointment.service';
-import { DoctorService } from '../microservices/doctor/doctor.service';
-import { PatientService } from '../microservices/patient/patient.service';
-import { AuditService } from '../microservices/audit/audit.service';
+import { AppointmentService } from '../../../appointment-service/src/appointment/appointment.service';
+import { DoctorService } from '../../../doctor-service/src/doctor/doctor.service';
+import { PatientService } from '../../../patient-service/src/patient/patient.service';
+import { AuditService } from '../../../audit-service/src/audit/audit.service';
 import { LiveQueueEventService } from '../../../../src/common/events/live-queue-event.service';
 
 import {

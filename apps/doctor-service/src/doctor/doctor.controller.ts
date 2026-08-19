@@ -111,7 +111,7 @@ export class DoctorController {
   async doctorGetWorkspace(
     @Payload() payload: { userId: string; appointmentId: string },
   ) {
-    return this.doctorService.doctorGetConsultationWorkspace(
+    return this.doctorService.doctorGetWorkspace(
       payload.userId,
       payload.appointmentId,
     );

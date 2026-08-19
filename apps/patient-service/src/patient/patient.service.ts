@@ -149,7 +149,7 @@ export class PatientService {
   async updateProfile(userId: string, data: UpdatePatientProfileDto) {
     const profile = await this.ensurePatientProfile(userId);
 
-    const { name, dateOfBirth, ...patientFields } = data;
+    const { name, dateOfBirth, allergies, chronicConditions, emergencyContact, ...patientFields } = data;
 
     const updated = await this.prisma.patientProfile.update({
       where: { id: profile.id },
@@ -157,7 +157,9 @@ export class PatientService {
         ...(name && { name }),
         ...patientFields,
         dateOfBirth: dateOfBirth ? new Date(dateOfBirth) : undefined,
-        emergencyPhone: patientFields.emergencyPhone || patientFields.emergencyContact,
+        emergencyPhone: patientFields.emergencyPhone || emergencyContact,
+        allergies: allergies ? (Array.isArray(allergies) ? allergies : [allergies]) : undefined,
+        chronicConditions: chronicConditions ? (Array.isArray(chronicConditions) ? chronicConditions : [chronicConditions]) : undefined,
       },
     });
 
@@ -187,7 +189,7 @@ export class PatientService {
         fileUrl: data.fileUrl,
         fileType: data.fileType,
         fileSize: data.fileSize,
-        description: data.notes || data.description,
+        description: data.notes,
       },
     });
   }

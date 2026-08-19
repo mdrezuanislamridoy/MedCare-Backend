@@ -11,10 +11,9 @@ import {
   ApiQuery,
   ApiParam,
 } from '@nestjs/swagger';
-import { DoctorService } from '../microservices/doctor/doctor.service';
-import { ClinicService } from '../microservices/clinic/clinic.service';
-import { AnalyticsService } from '../microservices/analytics/analytics.service';
-import { ReviewService } from '../microservices/review/review.service';
+import { DoctorService } from '../../../doctor-service/src/doctor/doctor.service';
+import { ClinicService } from '../../../clinic-service/src/clinic/clinic.service';
+import { AnalyticsService } from '../../../analytics-service/src/analytics/analytics.service';
 import { PatientDoctorSearchDto } from '../../../doctor-service/src/doctor/dto/doctor.dto';
 import { ClinicFilterDto } from '../../../clinic-service/src/clinic/dto/clinic.dto';
 
@@ -25,7 +24,6 @@ export class PublicGatewayController {
     private readonly doctorService: DoctorService,
     private readonly clinicService: ClinicService,
     private readonly analyticsService: AnalyticsService,
-    private readonly reviewService: ReviewService,
   ) {}
 
   @ApiOperation({ summary: 'Get aggregated data for public landing page' })
