@@ -19,9 +19,21 @@ import {
   ApiQuery,
   ApiResponse,
   ApiTags,
+  ApiBody,
 } from '@nestjs/swagger';
 import { MICROSERVICES, PATTERNS, UserRole } from '@medcare/contracts';
 import { JwtAuthGuard, RolesGuard, Roles, Public } from '@medcare/shared';
+import {
+  CreateDoctorPrescriptionDto,
+  DoctorFilterDto,
+  DoctorPayoutRequestDto,
+  DoctorReplyReviewDto,
+  DoctorScheduleDto,
+  SaveConsultationNotesDto,
+  UpdateDoctorProfileDto,
+  UpdateDoctorStatusDto,
+  VerificationDecisionDto,
+} from '../../../../doctor-service/src/doctor/dto/doctor.dto';
 
 @ApiTags('Doctor Management & Clinical Operations')
 @Controller()
@@ -83,10 +95,11 @@ export class DoctorGatewayController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN, UserRole.SUPER_ADMIN)
   @ApiOperation({ summary: 'Admin decide on doctor verification' })
+  @ApiBody({ type: VerificationDecisionDto })
   @Post('admin/doctors/verification-queue/:id/decision')
   async adminDecideVerification(
     @Param('id') id: string,
-    @Body() body: any,
+    @Body() body: VerificationDecisionDto,
     @Req() req: any,
   ) {
     return this.doctorClient.send(PATTERNS.DOCTOR.DECIDE_VERIFICATION, {
@@ -169,11 +182,12 @@ export class DoctorGatewayController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.DOCTOR)
   @ApiOperation({ summary: 'Doctor save consultation notes' })
+  @ApiBody({ type: SaveConsultationNotesDto })
   @Post('doctor/consultations/:appointmentId/notes')
   async doctorSaveNotes(
     @Req() req: any,
     @Param('appointmentId') appointmentId: string,
-    @Body() body: any,
+    @Body() body: SaveConsultationNotesDto,
   ) {
     return this.doctorClient.send(PATTERNS.DOCTOR.DOCTOR_SAVE_NOTES, {
       userId: req.user.id,
@@ -206,8 +220,9 @@ export class DoctorGatewayController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.DOCTOR)
   @ApiOperation({ summary: 'Doctor issue prescription' })
+  @ApiBody({ type: CreateDoctorPrescriptionDto })
   @Post('doctor/prescriptions')
-  async doctorCreatePrescription(@Req() req: any, @Body() body: any) {
+  async doctorCreatePrescription(@Req() req: any, @Body() body: CreateDoctorPrescriptionDto) {
     return this.doctorClient.send(PATTERNS.DOCTOR.DOCTOR_CREATE_PRESCRIPTION, {
       userId: req.user.id,
       dto: body,
@@ -230,8 +245,9 @@ export class DoctorGatewayController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.DOCTOR)
   @ApiOperation({ summary: 'Doctor update schedule' })
+  @ApiBody({ type: DoctorScheduleDto })
   @Post('doctor/schedules')
-  async doctorUpdateSchedule(@Req() req: any, @Body() body: any) {
+  async doctorUpdateSchedule(@Req() req: any, @Body() body: DoctorScheduleDto) {
     return this.doctorClient.send(PATTERNS.DOCTOR.DOCTOR_UPDATE_SCHEDULE, {
       userId: req.user.id,
       dto: body,
@@ -254,8 +270,9 @@ export class DoctorGatewayController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.DOCTOR)
   @ApiOperation({ summary: 'Doctor request payout disbursement' })
+  @ApiBody({ type: DoctorPayoutRequestDto })
   @Post('doctor/payouts/request')
-  async doctorRequestPayout(@Req() req: any, @Body() body: any) {
+  async doctorRequestPayout(@Req() req: any, @Body() body: DoctorPayoutRequestDto) {
     return this.doctorClient.send(PATTERNS.DOCTOR.DOCTOR_REQUEST_PAYOUT, {
       userId: req.user.id,
       dto: body,
