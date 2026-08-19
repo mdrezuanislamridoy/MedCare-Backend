@@ -205,21 +205,20 @@ export class ClinicService {
   async getClinicDashboardStats(managerUserId: string, clinicId?: string) {
     const clinic = await this.resolveManagerClinic(managerUserId, clinicId);
 
-    const [
-      totalStaff,
-      staffOnDuty,
-      totalRooms,
-      roomsOccupied,
-    ] = await Promise.all([
-      this.prisma.clinicStaff.count({ where: { clinicId: clinic.id } }),
-      this.prisma.clinicStaff.count({
-        where: { clinicId: clinic.id, shiftStatus: StaffShiftStatus.ON_DUTY as any },
-      }),
-      this.prisma.clinicRoom.count({ where: { clinicId: clinic.id } }),
-      this.prisma.clinicRoom.count({
-        where: { clinicId: clinic.id, status: RoomStatus.OCCUPIED as any },
-      }),
-    ]);
+    const [totalStaff, staffOnDuty, totalRooms, roomsOccupied] =
+      await Promise.all([
+        this.prisma.clinicStaff.count({ where: { clinicId: clinic.id } }),
+        this.prisma.clinicStaff.count({
+          where: {
+            clinicId: clinic.id,
+            shiftStatus: StaffShiftStatus.ON_DUTY as any,
+          },
+        }),
+        this.prisma.clinicRoom.count({ where: { clinicId: clinic.id } }),
+        this.prisma.clinicRoom.count({
+          where: { clinicId: clinic.id, status: RoomStatus.OCCUPIED as any },
+        }),
+      ]);
 
     const availableRooms = Math.max(0, totalRooms - roomsOccupied);
 
@@ -302,7 +301,7 @@ export class ClinicService {
     });
 
     return {
-      data: rooms.map(r => ({
+      data: rooms.map((r) => ({
         id: r.assignedDoctorId,
         doctorId: r.assignedDoctorId,
         clinicId: clinic.id,
@@ -432,7 +431,10 @@ export class ClinicService {
         phone: dto.phone,
         role: dto.role as any,
         shiftStatus: (dto.shiftStatus || StaffShiftStatus.OFF_DUTY) as any,
-        shiftHours: dto.shiftStart && dto.shiftEnd ? `${dto.shiftStart} - ${dto.shiftEnd}` : undefined,
+        shiftHours:
+          dto.shiftStart && dto.shiftEnd
+            ? `${dto.shiftStart} - ${dto.shiftEnd}`
+            : undefined,
       },
     });
 
@@ -688,7 +690,11 @@ export class ClinicService {
     clinicId?: string,
     filter?: any,
   ) {
-    return this.getClinicOperationalReport(managerUserId, clinicId, filter || {});
+    return this.getClinicOperationalReport(
+      managerUserId,
+      clinicId,
+      filter || {},
+    );
   }
 
   async getClinicActivityLogs(

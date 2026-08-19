@@ -13,7 +13,12 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
-import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { MICROSERVICES, PATTERNS, UserRole } from '@medcare/contracts';
 import { JwtAuthGuard, RolesGuard, Roles, Public } from '@medcare/shared';
 
@@ -78,7 +83,10 @@ export class ClinicGatewayController {
   @Roles(UserRole.CLINIC_MANAGER, UserRole.ADMIN, UserRole.SUPER_ADMIN)
   @ApiOperation({ summary: 'Clinic manager list staff' })
   @Get('clinic-manager/staff')
-  async managerListStaff(@Req() req: any, @Query('clinicId') clinicId?: string) {
+  async managerListStaff(
+    @Req() req: any,
+    @Query('clinicId') clinicId?: string,
+  ) {
     return this.clinicClient.send(PATTERNS.CLINIC.MANAGER_LIST_STAFF, {
       userId: req.user.id,
       clinicId,
@@ -90,7 +98,10 @@ export class ClinicGatewayController {
   @Roles(UserRole.CLINIC_MANAGER, UserRole.ADMIN, UserRole.SUPER_ADMIN)
   @ApiOperation({ summary: 'Clinic manager list rooms' })
   @Get('clinic-manager/rooms')
-  async managerListRooms(@Req() req: any, @Query('clinicId') clinicId?: string) {
+  async managerListRooms(
+    @Req() req: any,
+    @Query('clinicId') clinicId?: string,
+  ) {
     return this.clinicClient.send(PATTERNS.CLINIC.MANAGER_LIST_ROOMS, {
       userId: req.user.id,
       clinicId,

@@ -8,6 +8,8 @@ export class DoctorEventConsumer {
 
   @EventPattern(EVENTS.APPOINTMENT.COMPLETED)
   async handleAppointmentCompleted(@Payload() data: any) {
-    this.logger.log(`Received APPOINTMENT.COMPLETED event for doctor consultation: ${JSON.stringify(data)}`);
+    this.logger.log(
+      `Received APPOINTMENT.COMPLETED event for doctor consultation: ${JSON.stringify(data)}`,
+    );
   }
 }

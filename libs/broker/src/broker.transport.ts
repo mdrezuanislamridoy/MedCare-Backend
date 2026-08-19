@@ -1,4 +1,8 @@
-import { Transport, MicroserviceOptions, ClientProviderOptions } from '@nestjs/microservices';
+import {
+  Transport,
+  MicroserviceOptions,
+  ClientProviderOptions,
+} from '@nestjs/microservices';
 
 export interface BrokerConfig {
   transportType: 'REDIS' | 'KAFKA' | 'TCP';
@@ -10,9 +14,15 @@ export interface BrokerConfig {
 }
 
 export function getBrokerConfig(): BrokerConfig {
-  const transportEnv = (process.env.MICROSERVICE_TRANSPORT || 'REDIS').toUpperCase();
+  const transportEnv = (
+    process.env.MICROSERVICE_TRANSPORT || 'REDIS'
+  ).toUpperCase();
   const transportType: 'REDIS' | 'KAFKA' | 'TCP' =
-    transportEnv === 'KAFKA' ? 'KAFKA' : transportEnv === 'TCP' ? 'TCP' : 'REDIS';
+    transportEnv === 'KAFKA'
+      ? 'KAFKA'
+      : transportEnv === 'TCP'
+        ? 'TCP'
+        : 'REDIS';
 
   return {
     transportType,
@@ -26,7 +36,10 @@ export function getBrokerConfig(): BrokerConfig {
 
 export const getTransportConfig = getBrokerConfig;
 
-export function getMicroserviceServerOptions(serviceName?: string, customPort?: number): MicroserviceOptions {
+export function getMicroserviceServerOptions(
+  serviceName?: string,
+  customPort?: number,
+): MicroserviceOptions {
   const config = getBrokerConfig();
 
   if (config.transportType === 'REDIS') {
@@ -65,7 +78,10 @@ export function getMicroserviceServerOptions(serviceName?: string, customPort?: 
   };
 }
 
-export function getMicroserviceClientConfig(serviceName: string, customPort?: number): ClientProviderOptions {
+export function getMicroserviceClientConfig(
+  serviceName: string,
+  customPort?: number,
+): ClientProviderOptions {
   const config = getBrokerConfig();
 
   if (config.transportType === 'REDIS') {

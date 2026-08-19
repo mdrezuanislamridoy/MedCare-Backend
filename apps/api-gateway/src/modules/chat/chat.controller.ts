@@ -11,7 +11,12 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
-import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { MICROSERVICES, PATTERNS } from '@medcare/contracts';
 import { JwtAuthGuard } from '@medcare/shared';
 
@@ -32,7 +37,11 @@ export class ChatGatewayController {
 
   @ApiOperation({ summary: 'Get messages in a conversation' })
   @Get('conversations/:id/messages')
-  async getMessages(@Req() req: any, @Param('id') id: string, @Query() query: any) {
+  async getMessages(
+    @Req() req: any,
+    @Param('id') id: string,
+    @Query() query: any,
+  ) {
     return this.chatClient.send(PATTERNS.CHAT.GET_CONVERSATION_MESSAGES, {
       userId: req.user.id,
       conversationId: id,

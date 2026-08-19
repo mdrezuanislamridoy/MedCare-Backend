@@ -1,6 +1,11 @@
 import { Controller, Get, Inject, UseGuards } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
-import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { MICROSERVICES, PATTERNS, UserRole } from '@medcare/contracts';
 import { JwtAuthGuard, RolesGuard, Roles, Public } from '@medcare/shared';
 

@@ -13,7 +13,12 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
-import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { MICROSERVICES, PATTERNS, UserRole } from '@medcare/contracts';
 import { JwtAuthGuard, RolesGuard, Roles } from '@medcare/shared';
 
@@ -97,7 +102,10 @@ export class PatientGatewayController {
   @Roles(UserRole.PATIENT)
   @ApiOperation({ summary: 'Patient list diagnostic records' })
   @Get('patient/medical-records')
-  async patientListRecords(@Req() req: any, @Query('category') category?: string) {
+  async patientListRecords(
+    @Req() req: any,
+    @Query('category') category?: string,
+  ) {
     return this.patientClient.send(PATTERNS.PATIENT.LIST_RECORDS, {
       userId: req.user.id,
       category,
@@ -134,7 +142,10 @@ export class PatientGatewayController {
   @ApiOperation({ summary: 'Patient list prescriptions' })
   @Get('patient/prescriptions')
   async patientListPrescriptions(@Req() req: any) {
-    return this.patientClient.send(PATTERNS.PATIENT.LIST_PRESCRIPTIONS, req.user.id);
+    return this.patientClient.send(
+      PATTERNS.PATIENT.LIST_PRESCRIPTIONS,
+      req.user.id,
+    );
   }
 
   @ApiBearerAuth('JWT-auth')

@@ -234,7 +234,8 @@ export class AuthService {
         where: { id: userRecord.id },
         data: {
           lastLoginAt: now,
-          isEmailVerified: userRecord.isEmailVerified || Boolean(payload.email_verified),
+          isEmailVerified:
+            userRecord.isEmailVerified || Boolean(payload.email_verified),
         },
       });
 

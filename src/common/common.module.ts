@@ -6,10 +6,6 @@ import { LiveSupportEventService } from './events/live-support-event.service';
 @Module({
   imports: [RedisModule],
   providers: [LiveQueueEventService, LiveSupportEventService],
-  exports: [
-    RedisModule,
-    LiveQueueEventService,
-    LiveSupportEventService,
-  ],
+  exports: [RedisModule, LiveQueueEventService, LiveSupportEventService],
 })
 export class CommonModule {}

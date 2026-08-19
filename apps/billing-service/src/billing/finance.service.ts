@@ -209,7 +209,13 @@ export class FinanceService {
         amount: dto.amount,
         totalAmount: dto.amount,
         status: InvoiceStatus.PAID,
-        items: [{ description: 'Medical Consultation', amount: dto.amount, quantity: 1 }],
+        items: [
+          {
+            description: 'Medical Consultation',
+            amount: dto.amount,
+            quantity: 1,
+          },
+        ],
       },
     });
 
@@ -252,11 +258,16 @@ export class FinanceService {
   }
 
   async handlePaymentWebhook(provider: string, payload: any) {
-    const appointmentId = payload.appointmentId || payload.tran_id?.replace('TXN-', '');
-    const status = payload.status === 'VALID' || payload.status === 'SUCCESS' ? 'SUCCESS' : 'FAILED';
+    const appointmentId =
+      payload.appointmentId || payload.tran_id?.replace('TXN-', '');
+    const status =
+      payload.status === 'VALID' || payload.status === 'SUCCESS'
+        ? 'SUCCESS'
+        : 'FAILED';
 
     if (appointmentId && status === 'SUCCESS') {
-      const transactionRef = payload.tran_id || `TXN-${Date.now().toString().slice(-8)}`;
+      const transactionRef =
+        payload.tran_id || `TXN-${Date.now().toString().slice(-8)}`;
       const invoiceNumber = `INV-${Date.now().toString().slice(-6)}`;
 
       const invoice = await this.prisma.invoice.create({
@@ -267,7 +278,13 @@ export class FinanceService {
           amount: payload.amount || 50,
           totalAmount: payload.amount || 50,
           status: InvoiceStatus.PAID,
-          items: [{ description: 'Consultation Fee', amount: payload.amount || 50, quantity: 1 }],
+          items: [
+            {
+              description: 'Consultation Fee',
+              amount: payload.amount || 50,
+              quantity: 1,
+            },
+          ],
         },
       });
 

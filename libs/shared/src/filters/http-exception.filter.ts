@@ -47,7 +47,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     };
 
     // Log internal server errors with stack trace
-    if (status >= 500) {
+    if (Number(status) >= 500) {
       this.logger.error(
         `[${correlationId || 'no-corr'}] ${request.method} ${request.url} ${status} - ${message}`,
         exception instanceof Error ? exception.stack : undefined,

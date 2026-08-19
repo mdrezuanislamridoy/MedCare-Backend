@@ -7,7 +7,10 @@ export class CodeService {
   private readonly codeLength = 6;
   private readonly codeTtlSeconds = 10 * 60;
   private readonly saltRounds = 10;
-  private readonly codeStore = new Map<string, { hash: string; expiresAt: number }>();
+  private readonly codeStore = new Map<
+    string,
+    { hash: string; expiresAt: number }
+  >();
 
   async issueCode(purpose: CodePurpose, email: string) {
     const normalizedEmail = email.toLowerCase().trim();

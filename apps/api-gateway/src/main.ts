@@ -24,7 +24,9 @@ async function bootstrap() {
 
   const swaggerConfig = new DocumentBuilder()
     .setTitle('MedCare API Gateway')
-    .setDescription('Central API Gateway routing requests to MedCare microservices.')
+    .setDescription(
+      'Central API Gateway routing requests to MedCare microservices.',
+    )
     .setVersion('1.0.0')
     .addBearerAuth(
       {

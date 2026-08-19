@@ -10,7 +10,12 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
-import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { MICROSERVICES, PATTERNS, UserRole } from '@medcare/contracts';
 import { JwtAuthGuard, RolesGuard, Roles, Public } from '@medcare/shared';
 
@@ -64,7 +69,10 @@ export class BillingGatewayController {
   @ApiOperation({ summary: 'Patient get invoices' })
   @Get('patient/payments')
   async patientGetInvoices(@Req() req: any) {
-    return this.billingClient.send(PATTERNS.BILLING.PATIENT_INVOICES, req.user.id);
+    return this.billingClient.send(
+      PATTERNS.BILLING.PATIENT_INVOICES,
+      req.user.id,
+    );
   }
 
   // --- Public Payment Webhooks ---

@@ -23,9 +23,7 @@ import {
 
 @Injectable()
 export class AppointmentService {
-  constructor(
-    private readonly prisma: PrismaService,
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   async listAppointments(filter: AppointmentFilterDto) {
     const page = Math.max(1, Number(filter.page) || 1);

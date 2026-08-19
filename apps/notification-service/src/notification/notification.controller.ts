@@ -55,7 +55,7 @@ export class NotificationController {
         {
           title: 'Appointment Confirmed',
           message: `Your appointment with Dr. ${data.doctorName || 'Specialist'} has been confirmed for ${data.date || 'the scheduled date'}.`,
-        } as BroadcastNotificationDto,
+        },
         'SYSTEM',
       );
     }
@@ -67,7 +67,7 @@ export class NotificationController {
       {
         title: 'Payment Successful',
         message: `Payment of $${data.amount || 0} received successfully for Invoice #${data.invoiceNumber || 'N/A'}.`,
-      } as BroadcastNotificationDto,
+      },
       'SYSTEM',
     );
   }

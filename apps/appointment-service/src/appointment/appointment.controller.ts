@@ -57,7 +57,10 @@ export class AppointmentController {
   ) {
     return this.appointmentService.transitionStatus(
       payload.id,
-      { status: AppointmentStatus.CANCELLED, cancellationReason: payload.reason },
+      {
+        status: AppointmentStatus.CANCELLED,
+        cancellationReason: payload.reason,
+      },
       payload.actorId,
     );
   }

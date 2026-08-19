@@ -9,6 +9,8 @@ export class KafkaProducerService implements OnModuleInit {
   }
 
   async emit(topic: string, message: any): Promise<void> {
-    this.logger.log(`[Kafka Emit] Topic: ${topic}, Payload: ${JSON.stringify(message)}`);
+    this.logger.log(
+      `[Kafka Emit] Topic: ${topic}, Payload: ${JSON.stringify(message)}`,
+    );
   }
 }

@@ -4,16 +4,11 @@ import {
   BroadcastNotificationDto,
   NotificationFilterDto,
 } from './dto/notification.dto';
-import {
-  NotificationAudience,
-  NotificationPriority,
-} from '@medcare/contracts';
+import { NotificationAudience, NotificationPriority } from '@medcare/contracts';
 
 @Injectable()
 export class NotificationService {
-  constructor(
-    private readonly prisma: PrismaService,
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   async listNotifications(filter: NotificationFilterDto) {
     const page = Math.max(1, Number(filter.page) || 1);

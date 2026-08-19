@@ -11,7 +11,12 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
-import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { MICROSERVICES, PATTERNS, UserRole } from '@medcare/contracts';
 import { JwtAuthGuard, RolesGuard, Roles } from '@medcare/shared';
 
@@ -19,7 +24,8 @@ import { JwtAuthGuard, RolesGuard, Roles } from '@medcare/shared';
 @Controller()
 export class AppointmentGatewayController {
   constructor(
-    @Inject(MICROSERVICES.APPOINTMENT) private readonly appointmentClient: ClientProxy,
+    @Inject(MICROSERVICES.APPOINTMENT)
+    private readonly appointmentClient: ClientProxy,
   ) {}
 
   // --- Admin Appointments ---
@@ -118,10 +124,13 @@ export class AppointmentGatewayController {
     @Param('id') id: string,
     @Body() body: any,
   ) {
-    return this.appointmentClient.send(PATTERNS.APPOINTMENT.PATIENT_RESCHEDULE, {
-      userId: req.user.id,
-      appointmentId: id,
-      dto: body,
-    });
+    return this.appointmentClient.send(
+      PATTERNS.APPOINTMENT.PATIENT_RESCHEDULE,
+      {
+        userId: req.user.id,
+        appointmentId: id,
+        dto: body,
+      },
+    );
   }
 }

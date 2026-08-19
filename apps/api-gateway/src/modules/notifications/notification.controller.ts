@@ -11,7 +11,12 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
-import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { MICROSERVICES, PATTERNS, UserRole } from '@medcare/contracts';
 import { JwtAuthGuard, RolesGuard, Roles } from '@medcare/shared';
 
@@ -64,9 +69,12 @@ export class NotificationGatewayController {
   @ApiOperation({ summary: 'Patient mark notification as read' })
   @Patch('patient/notifications/:id/read')
   async patientMarkRead(@Req() req: any, @Param('id') id: string) {
-    return this.notificationClient.send(PATTERNS.NOTIFICATION.PATIENT_MARK_READ, {
-      userId: req.user.id,
-      notificationId: id,
-    });
+    return this.notificationClient.send(
+      PATTERNS.NOTIFICATION.PATIENT_MARK_READ,
+      {
+        userId: req.user.id,
+        notificationId: id,
+      },
+    );
   }
 }

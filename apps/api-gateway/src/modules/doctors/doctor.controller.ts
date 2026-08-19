@@ -48,8 +48,14 @@ export class DoctorGatewayController {
   @Public()
   @ApiOperation({ summary: 'Public get doctor availability slots' })
   @Get('public/doctors/:id/slots')
-  async publicGetDoctorSlots(@Param('id') id: string, @Query('date') date: string) {
-    return this.doctorClient.send(PATTERNS.DOCTOR.PATIENT_GET_SLOTS, { id, date });
+  async publicGetDoctorSlots(
+    @Param('id') id: string,
+    @Query('date') date: string,
+  ) {
+    return this.doctorClient.send(PATTERNS.DOCTOR.PATIENT_GET_SLOTS, {
+      id,
+      date,
+    });
   }
 
   // --- Admin Doctor Management ---
@@ -68,7 +74,9 @@ export class DoctorGatewayController {
   @ApiOperation({ summary: 'Admin list doctor verification queue' })
   @Get('admin/doctors/verification-queue')
   async adminListVerifications(@Query('status') status?: string) {
-    return this.doctorClient.send(PATTERNS.DOCTOR.LIST_VERIFICATIONS, { status });
+    return this.doctorClient.send(PATTERNS.DOCTOR.LIST_VERIFICATIONS, {
+      status,
+    });
   }
 
   @ApiBearerAuth('JWT-auth')
@@ -112,7 +120,10 @@ export class DoctorGatewayController {
   @ApiOperation({ summary: 'Doctor get dashboard summary' })
   @Get('doctor/dashboard')
   async doctorGetDashboard(@Req() req: any) {
-    return this.doctorClient.send(PATTERNS.DOCTOR.DOCTOR_GET_DASHBOARD, req.user.id);
+    return this.doctorClient.send(
+      PATTERNS.DOCTOR.DOCTOR_GET_DASHBOARD,
+      req.user.id,
+    );
   }
 
   @ApiBearerAuth('JWT-auth')
@@ -121,7 +132,10 @@ export class DoctorGatewayController {
   @ApiOperation({ summary: 'Doctor get profile' })
   @Get('doctor/profile')
   async doctorGetProfile(@Req() req: any) {
-    return this.doctorClient.send(PATTERNS.DOCTOR.DOCTOR_GET_PROFILE, req.user.id);
+    return this.doctorClient.send(
+      PATTERNS.DOCTOR.DOCTOR_GET_PROFILE,
+      req.user.id,
+    );
   }
 
   @ApiBearerAuth('JWT-auth')
@@ -178,11 +192,14 @@ export class DoctorGatewayController {
     @Param('appointmentId') appointmentId: string,
     @Body() body: any,
   ) {
-    return this.doctorClient.send(PATTERNS.DOCTOR.DOCTOR_COMPLETE_CONSULTATION, {
-      userId: req.user.id,
-      appointmentId,
-      dto: body,
-    });
+    return this.doctorClient.send(
+      PATTERNS.DOCTOR.DOCTOR_COMPLETE_CONSULTATION,
+      {
+        userId: req.user.id,
+        appointmentId,
+        dto: body,
+      },
+    );
   }
 
   @ApiBearerAuth('JWT-auth')
@@ -203,7 +220,10 @@ export class DoctorGatewayController {
   @ApiOperation({ summary: 'Doctor get schedule' })
   @Get('doctor/schedules')
   async doctorGetSchedule(@Req() req: any) {
-    return this.doctorClient.send(PATTERNS.DOCTOR.DOCTOR_GET_SCHEDULE, req.user.id);
+    return this.doctorClient.send(
+      PATTERNS.DOCTOR.DOCTOR_GET_SCHEDULE,
+      req.user.id,
+    );
   }
 
   @ApiBearerAuth('JWT-auth')
@@ -224,7 +244,10 @@ export class DoctorGatewayController {
   @ApiOperation({ summary: 'Doctor get earnings and payouts' })
   @Get('doctor/earnings')
   async doctorGetEarnings(@Req() req: any) {
-    return this.doctorClient.send(PATTERNS.DOCTOR.DOCTOR_GET_EARNINGS, req.user.id);
+    return this.doctorClient.send(
+      PATTERNS.DOCTOR.DOCTOR_GET_EARNINGS,
+      req.user.id,
+    );
   }
 
   @ApiBearerAuth('JWT-auth')

@@ -8,10 +8,7 @@ import {
   Min,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import {
-  NotificationAudience,
-  NotificationPriority,
-} from '@medcare/contracts';
+import { NotificationAudience, NotificationPriority } from '@medcare/contracts';
 
 export class BroadcastNotificationDto {
   @ApiProperty({

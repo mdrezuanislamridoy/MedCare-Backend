@@ -4,10 +4,7 @@ import {
   ForbiddenException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import {
-  AccountStatus,
-  RecordCategory,
-} from '@medcare/contracts';
+import { AccountStatus, RecordCategory } from '@medcare/contracts';
 import {
   PatientFilterDto,
   UpdatePatientProfileDto,
@@ -89,7 +86,7 @@ export class PatientService {
 
     const updated = await this.prisma.patientProfile.update({
       where: { id },
-      data: { status: status as string },
+      data: { status: status },
     });
 
     return updated;
@@ -149,7 +146,14 @@ export class PatientService {
   async updateProfile(userId: string, data: UpdatePatientProfileDto) {
     const profile = await this.ensurePatientProfile(userId);
 
-    const { name, dateOfBirth, allergies, chronicConditions, emergencyContact, ...patientFields } = data;
+    const {
+      name,
+      dateOfBirth,
+      allergies,
+      chronicConditions,
+      emergencyContact,
+      ...patientFields
+    } = data;
 
     const updated = await this.prisma.patientProfile.update({
       where: { id: profile.id },
@@ -158,8 +162,16 @@ export class PatientService {
         ...patientFields,
         dateOfBirth: dateOfBirth ? new Date(dateOfBirth) : undefined,
         emergencyPhone: patientFields.emergencyPhone || emergencyContact,
-        allergies: allergies ? (Array.isArray(allergies) ? allergies : [allergies]) : undefined,
-        chronicConditions: chronicConditions ? (Array.isArray(chronicConditions) ? chronicConditions : [chronicConditions]) : undefined,
+        allergies: allergies
+          ? Array.isArray(allergies)
+            ? allergies
+            : [allergies]
+          : undefined,
+        chronicConditions: chronicConditions
+          ? Array.isArray(chronicConditions)
+            ? chronicConditions
+            : [chronicConditions]
+          : undefined,
       },
     });
 

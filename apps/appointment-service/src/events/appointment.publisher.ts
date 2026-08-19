@@ -9,12 +9,16 @@ export class AppointmentEventPublisher {
   constructor(private readonly kafka: KafkaProducerService) {}
 
   async publishAppointmentBooked(payload: any) {
-    this.logger.log(`Publishing event ${EVENTS.APPOINTMENT.BOOKED} for appointment ${payload.appointmentId}`);
+    this.logger.log(
+      `Publishing event ${EVENTS.APPOINTMENT.BOOKED} for appointment ${payload.appointmentId}`,
+    );
     await this.kafka.emit(EVENTS.APPOINTMENT.BOOKED, payload);
   }
 
   async publishQueueStateChanged(payload: any) {
-    this.logger.log(`Publishing event ${EVENTS.QUEUE.STATE_CHANGED} for queue ${payload.queueId}`);
+    this.logger.log(
+      `Publishing event ${EVENTS.QUEUE.STATE_CHANGED} for queue ${payload.queueId}`,
+    );
     await this.kafka.emit(EVENTS.QUEUE.STATE_CHANGED, payload);
   }
 }

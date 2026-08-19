@@ -24,9 +24,7 @@ import {
 
 @Injectable()
 export class DoctorService {
-  constructor(
-    private readonly prisma: PrismaService,
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   // ==========================================
   // HELPER: GET DOCTOR PROFILE BY USER ID
@@ -54,7 +52,11 @@ export class DoctorService {
     });
 
     const totalEarnings = payouts
-      .filter((p) => (p.status as any) === PayoutStatus.PROCESSED || (p.status as any) === PayoutStatus.PAID)
+      .filter(
+        (p) =>
+          (p.status as any) === PayoutStatus.PROCESSED ||
+          (p.status as any) === PayoutStatus.PAID,
+      )
       .reduce((acc, curr) => acc + curr.amount, 0);
 
     return {
@@ -141,7 +143,10 @@ export class DoctorService {
     appointmentIdOrDto: any,
     dto?: SaveConsultationNotesDto,
   ) {
-    const appointmentId = typeof appointmentIdOrDto === 'string' ? appointmentIdOrDto : appointmentIdOrDto?.appointmentId;
+    const appointmentId =
+      typeof appointmentIdOrDto === 'string'
+        ? appointmentIdOrDto
+        : appointmentIdOrDto?.appointmentId;
     const body = dto || appointmentIdOrDto;
     return this.doctorSaveConsultationNotes(userId, appointmentId, body);
   }
@@ -155,7 +160,10 @@ export class DoctorService {
     dto?: CreateDoctorPrescriptionDto,
   ) {
     const doctor = await this.getDoctorByUserId(userId);
-    const appointmentId = typeof appointmentIdOrDto === 'string' ? appointmentIdOrDto : appointmentIdOrDto?.appointmentId;
+    const appointmentId =
+      typeof appointmentIdOrDto === 'string'
+        ? appointmentIdOrDto
+        : appointmentIdOrDto?.appointmentId;
     const body = dto || appointmentIdOrDto;
     return {
       id: `rx-${Date.now()}`,
@@ -208,7 +216,12 @@ export class DoctorService {
     return this.doctorGetAppointment(userId, id);
   }
 
-  async doctorUpdateAppointmentStatus(userId: string, id: string, status: any, notes?: string) {
+  async doctorUpdateAppointmentStatus(
+    userId: string,
+    id: string,
+    status: any,
+    notes?: string,
+  ) {
     return { id, status, notes };
   }
 
@@ -317,7 +330,11 @@ export class DoctorService {
     });
 
     const totalEarned = payouts
-      .filter((p) => (p.status as any) === PayoutStatus.PROCESSED || (p.status as any) === PayoutStatus.PAID)
+      .filter(
+        (p) =>
+          (p.status as any) === PayoutStatus.PROCESSED ||
+          (p.status as any) === PayoutStatus.PAID,
+      )
       .reduce((acc, curr) => acc + curr.amount, 0);
 
     return {
@@ -340,7 +357,7 @@ export class DoctorService {
         currency: 'USD',
         status: PayoutStatus.PENDING as any,
         payoutMethod: dto.payoutMethod || 'BANK_TRANSFER',
-        accountDetails: dto.accountDetails as any,
+        accountDetails: dto.accountDetails,
       },
     });
   }
@@ -494,7 +511,9 @@ export class DoctorService {
 
   async listVerificationQueue(status?: VerificationStatus) {
     return this.prisma.doctorProfile.findMany({
-      where: { verificationStatus: (status as any) || VerificationStatus.PENDING },
+      where: {
+        verificationStatus: (status as any) || VerificationStatus.PENDING,
+      },
       orderBy: { createdAt: 'asc' },
     });
   }
@@ -509,7 +528,8 @@ export class DoctorService {
     }
 
     const verificationStatus =
-      (dto.decision as string) === 'APPROVED' || (dto.decision as string) === 'VERIFIED'
+      (dto.decision as string) === 'APPROVED' ||
+      (dto.decision as string) === 'VERIFIED'
         ? VerificationStatus.VERIFIED
         : VerificationStatus.REJECTED;
 

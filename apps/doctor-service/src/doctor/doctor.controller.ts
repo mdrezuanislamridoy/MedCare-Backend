@@ -135,7 +135,12 @@ export class DoctorController {
 
   @MessagePattern(PATTERNS.DOCTOR.DOCTOR_COMPLETE_CONSULTATION)
   async doctorCompleteConsultation(
-    @Payload() payload: { userId: string; appointmentId: string; dto?: SaveConsultationNotesDto },
+    @Payload()
+    payload: {
+      userId: string;
+      appointmentId: string;
+      dto?: SaveConsultationNotesDto;
+    },
   ) {
     return this.doctorService.doctorCompleteConsultation(
       payload.userId,
@@ -146,7 +151,12 @@ export class DoctorController {
 
   @MessagePattern(PATTERNS.DOCTOR.DOCTOR_CREATE_PRESCRIPTION)
   async doctorCreatePrescription(
-    @Payload() payload: { userId: string; appointmentId?: string; dto: CreateDoctorPrescriptionDto },
+    @Payload()
+    payload: {
+      userId: string;
+      appointmentId?: string;
+      dto: CreateDoctorPrescriptionDto;
+    },
   ) {
     return this.doctorService.doctorCreatePrescription(
       payload.userId,
@@ -169,10 +179,7 @@ export class DoctorController {
   async doctorGetPrescription(
     @Payload() payload: { userId: string; id: string },
   ) {
-    return this.doctorService.doctorGetPrescription(
-      payload.userId,
-      payload.id,
-    );
+    return this.doctorService.doctorGetPrescription(payload.userId, payload.id);
   }
 
   @MessagePattern(PATTERNS.DOCTOR.DOCTOR_LIST_APPOINTMENTS)
@@ -189,10 +196,7 @@ export class DoctorController {
   async doctorGetAppointment(
     @Payload() payload: { userId: string; id: string },
   ) {
-    return this.doctorService.doctorGetAppointment(
-      payload.userId,
-      payload.id,
-    );
+    return this.doctorService.doctorGetAppointment(payload.userId, payload.id);
   }
 
   @MessagePattern(PATTERNS.DOCTOR.DOCTOR_GET_VIDEO_TOKEN)

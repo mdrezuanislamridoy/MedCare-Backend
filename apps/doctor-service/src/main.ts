@@ -1,10 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { MicroserviceOptions } from '@nestjs/microservices';
 import { AppModule } from './app.module';
-import {
-  getMicroserviceServerOptions,
-  getBrokerConfig,
-} from '@medcare/broker';
+import { getMicroserviceServerOptions, getBrokerConfig } from '@medcare/broker';
 
 async function bootstrap() {
   const options = getMicroserviceServerOptions(
@@ -17,7 +14,9 @@ async function bootstrap() {
   );
   const config = getBrokerConfig();
   await app.listen();
-  console.log(`🩺 MedCare Doctor Service is listening [Broker: ${config.transportType}]`);
+  console.log(
+    `🩺 MedCare Doctor Service is listening [Broker: ${config.transportType}]`,
+  );
 }
 
 bootstrap();

@@ -11,7 +11,12 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
-import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { MICROSERVICES, PATTERNS, UserRole } from '@medcare/contracts';
 import { JwtAuthGuard, RolesGuard, Roles, Public } from '@medcare/shared';
 
@@ -29,7 +34,12 @@ export class ReceptionistGatewayController {
 
   @ApiBearerAuth('JWT-auth')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.RECEPTIONIST, UserRole.CLINIC_MANAGER, UserRole.ADMIN, UserRole.SUPER_ADMIN)
+  @Roles(
+    UserRole.RECEPTIONIST,
+    UserRole.CLINIC_MANAGER,
+    UserRole.ADMIN,
+    UserRole.SUPER_ADMIN,
+  )
   @ApiOperation({ summary: 'Receptionist dashboard summary' })
   @Get('dashboard')
   async getDashboard(@Query('clinicId') clinicId?: string) {
@@ -41,7 +51,12 @@ export class ReceptionistGatewayController {
 
   @ApiBearerAuth('JWT-auth')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.RECEPTIONIST, UserRole.CLINIC_MANAGER, UserRole.ADMIN, UserRole.SUPER_ADMIN)
+  @Roles(
+    UserRole.RECEPTIONIST,
+    UserRole.CLINIC_MANAGER,
+    UserRole.ADMIN,
+    UserRole.SUPER_ADMIN,
+  )
   @ApiOperation({ summary: 'Receptionist patient check-in' })
   @Post('check-in')
   async checkIn(@Body() body: any, @Req() req: any) {
@@ -53,10 +68,18 @@ export class ReceptionistGatewayController {
 
   @ApiBearerAuth('JWT-auth')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.RECEPTIONIST, UserRole.CLINIC_MANAGER, UserRole.ADMIN, UserRole.SUPER_ADMIN)
+  @Roles(
+    UserRole.RECEPTIONIST,
+    UserRole.CLINIC_MANAGER,
+    UserRole.ADMIN,
+    UserRole.SUPER_ADMIN,
+  )
   @ApiOperation({ summary: 'Receptionist get live patient queue' })
   @Get('queue')
-  async getQueue(@Query('clinicId') clinicId?: string, @Query('doctorId') doctorId?: string) {
+  async getQueue(
+    @Query('clinicId') clinicId?: string,
+    @Query('doctorId') doctorId?: string,
+  ) {
     return this.appointmentClient.send(
       PATTERNS.APPOINTMENT.RECEPTIONIST_GET_QUEUE,
       { clinicId, doctorId },
@@ -65,10 +88,19 @@ export class ReceptionistGatewayController {
 
   @ApiBearerAuth('JWT-auth')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.RECEPTIONIST, UserRole.CLINIC_MANAGER, UserRole.ADMIN, UserRole.SUPER_ADMIN)
+  @Roles(
+    UserRole.RECEPTIONIST,
+    UserRole.CLINIC_MANAGER,
+    UserRole.ADMIN,
+    UserRole.SUPER_ADMIN,
+  )
   @ApiOperation({ summary: 'Receptionist update queue status' })
   @Patch('queue/:id/status')
-  async updateQueueStatus(@Param('id') id: string, @Body() body: any, @Req() req: any) {
+  async updateQueueStatus(
+    @Param('id') id: string,
+    @Body() body: any,
+    @Req() req: any,
+  ) {
     return this.appointmentClient.send(
       PATTERNS.APPOINTMENT.RECEPTIONIST_UPDATE_QUEUE,
       { queueId: id, status: body.status, actorId: req.user?.id },
@@ -77,7 +109,12 @@ export class ReceptionistGatewayController {
 
   @ApiBearerAuth('JWT-auth')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.RECEPTIONIST, UserRole.CLINIC_MANAGER, UserRole.ADMIN, UserRole.SUPER_ADMIN)
+  @Roles(
+    UserRole.RECEPTIONIST,
+    UserRole.CLINIC_MANAGER,
+    UserRole.ADMIN,
+    UserRole.SUPER_ADMIN,
+  )
   @ApiOperation({ summary: 'Receptionist walk-in appointment booking' })
   @Post('walk-in')
   async walkInBooking(@Body() body: any, @Req() req: any) {
@@ -89,10 +126,19 @@ export class ReceptionistGatewayController {
 
   @ApiBearerAuth('JWT-auth')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.RECEPTIONIST, UserRole.CLINIC_MANAGER, UserRole.ADMIN, UserRole.SUPER_ADMIN)
+  @Roles(
+    UserRole.RECEPTIONIST,
+    UserRole.CLINIC_MANAGER,
+    UserRole.ADMIN,
+    UserRole.SUPER_ADMIN,
+  )
   @ApiOperation({ summary: 'Receptionist search patients' })
   @Get('patients/search')
-  async searchPatients(@Query('q') q?: string, @Query('page') page?: number, @Query('limit') limit?: number) {
+  async searchPatients(
+    @Query('q') q?: string,
+    @Query('page') page?: number,
+    @Query('limit') limit?: number,
+  ) {
     return this.patientClient.send(PATTERNS.PATIENT.RECEPTIONIST_SEARCH, {
       q,
       page,

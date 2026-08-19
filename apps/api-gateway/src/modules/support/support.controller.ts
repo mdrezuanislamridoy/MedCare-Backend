@@ -9,7 +9,12 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { UserRole } from '@medcare/contracts';
 import { JwtAuthGuard, RolesGuard, Roles } from '@medcare/shared';
 
@@ -39,7 +44,12 @@ export class SupportStaffGatewayController {
   @ApiOperation({ summary: 'Create ticket on behalf of a patient' })
   @Post('tickets')
   async createTicket(@Body() body: any, @Req() req: any) {
-    return { success: true, id: `tkt_${Date.now()}`, creatorId: req.user?.id, ...body };
+    return {
+      success: true,
+      id: `tkt_${Date.now()}`,
+      creatorId: req.user?.id,
+      ...body,
+    };
   }
 
   @ApiOperation({ summary: 'List complaints and disputes' })
@@ -51,6 +61,11 @@ export class SupportStaffGatewayController {
   @ApiOperation({ summary: 'Create patient complaint' })
   @Post('complaints')
   async createComplaint(@Body() body: any, @Req() req: any) {
-    return { success: true, id: `cmp_${Date.now()}`, creatorId: req.user?.id, ...body };
+    return {
+      success: true,
+      id: `cmp_${Date.now()}`,
+      creatorId: req.user?.id,
+      ...body,
+    };
   }
 }

@@ -17,7 +17,9 @@ async function bootstrap() {
   );
   const config = getBrokerConfig();
   await app.listen();
-  console.log(`🏢 MedCare Clinic Service is listening [Broker: ${config.transportType}]`);
+  console.log(
+    `🏢 MedCare Clinic Service is listening [Broker: ${config.transportType}]`,
+  );
 }
 
 bootstrap();

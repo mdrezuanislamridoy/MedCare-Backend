@@ -10,10 +10,7 @@ import {
   Min,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import {
-  AccountStatus,
-  RecordCategory,
-} from '@medcare/contracts';
+import { AccountStatus, RecordCategory } from '@medcare/contracts';
 
 export class PatientFilterDto {
   @ApiPropertyOptional({

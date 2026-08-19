@@ -69,9 +69,7 @@ export class CircuitBreakerInterceptor implements NestInterceptor {
             circuit.state = 'CLOSED';
             circuit.failureCount = 0;
             circuit.successCount = 0;
-            this.logger.log(
-              `Circuit ${circuitName} recovered. State: CLOSED`,
-            );
+            this.logger.log(`Circuit ${circuitName} recovered. State: CLOSED`);
           }
         } else {
           circuit.failureCount = 0;
@@ -109,6 +107,6 @@ export class CircuitBreakerInterceptor implements NestInterceptor {
         successCount: 0,
       });
     }
-    return this.circuits.get(name)!;
+    return this.circuits.get(name);
   }
 }

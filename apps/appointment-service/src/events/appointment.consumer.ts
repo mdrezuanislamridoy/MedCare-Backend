@@ -8,6 +8,8 @@ export class AppointmentEventConsumer {
 
   @EventPattern(EVENTS.PAYMENT.SUCCESS)
   async handlePaymentSuccess(@Payload() data: any) {
-    this.logger.log(`Received PAYMENT.SUCCESS event for appointment confirmation: ${JSON.stringify(data)}`);
+    this.logger.log(
+      `Received PAYMENT.SUCCESS event for appointment confirmation: ${JSON.stringify(data)}`,
+    );
   }
 }

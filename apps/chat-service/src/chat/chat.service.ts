@@ -72,7 +72,8 @@ export class ChatService {
     }
 
     // Auto-generate title if not specified
-    const title = dto.title || `Chat between ${userId} & ${dto.recipientUserId}`;
+    const title =
+      dto.title || `Chat between ${userId} & ${dto.recipientUserId}`;
 
     // Create new conversation
     const conversation = await this.prisma.conversation.create({
