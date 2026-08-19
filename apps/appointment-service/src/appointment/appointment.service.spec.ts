@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AppointmentService } from './appointment.service';
-import { PrismaService } from '../../common/database/prisma/prisma.service';
+import { PrismaService } from '../prisma/prisma.service';
 import {
   AppointmentStatus,
   AppointmentType,

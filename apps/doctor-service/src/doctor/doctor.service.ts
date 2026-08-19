@@ -132,12 +132,18 @@ export class DoctorService {
     return saved;
   }
 
+  async doctorGetConsultationWorkspace(userId: string, appointmentId: string) {
+    return this.doctorGetWorkspace(userId, appointmentId);
+  }
+
   async doctorCompleteConsultation(
     userId: string,
-    appointmentId: string,
-    dto: SaveConsultationNotesDto,
+    appointmentIdOrDto: any,
+    dto?: SaveConsultationNotesDto,
   ) {
-    return this.doctorSaveConsultationNotes(userId, appointmentId, dto);
+    const appointmentId = typeof appointmentIdOrDto === 'string' ? appointmentIdOrDto : appointmentIdOrDto?.appointmentId;
+    const body = dto || appointmentIdOrDto;
+    return this.doctorSaveConsultationNotes(userId, appointmentId, body);
   }
 
   // ==========================================
@@ -145,16 +151,18 @@ export class DoctorService {
   // ==========================================
   async doctorCreatePrescription(
     userId: string,
-    appointmentId: string,
-    dto: CreateDoctorPrescriptionDto,
+    appointmentIdOrDto: any,
+    dto?: CreateDoctorPrescriptionDto,
   ) {
     const doctor = await this.getDoctorByUserId(userId);
+    const appointmentId = typeof appointmentIdOrDto === 'string' ? appointmentIdOrDto : appointmentIdOrDto?.appointmentId;
+    const body = dto || appointmentIdOrDto;
     return {
       id: `rx-${Date.now()}`,
       appointmentId,
       doctorId: doctor.id,
-      medicines: dto.medicines,
-      instructions: dto.instructions,
+      medicines: body?.medicines || [],
+      instructions: body?.instructions,
       createdAt: new Date(),
     };
   }
@@ -172,6 +180,10 @@ export class DoctorService {
 
   async doctorGetPrescription(userId: string, id: string) {
     return { id, medicines: [] };
+  }
+
+  async doctorGetPrescriptionDetails(userId: string, id: string) {
+    return this.doctorGetPrescription(userId, id);
   }
 
   // ==========================================
@@ -192,11 +204,23 @@ export class DoctorService {
     return { id, status: 'CONFIRMED' };
   }
 
+  async doctorGetAppointmentDetails(userId: string, id: string) {
+    return this.doctorGetAppointment(userId, id);
+  }
+
+  async doctorUpdateAppointmentStatus(userId: string, id: string, status: any, notes?: string) {
+    return { id, status, notes };
+  }
+
   async doctorGetVideoToken(userId: string, appointmentId: string) {
     return {
       token: `tok_${Date.now()}`,
       room: `consult_${appointmentId}`,
     };
+  }
+
+  async doctorGetVideoSessionToken(userId: string, appointmentId: string) {
+    return this.doctorGetVideoToken(userId, appointmentId);
   }
 
   // ==========================================
@@ -214,6 +238,14 @@ export class DoctorService {
 
   async doctorGetPatientRecords(userId: string, patientId: string) {
     return [];
+  }
+
+  async doctorGetPatientMedicalRecords(userId: string, patientId: string) {
+    return this.doctorGetPatientRecords(userId, patientId);
+  }
+
+  async doctorGetEarningsSummary(userId: string) {
+    return this.doctorGetEarnings(userId);
   }
 
   // ==========================================

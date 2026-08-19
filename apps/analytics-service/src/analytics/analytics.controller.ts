@@ -1,6 +1,6 @@
 import { Controller } from '@nestjs/common';
 import { MessagePattern } from '@nestjs/microservices';
-import { PATTERNS } from '../common/microservices.constants';
+import { PATTERNS } from '@medcare/contracts';
 import { AnalyticsService } from './analytics.service';
 
 @Controller()

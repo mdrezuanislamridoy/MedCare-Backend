@@ -5,8 +5,8 @@
   - Role-based modular portals (`patient`, `doctor`, `admin`, `super-admin`, `receptionist`, `clinic-manager`, `support-staff`)
 - **Backend**: NestJS Enterprise Microservices Monorepo + Caddy Ingress (`/Volumes/2BT/Ridoy/MedCare Backend`)
   - **Edge Ingress**: Caddy (`infrastructure/caddy/Caddyfile`) with automatic TLS, Gzip/Zstd compression, and WebSocket proxying
-  - **13 Isolated Microservices (`apps/`)**:
-    - `apps/api-gateway/` (API Gateway, OpenAPI Swagger, ClientProxy routing)
+  - **11 Isolated Microservices (`apps/`)**:
+    - `apps/api-gateway/` (Pure Microservices API Gateway, OpenAPI Swagger, ClientProxy routing in `src/modules/`)
     - `apps/auth-service/` (Auth, JWT, OAuth, Password Management)
     - `apps/doctor-service/` (Doctor clinical workspace, consultation notes, e-prescriptions)
     - `apps/patient-service/` (Patient health metrics, medical records, booking)
@@ -23,221 +23,80 @@
     - `libs/kafka/`: Kafka producer/consumer helper module
     - `libs/auth/`: JWT strategies, `@Roles()`, `@Public()`, and guards
     - `libs/logger/`: Structured distributed tracing logger
-    - `libs/common/`: Prisma database client helper and global modules
+    - `libs/common/`: Shared Prisma base classes and modules
   - **Infrastructure & Docker (`infrastructure/`)**:
     - `infrastructure/caddy/Caddyfile` (Caddy edge reverse proxy)
     - `infrastructure/docker/Dockerfile.gateway` (API Gateway image)
     - `infrastructure/docker/Dockerfile.microservice` (Multi-stage parameterized image for any microservice)
     - `infrastructure/docker/init-db/01-init-databases.sh` (PostgreSQL multi-database initializer)
-    - `infrastructure/docker/compose/` (Individual standalone docker-compose files per service: `docker-compose.auth.yml`, `docker-compose.doctor.yml`, `docker-compose.patient.yml`, `docker-compose.appointment.yml`, `docker-compose.billing.yml`, `docker-compose.clinic.yml`, `docker-compose.chat.yml`)
-    - `docker-compose.yml` (Complete multi-container orchestration for Caddy, Gateway, 13 microservices, Redis/Kafka, and PostgreSQL)
+    - `infrastructure/docker/compose/` (Individual standalone docker-compose files per service)
+    - `docker-compose.yml` (Complete multi-container orchestration for Caddy, Gateway, 11 microservices, Redis, and PostgreSQL)
   - **Database-per-Service & Multi-Database Engine**:
     - **Dedicated `prisma/schema.prisma` in each microservice (`apps/<service>/prisma/schema.prisma`)**
-    - Dedicated database instances: `medcare_core`, `medcare_doctor`, `medcare_patient`, `medcare_appointment`, `medcare_clinic`, `medcare_finance`, `medcare_audit`, `medcare_chat`, `medcare_notification`, `medcare_support`, `medcare_analytics`, `medcare_review`, `medcare_system`
+    - Dedicated database instances: `auth_db`, `doctor_db`, `patient_db`, `appointment_db`, `clinic_db`, `billing_db`, `audit_db`, `chat_db`, `notification_db`
+    - Dedicated Prisma clients generated in `apps/<service>/src/generated/prisma/`
     - Automated provisioning via `infrastructure/docker/init-db/01-init-databases.sh`
-  - **Transport Layer**: Dual Mode (`Transport.TCP` for low-latency in-cluster RPC & `Transport.REDIS` / `Transport.KAFKA` for distributed pub/sub)
-  - **Asynchronous Domain Events (`@EventPattern`)**: `APPOINTMENT.BOOKED`, `PAYMENT.SUCCESS`, `QUEUE.STATE_CHANGED`, `NOTIFICATION.DISPATCH`, `AUDIT.RECORD`
-  - **Execution Scripts**:
-    - Gateway: `npm run start:gateway:dev`
-    - Individual Services: `npm run start:doctor:dev`, `npm run start:patient:dev`, `npm run start:appointment:dev`, `npm run start:billing:dev`, etc.
-    - Hybrid Monolith: `npm run start:dev`
-    - Standalone Cluster: `npm run start:microservices`
-- [x] **Receptionist / Front-Desk Portal Backend Roadmap:** Complete implementation details in [`RECEPTIONIST_BACKEND_STEPS.md`](file:///Volumes/2BT/Ridoy/MedCare%20Backend/RECEPTIONIST_BACKEND_STEPS.md).
-- [x] **Support Staff Portal Backend Roadmap:** Complete architecture and implementation steps in [`SUPPORT_STAFF_BACKEND_STEPS.md`](file:///Volumes/2BT/Ridoy/MedCare%20Backend/SUPPORT_STAFF_BACKEND_STEPS.md).
-- [x] **Doctor Portal Backend Roadmap:** Complete architecture and implementation steps in [`DOCTOR_BACKEND_STEPS.md`](file:///Volumes/2BT/Ridoy/MedCare%20Backend/DOCTOR_BACKEND_STEPS.md).
-  - [x] **Phase 1: Database & Prisma Schema Enhancements** (`doctor-schedule.prisma`, `consultation-note.prisma`, `doctor-payout.prisma`, `DoctorProfile` relations).
-  - [x] **Phase 2: Microservices Layer Implementation** (`DoctorService`, `DoctorController`, DTOs, message patterns in `microservices.constants.ts`).
-  - [x] **Phase 3: Doctor Gateway REST API & DTOs** (`DoctorGatewayController` with 18 endpoints under `/doctor/*` registered in `GatewayModule` & Swagger).
-  - [x] **Phase 4: Real-Time Consultation Queue & Video Sessions** (`GET /doctor/queue/stream` SSE stream with 15s heartbeat & Agora/WebRTC video token generator).
-  - [x] **Phase 5: Security, RBAC & Medical EHR Compliance** (Strict doctor-patient authorization on EHR records & compliance audit logging in `AuditLog`).
-  - [x] **Phase 6: Verification & Automated Testing** (Unit tests in `doctor.service.spec.ts` & `doctor.gateway.controller.spec.ts`, 62/62 passing tests).
-- [x] **Clinic Manager Portal Backend Roadmap:** Complete architecture and implementation steps in [`CLINIC_MANAGER_BACKEND_STEPS.md`](file:///Volumes/2BT/Ridoy/MedCare%20Backend/CLINIC_MANAGER_BACKEND_STEPS.md).
-  - [x] **Phase 1: Database & Prisma Schema Enhancements** (`clinic-room.prisma`, `clinic-staff.prisma`, `Clinic` relations).
-  - [x] **Phase 2: Microservices Layer Implementation** (`ClinicService` expanded with branch stats, doctor roster, staff shifts, room inventory, financials, and reports).
-  - [x] **Phase 3: Clinic Manager Gateway REST API** (`ClinicManagerGatewayController` with 20 REST endpoints under `/clinic-manager/*` registered in `GatewayModule` & Swagger).
-  - [x] **Phase 4: Real-Time Live Room & Queue SSE Stream** (`GET /clinic-manager/stream` with 15s heartbeat).
-  - [x] **Phase 5: Security, RBAC & Multi-Branch Compliance** (Strict manager-clinic boundary authorization & compliance audit logging).
-  - [x] **Phase 6: Verification & Automated Testing** (Unit tests in `clinic-manager.service.spec.ts` & `clinic-manager.gateway.controller.spec.ts`, 83/83 tests passing).
-- [x] **End-to-End Chat & Real-Time Messaging System:**
-  - Database: `prisma/schema/chat.prisma` (`Conversation`, `ChatParticipant`, `ChatMessage` with unread counts, attachments, internal notes).
-  - Microservice & WebSocket Gateway: `ChatService`, `ChatGateway` (Socket.io room namespace `/chat`, typing indicators, real-time message broadcast, SSE stream).
-  - REST Gateway API: `ChatGatewayController` (`/chat/conversations`, `/chat/unread-count`, `/chat/messages`, `/chat/read`, `/chat/stream`).
-  - Unit Tests: `chat.service.spec.ts` & `chat.gateway.controller.spec.ts` (73/73 total tests passing).
-- [x] **Frontend Authentication, Zustand Store & Role Guard:**
-  - `src/common/stores/auth.store.ts`: Zustand store with persistent storage (`persist`), role helpers, instant role switching, and silent session verification.
-  - `src/common/guards/RoleGuard.tsx`: Client-side RBAC route protector with customized 403 Access Denied views, fallback handling, and unauthenticated redirects.
-  - `src/common/components/AuthHeader.tsx`: Unified, responsive top navigation header with active role pills, user profile badge, instant workspace switcher dropdown, and sign out handler.
-  - Role portal routes protected under `app/*`: `/patient`, `/doctor`, `/receptionist`, `/support-staff`, `/clinic-manager`, `/admin`, and `/super-admin`.
-  - `src/common/services/api.ts` & `auth.service.ts`: Centralized fetch client with automatic JWT bearer attachment.
-  - `src/MedCarePortal.tsx`: Interactive login and signup UI with live API integration and one-click demo credentials.
-- [x] **Patient Portal Frontend Integration (100% Complete):**
-  - `src/roles/patient/services/patient.api.ts`: API client connecting all 22 Patient REST endpoints.
-  - `Dashboard.tsx`: Live stats summary, greetings with user name from Zustand store, and active teleconsultations.
-  - `ProfileSettings.tsx`: Health metrics and emergency contact persistence connected with `PUT /patient/profile`.
-  - `FindDoctors.tsx` & `BookAppointment.tsx`: Specialist discovery & booking flow connected with `POST /patient/appointments`.
-  - `MyAppointments.tsx`: Live appointment management, cancellations (`DELETE/PATCH`), and rescheduling.
-  - `Prescriptions.tsx`: Live digital prescription history & PDF downloads connected with `GET /patient/prescriptions`.
-  - `MedicalRecords.tsx`: Encrypted diagnostic reports & files connected with `GET /patient/medical-records`.
-  - `Payments.tsx`: Invoices & payment ledger connected with `GET /patient/payments`.
-  - `Reviews.tsx`: Doctor ratings & reviews connected with `GET /patient/reviews` & `POST /patient/reviews`.
-  - `Notifications.tsx`: Real-time alerts connected with `GET /patient/notifications` & mark-read handler.
-- [x] **Doctor Portal Frontend Integration (100% Complete):**
-  - `src/roles/doctor/services/doctor.api.ts`: API client connecting all 17 Doctor REST endpoints.
-  - `Dashboard.tsx`: Live clinical stats, patient queue schedule, and monthly revenue overview.
-  - `Profile.tsx`: Specialty, bio, qualifications, and consultation fee persistence connected with `PUT /doctor/profile`.
-  - `Appointments.tsx`: Clinical appointment schedule and real-time status actions (`START`, `COMPLETE`, `CANCEL`).
-  - `Consultations.tsx`: Live EHR charting, diagnosis, symptoms, and treatment plan connected with `POST /doctor/consultations/:id/note`.
-  - `Prescriptions.tsx`: Digital prescription issuance and drug regimens connected with `POST /doctor/prescriptions`.
-  - `Patients.tsx`: Attending patient roster and HIPAA medical charts connected with `GET /doctor/patients`.
-  - `Schedule.tsx`: Duty shifts, consultation slot durations, and working hours connected with `POST /doctor/schedules`.
-  - `Earnings.tsx`: Revenue analytics, weekly breakdowns, and disbursement requests connected with `POST /doctor/payouts/request`.
-- [x] **Super Admin Portal Backend & Frontend Integration (100% Complete):**
-  - Details in [`SUPER_ADMIN_ROADMAP.md`](file:///Volumes/2BT/Ridoy/MedCare%20Backend/SUPER_ADMIN_ROADMAP.md).
-  - `src/roles/super-admin/services/super-admin.api.ts`: Centralized API service connecting all 16 platform operational domains.
-  - `src/gateway/super-admin-rbac.gateway.controller.ts` & `src/microservices/rbac/rbac.service.ts`: Administrators lifecycle endpoints (`GET/POST /super-admin/administrators`, `PATCH /super-admin/administrators/:id/status`).
-  - `src/gateway/super-admin-system.gateway.controller.ts`: Real-time SSE telemetry stream (`GET /super-admin/system/stream`).
-  - `src/roles/super-admin/App.tsx`: Fully interactive portal connected to live data for all 16 domains (Dashboard, Analytics, Users, Doctors Verification, Clinics, RBAC, Appointments, Payments, Security, Audit Logs, System Health, Reviews Moderation, Broadcast Notifications, and Platform Settings).
-- [x] **Admin Portal Backend & Frontend Integration (100% Complete):**
-  - `src/roles/admin/services/admin.api.ts`: Centralized API service connecting all 9 admin domain microservices (Analytics, Doctors, Verification, Patients, Clinics, Appointments, Finance, Reviews, Notifications, Audit Logs).
-  - `src/roles/admin/App.tsx`: Fully connected all 11 operational views to live backend API data with dynamic action handlers for doctors, verification decisions, patient statuses, appointments, reviews moderation, announcements, and audit log exports.
-
-
 
 ---
 
-## 🚀 Patient Portal Backend Implementation Roadmap
+## 🛠️ Prisma Generation & Migration Commands
 
-- [x] **Phase 1: Database & Prisma Schema Enhancements**
-  - [x] Expanded `PatientProfile` with health metrics (`bloodGroup`, `height`, `weight`, `allergies`, `chronicConditions`, `emergencyName`, `emergencyRelationship`, `emergencyPhone`).
-  - [x] Created `Prescription` schema (`prisma/schema/prescription.prisma`).
-  - [x] Created `MedicalRecord` schema with `RecordCategory` enum (`prisma/schema/medical-record.prisma`).
-  - [x] Linked relational references in `Appointment`, `DoctorProfile`, and `PatientProfile`.
-  - [x] Validated Prisma schema (`npx prisma validate`) and generated client (`npx prisma generate`).
-  - [x] Full build test passed successfully.
+### 1. Generate Prisma Clients (Code Generation)
+- **Generate all services at once:**
+  ```bash
+  npm run prisma:generate:all
+  ```
+- **Generate for a specific service:**
+  ```bash
+  npm run prisma:generate:auth
+  npm run prisma:generate:doctor
+  npm run prisma:generate:patient
+  npm run prisma:generate:appointment
+  npm run prisma:generate:clinic
+  npm run prisma:generate:billing
+  npm run prisma:generate:notification
+  npm run prisma:generate:audit
+  npm run prisma:generate:chat
+  ```
 
-- [x] **Phase 2: Microservices Layer Implementation**
-  - [x] `patient.service.ts`: Dashboard stats, full profile CRUD, medical records management, prescriptions.
-  - [x] `appointment.service.ts`: Slot availability validation, booking, cancel, reschedule.
-  - [x] `doctor.service.ts`: Patient doctor search & slot calculations.
-  - [x] `finance.service.ts`: Patient billing summary & invoice generation.
-  - [x] `review.service.ts`: Pending review query & review submission.
-  - [x] `notification.service.ts`: Patient notifications fetch & mark as read.
-
-- [x] **Phase 3: Patient Gateway Controllers & DTOs**
-  - [x] Created `src/gateway/patient.gateway.controller.ts` with all `/api/patient/*` routes.
-  - [x] Registered in `gateway.module.ts`.
-
-- [x] **Phase 4: Video Consultation & Third-Party Integrations**
-  - [x] Telemedicine RTC Video Token generator (`GET /patient/appointments/:id/video-session`).
-  - [x] Payment gateway integration & webhook handler (`POST /patient/payments/checkout-session`, `POST /payments/webhook/:provider`).
-
-- [x] **Phase 5: Security, Guards & File Uploads**
-  - [x] `JwtAuthGuard` & `RolesGuard` for `Role.PATIENT` with IDOR ownership validation.
-  - [x] Multer storage interceptor and file filters for medical report uploads (`POST /patient/medical-records/upload`).
-  - [x] Static `/uploads` file serving & CORS configuration enabled in `main.ts`.
-
-- [x] **Phase 6: Verification & Testing Checklist**
-  - [x] Unit tests for `PatientService`, `AppointmentService`, `PatientGatewayController` created and passed (`15/15` tests passing).
-  - [x] Slot collision prevention and video session generation tested.
-  - [x] Full build test (`npm run build`) passed with 0 errors.
-
----
-
-## 🏢 Receptionist Portal Backend Implementation Roadmap
-
-- [x] **Phase 1: Database & Prisma Schema Enhancements**
-  - [x] Created `PatientQueue` schema and `QueueStatus` enum (`prisma/schema/queue.prisma`).
-  - [x] Added `roomNumber`, `isAvailableToday`, and `queues` relation to `DoctorProfile`.
-  - [x] Linked relations in `Appointment`, `PatientProfile`, and `Clinic`.
-  - [x] Validated Prisma schema and generated updated client (`./generated/prisma`).
-
-- [x] **Phase 2: Microservices Layer Implementation**
-  - [x] `appointment.service.ts`: Receptionist dashboard KPIs, 6-Step check-in engine, queue token generation, queue status transitions.
-  - [x] `doctor.service.ts`: Hourly doctor schedule grid matrix (08:00 - 17:00), doctor room status & queue count.
-  - [x] `patient.service.ts`: Fast receptionist patient search with visit history.
-  - [x] `audit.service.ts`: Front-desk activity log retrieval.
-
-- [x] **Phase 3: Receptionist Gateway Controllers & DTOs**
-  - [x] Created `src/gateway/receptionist.gateway.controller.ts` with all 12 REST endpoints.
-  - [x] Registered in `gateway.module.ts`.
-  - [x] RBAC Guards (`RECEPTIONIST`, `CLINIC_MANAGER`, `ADMIN`, `SUPER_ADMIN`) applied.
-
-- [x] **Phase 4: Real-time Live Queue & Notification Stream**
-  - [x] Implemented `LiveQueueEventService` singleton event bus in `CommonModule`.
-  - [x] Emitting live queue events (`CHECKED_IN`, `CALLED`, `IN_ROOM`, `COMPLETED`, `NO_SHOW`).
-  - [x] Created SSE stream `GET /receptionist/queue/stream` with 15s heartbeat.
-  - [x] Created waiting lobby TV display board endpoint `GET /receptionist/queue/display`.
-
-- [x] **Phase 5: Security, RBAC & Front-Desk Audit Trail**
-  - [x] `@Roles(UserRole.RECEPTIONIST, UserRole.CLINIC_MANAGER, UserRole.ADMIN, UserRole.SUPER_ADMIN)` guards applied.
-  - [x] Created `@Public()` decorator allowing TV lobby displays seamless access.
-  - [x] Front-desk audit trail logging on check-in, queue transitions, and cancellations.
-
-- [x] **Phase 6: Verification & Testing Checklist**
-  - [x] Unit tests for `ReceptionistAppointmentService` (`receptionist.service.spec.ts`) created and passed.
-  - [x] Unit tests for `ReceptionistGatewayController` (`receptionist.gateway.controller.spec.ts`) created and passed.
-  - [x] Full test suite passed (`31/31` tests passing across 6 suites).
-  - [x] Production build test (`npm run build`) passed with 0 errors.
+### 2. Database Push / Migration (Schema & Table Sync)
+- **Push all schemas to databases at once (Development Sync):**
+  ```bash
+  npm run prisma:push:all
+  ```
+- **Run migration for a specific service (Production Migrations):**
+  ```bash
+  npm run prisma:migrate:auth
+  npm run prisma:migrate:doctor
+  npm run prisma:migrate:patient
+  npm run prisma:migrate:appointment
+  npm run prisma:migrate:clinic
+  npm run prisma:migrate:billing
+  npm run prisma:migrate:notification
+  npm run prisma:migrate:audit
+  npm run prisma:migrate:chat
+  ```
 
 ---
 
-## 📖 Swagger OpenAPI Documentation
+## 🚀 Running the Project
 
-- **Interactive API Docs URL:** `http://localhost:3000/api/docs`
-- **Security Scheme:** `JWT Bearer Authentication` (`bearerFormat: 'JWT'`)
-- **Tags & Modules Documented:**
-  1. `Patient Portal` – Appointments, Prescriptions, Medical Records (with Multipart file upload), Video Consultations, Invoices, Reviews.
-  2. `Receptionist Portal` – 6-Step Check-in Wizard, Live Token Queue, Doctor Schedule Matrix, Walk-In Bookings, Server-Sent Events (`/queue/stream`), and Lobby Display Screen (`/queue/display`).
-  3. `Admin Analytics` – Platform & clinic metrics overview.
-  4. `Admin Doctor Management` – Verification queue decisions & status.
-  5. `Admin Patient Management` – Patient lookup & account status.
-  6. `Admin Appointments` – Status transitions & rescheduling.
-  7. `Admin Finance & Transactions` – Invoices & refund processing.
-  8. `Admin Clinic Management` – Branch creation & configuration.
-  9. `Admin Reviews & Ratings` – Moderation of patient reviews.
-  10. `Admin Notifications` – Broadcast & targeted notifications.
-  11. `Admin Audit Logs` – Security & operational audit trails.
-  12. `Super Admin & RBAC` – Privilege requests & role-permission matrix.
-  13. `Super Admin System & Health` – Health checks & database backup triggers.
-  14. `Public Payments & Webhooks` – Stripe & SSLCommerz webhooks.
-
----
-
-## 🐳 Docker & Containerization Setup
-
-### 🛠️ 1. Local Development Mode (Database & Redis Only):
-Runs only PostgreSQL, Redis, and pgAdmin in Docker, allowing you to develop and hot-reload the NestJS backend on your local machine.
-
+### Hybrid Mode (Gateway + Microservices concurrently):
 ```bash
-# Start PostgreSQL, Redis & pgAdmin
-npm run docker:dev
-# or: docker compose -f docker-compose.dev.yml up -d
-
-# Start NestJS backend with watch mode
 npm run start:dev
-
-# Stop dev containers
-npm run docker:dev:down
 ```
 
-### 🚀 2. Full-Stack Production Mode:
-Runs the entire platform including the NestJS API container.
-
+### Individual Microservices:
 ```bash
-# Build and start all services
-docker compose up -d --build
-
-# View backend logs
-docker compose logs -f medcare-api
-
-# Stop all containers
-docker compose down
+npm run start:gateway:dev
+npm run start:auth:dev
+npm run start:doctor:dev
+npm run start:patient:dev
+npm run start:appointment:dev
+npm run start:billing:dev
+npm run start:clinic:dev
+npm run start:notification:dev
+npm run start:audit:dev
+npm run start:analytics:dev
+npm run start:chat:dev
 ```
-
-### 📦 Services & Ports:
-| Service | Container Name | Port | Purpose |
-| :--- | :--- | :---: | :--- |
-| **PostgreSQL** | `medcare-postgres-dev` | `localhost:5432` | Relational database (`medcare_db`) |
-| **Redis** | `medcare-redis-dev` | `localhost:6379` | Cache & live queue pubsub |
-| **pgAdmin** | `medcare-pgadmin-dev` | `http://localhost:5050` | Database web client (`admin@medcare.local` / `admin`) |
-| **NestJS API** | `medcare-api` | `http://localhost:3000` | REST API Gateway & Swagger (`/api/docs`) |

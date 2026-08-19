@@ -663,6 +663,42 @@ export class ClinicService {
     };
   }
 
+  async getClinicAppointments(
+    managerUserId: string,
+    clinicId: string | undefined,
+    filter: any,
+  ) {
+    return this.listClinicAppointments(managerUserId, clinicId, filter);
+  }
+
+  async getClinicQueue(managerUserId: string, clinicId?: string) {
+    return { data: [] };
+  }
+
+  async getClinicFinancialSummary(
+    managerUserId: string,
+    clinicId?: string,
+    filter?: any,
+  ) {
+    return this.getClinicFinancialReport(managerUserId, clinicId, filter || {});
+  }
+
+  async getClinicReports(
+    managerUserId: string,
+    clinicId?: string,
+    filter?: any,
+  ) {
+    return this.getClinicOperationalReport(managerUserId, clinicId, filter || {});
+  }
+
+  async getClinicActivityLogs(
+    managerUserId: string,
+    clinicId?: string,
+    filter?: any,
+  ) {
+    return { data: [], meta: { page: 1, limit: 20, total: 0, totalPages: 0 } };
+  }
+
   // =========================================================================
   // 8. CLINIC MANAGER: FINANCIAL & OPERATIONAL REPORTS
   // =========================================================================

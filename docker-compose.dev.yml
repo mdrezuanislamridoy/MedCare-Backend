@@ -7,13 +7,15 @@ services:
     container_name: medcare-postgres-dev
     restart: unless-stopped
     ports:
-      - "${DB_PORT:-5432}:5432"
+      - "${DB_PORT:-5435}:5432"
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-medcare}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-medcare_secure_pass}
       POSTGRES_DB: ${POSTGRES_DB:-medcare_db}
+      POSTGRES_MULTIPLE_DATABASES: "auth_db,doctor_db,patient_db,appointment_db,clinic_db,billing_db,notification_db,audit_db,chat_db,medcare_db"
     volumes:
       - medcare_dev_pgdata:/var/lib/postgresql/data
+      - ./infrastructure/docker/init-db:/docker-entrypoint-initdb.d:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-medcare} -d ${POSTGRES_DB:-medcare_db}"]
       interval: 3s
@@ -28,7 +30,7 @@ services:
     container_name: medcare-redis-dev
     restart: unless-stopped
     ports:
-      - "${REDIS_PORT:-6379}:6379"
+      - "${REDIS_PORT:-6380}:6379"
     volumes:
       - medcare_dev_redisdata:/data
     healthcheck:
@@ -47,8 +49,8 @@ services:
     ports:
       - "${PGADMIN_PORT:-5050}:80"
     environment:
-      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-admin@medcare.local}
-      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin}
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-admin@medcare.com}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin_secure_password_2026}
     depends_on:
       postgres:
         condition: service_healthy

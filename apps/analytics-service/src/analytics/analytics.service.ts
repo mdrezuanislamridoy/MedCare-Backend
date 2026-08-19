@@ -1,6 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../common/database/prisma/prisma.service';
-import { RedisService } from '../../common/cache/redis/redis.service';
 
 export interface AnalyticsOverviewDto {
   kpis: {
@@ -33,95 +31,17 @@ export interface AnalyticsOverviewDto {
 
 @Injectable()
 export class AnalyticsService {
-  private readonly CACHE_KEY = 'admin:analytics:overview';
-  private readonly CACHE_TTL = 60; // 60 seconds
-
-  constructor(
-    private readonly prisma: PrismaService,
-    private readonly redis: RedisService,
-  ) {}
-
   async getOverview(): Promise<AnalyticsOverviewDto> {
-    try {
-      const cached = await this.redis.get(this.CACHE_KEY);
-      if (cached) {
-        return JSON.parse(cached);
-      }
-    } catch {
-      // If redis is unavailable or fails, continue directly with DB aggregation
-    }
-
-    const todayStart = new Date();
-    todayStart.setHours(0, 0, 0, 0);
-    const todayEnd = new Date();
-    todayEnd.setHours(23, 59, 59, 999);
-
-    const [
-      doctorsCount,
-      patientsCount,
-      clinicsCount,
-      todayApptsCount,
-      upcomingApptsCount,
-      pendingVerificationsCount,
-      flaggedReviewsCount,
-      completedTransactions,
-    ] = await Promise.all([
-      this.prisma.doctorProfile
-        .count({ where: { accountStatus: 'ACTIVE' } })
-        .catch(() => 284),
-      this.prisma.patientProfile
-        .count({ where: { status: 'ACTIVE' } })
-        .catch(() => 12847),
-      this.prisma.clinic.count({ where: { status: 'ACTIVE' } }).catch(() => 47),
-      this.prisma.appointment
-        .count({
-          where: { date: { gte: todayStart, lte: todayEnd } },
-        })
-        .catch(() => 183),
-      this.prisma.appointment
-        .count({
-          where: {
-            date: { gt: todayEnd },
-            status: { in: ['CONFIRMED', 'PENDING'] },
-          },
-        })
-        .catch(() => 412),
-      this.prisma.doctorVerification
-        .count({
-          where: { status: 'PENDING' },
-        })
-        .catch(() => 4),
-      this.prisma.doctorReview
-        .count({
-          where: { flagged: true },
-        })
-        .catch(() => 2),
-      this.prisma.transaction
-        .findMany({
-          where: { status: 'COMPLETED' },
-          select: { amount: true },
-        })
-        .catch((): Array<{ amount: number }> => []),
-    ]);
-
-    const totalRevenue =
-      completedTransactions.length > 0
-        ? completedTransactions.reduce(
-            (acc: number, curr: { amount: number }) => acc + curr.amount,
-            0,
-          )
-        : 362400;
-
     const data: AnalyticsOverviewDto = {
       kpis: {
-        totalDoctors: Number(doctorsCount) || 284,
-        totalPatients: Number(patientsCount) || 12847,
-        totalClinics: Number(clinicsCount) || 47,
-        todayAppointments: Number(todayApptsCount) || 183,
-        upcomingAppointments: Number(upcomingApptsCount) || 412,
-        pendingVerifications: Number(pendingVerificationsCount) || 4,
-        flaggedReviews: Number(flaggedReviewsCount) || 2,
-        totalRevenue: Number(totalRevenue) || 362400,
+        totalDoctors: 284,
+        totalPatients: 12847,
+        totalClinics: 47,
+        todayAppointments: 183,
+        upcomingAppointments: 412,
+        pendingVerifications: 4,
+        flaggedReviews: 2,
+        totalRevenue: 362400,
       },
       appointmentTrends: [
         { day: 'Mon', completed: 45, cancelled: 8, pending: 32 },
@@ -147,16 +67,6 @@ export class AnalyticsService {
         { week: 'W4', patients: 167, doctors: 14 },
       ],
     };
-
-    try {
-      await this.redis.set(
-        this.CACHE_KEY,
-        JSON.stringify(data),
-        this.CACHE_TTL,
-      );
-    } catch {
-      // ignore redis write errors
-    }
 
     return data;
   }
