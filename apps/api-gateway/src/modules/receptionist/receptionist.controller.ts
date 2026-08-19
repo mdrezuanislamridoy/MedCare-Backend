@@ -16,9 +16,16 @@ import {
   ApiOperation,
   ApiResponse,
   ApiTags,
+  ApiBody,
 } from '@nestjs/swagger';
 import { MICROSERVICES, PATTERNS, UserRole } from '@medcare/contracts';
 import { JwtAuthGuard, RolesGuard, Roles, Public } from '@medcare/shared';
+import {
+  ReceptionistCheckInDto,
+  ReceptionistUpdateQueueDto,
+  ReceptionistWalkInBookingDto,
+} from '../../../../appointment-service/src/appointment/dto/appointment.dto';
+import { PatientFilterDto } from '../../../../patient-service/src/patient/dto/patient.dto';
 
 @ApiTags('Receptionist & Front-Desk')
 @Controller('receptionist')
@@ -58,8 +65,9 @@ export class ReceptionistGatewayController {
     UserRole.SUPER_ADMIN,
   )
   @ApiOperation({ summary: 'Receptionist patient check-in' })
+  @ApiBody({ type: ReceptionistCheckInDto })
   @Post('check-in')
-  async checkIn(@Body() body: any, @Req() req: any) {
+  async checkIn(@Body() body: ReceptionistCheckInDto, @Req() req: any) {
     return this.appointmentClient.send(
       PATTERNS.APPOINTMENT.RECEPTIONIST_CHECK_IN,
       { dto: body, actorId: req.user?.id },
@@ -95,15 +103,16 @@ export class ReceptionistGatewayController {
     UserRole.SUPER_ADMIN,
   )
   @ApiOperation({ summary: 'Receptionist update queue status' })
+  @ApiBody({ type: ReceptionistUpdateQueueDto })
   @Patch('queue/:id/status')
   async updateQueueStatus(
     @Param('id') id: string,
-    @Body() body: any,
+    @Body() body: ReceptionistUpdateQueueDto,
     @Req() req: any,
   ) {
     return this.appointmentClient.send(
       PATTERNS.APPOINTMENT.RECEPTIONIST_UPDATE_QUEUE,
-      { queueId: id, status: body.status, actorId: req.user?.id },
+      { queueId: id, status: body.status, roomNumber: body.roomNumber, actorId: req.user?.id },
     );
   }
 
@@ -116,8 +125,9 @@ export class ReceptionistGatewayController {
     UserRole.SUPER_ADMIN,
   )
   @ApiOperation({ summary: 'Receptionist walk-in appointment booking' })
+  @ApiBody({ type: ReceptionistWalkInBookingDto })
   @Post('walk-in')
-  async walkInBooking(@Body() body: any, @Req() req: any) {
+  async walkInBooking(@Body() body: ReceptionistWalkInBookingDto, @Req() req: any) {
     return this.appointmentClient.send(
       PATTERNS.APPOINTMENT.RECEPTIONIST_WALK_IN,
       { dto: body, actorId: req.user?.id },
@@ -134,16 +144,8 @@ export class ReceptionistGatewayController {
   )
   @ApiOperation({ summary: 'Receptionist search patients' })
   @Get('patients/search')
-  async searchPatients(
-    @Query('q') q?: string,
-    @Query('page') page?: number,
-    @Query('limit') limit?: number,
-  ) {
-    return this.patientClient.send(PATTERNS.PATIENT.RECEPTIONIST_SEARCH, {
-      q,
-      page,
-      limit,
-    });
+  async searchPatients(@Query() query: PatientFilterDto) {
+    return this.patientClient.send(PATTERNS.PATIENT.RECEPTIONIST_SEARCH, query);
   }
 
   @Public()

@@ -17,9 +17,14 @@ import {
   ApiOperation,
   ApiResponse,
   ApiTags,
+  ApiBody,
 } from '@nestjs/swagger';
 import { MICROSERVICES, PATTERNS, UserRole } from '@medcare/contracts';
 import { JwtAuthGuard, RolesGuard, Roles } from '@medcare/shared';
+import {
+  AccessRequestDecisionDto,
+  UpdatePlatformSettingsDto,
+} from './dto/super-admin.dto';
 
 @ApiTags('Super Admin Platform Controls')
 @ApiBearerAuth('JWT-auth')
@@ -38,9 +43,10 @@ export class SuperAdminGatewayController {
   }
 
   @ApiOperation({ summary: 'Approve or reject elevated access request' })
+  @ApiBody({ type: AccessRequestDecisionDto })
   @Post('rbac/access-requests/:id/decision')
-  async decideAccessRequest(@Param('id') id: string, @Body() body: any) {
-    return { success: true, id, decision: body.decision };
+  async decideAccessRequest(@Param('id') id: string, @Body() body: AccessRequestDecisionDto) {
+    return { success: true, id, decision: body.decision, notes: body.notes };
   }
 
   @ApiOperation({ summary: 'Get full RBAC role and permission matrix' })
@@ -83,8 +89,9 @@ export class SuperAdminGatewayController {
   }
 
   @ApiOperation({ summary: 'Update platform-wide settings' })
+  @ApiBody({ type: UpdatePlatformSettingsDto })
   @Put('system/settings')
-  async updateSettings(@Body() body: any) {
+  async updateSettings(@Body() body: UpdatePlatformSettingsDto) {
     return { success: true, settings: body };
   }
 }

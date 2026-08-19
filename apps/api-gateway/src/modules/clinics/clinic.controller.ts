@@ -18,9 +18,15 @@ import {
   ApiOperation,
   ApiResponse,
   ApiTags,
+  ApiBody,
 } from '@nestjs/swagger';
 import { MICROSERVICES, PATTERNS, UserRole } from '@medcare/contracts';
 import { JwtAuthGuard, RolesGuard, Roles, Public } from '@medcare/shared';
+import {
+  ClinicFilterDto,
+  CreateClinicDto,
+  UpdateClinicDto,
+} from '../../../../clinic-service/src/clinic/dto/clinic.dto';
 
 @ApiTags('Clinics & Branch Management')
 @Controller()
@@ -33,7 +39,7 @@ export class ClinicGatewayController {
   @Public()
   @ApiOperation({ summary: 'Public list active partner clinics' })
   @Get('public/clinics')
-  async publicListClinics(@Query() query: any) {
+  async publicListClinics(@Query() query: ClinicFilterDto) {
     return this.clinicClient.send(PATTERNS.CLINIC.LIST, query);
   }
 
@@ -43,7 +49,7 @@ export class ClinicGatewayController {
   @Roles(UserRole.ADMIN, UserRole.SUPER_ADMIN)
   @ApiOperation({ summary: 'Admin list all clinics' })
   @Get('admin/clinics')
-  async adminListClinics(@Query() query: any) {
+  async adminListClinics(@Query() query: ClinicFilterDto) {
     return this.clinicClient.send(PATTERNS.CLINIC.LIST, query);
   }
 
@@ -51,8 +57,9 @@ export class ClinicGatewayController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN, UserRole.SUPER_ADMIN)
   @ApiOperation({ summary: 'Admin register new clinic' })
+  @ApiBody({ type: CreateClinicDto })
   @Post('admin/clinics')
-  async adminCreateClinic(@Body() body: any) {
+  async adminCreateClinic(@Body() body: CreateClinicDto) {
     return this.clinicClient.send(PATTERNS.CLINIC.CREATE, body);
   }
 
@@ -60,8 +67,9 @@ export class ClinicGatewayController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN, UserRole.SUPER_ADMIN)
   @ApiOperation({ summary: 'Admin update clinic details' })
+  @ApiBody({ type: UpdateClinicDto })
   @Put('admin/clinics/:id')
-  async adminUpdateClinic(@Param('id') id: string, @Body() body: any) {
+  async adminUpdateClinic(@Param('id') id: string, @Body() body: UpdateClinicDto) {
     return this.clinicClient.send(PATTERNS.CLINIC.UPDATE, { id, dto: body });
   }
 

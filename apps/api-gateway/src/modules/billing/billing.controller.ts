@@ -15,9 +15,15 @@ import {
   ApiOperation,
   ApiResponse,
   ApiTags,
+  ApiBody,
 } from '@nestjs/swagger';
 import { MICROSERVICES, PATTERNS, UserRole } from '@medcare/contracts';
 import { JwtAuthGuard, RolesGuard, Roles, Public } from '@medcare/shared';
+import {
+  PatientPaymentDto,
+  ProcessRefundDto,
+  TransactionFilterDto,
+} from '../../../../billing-service/src/billing/dto/finance.dto';
 
 @ApiTags('Billing, Invoices & Payments')
 @Controller()
@@ -32,7 +38,7 @@ export class BillingGatewayController {
   @Roles(UserRole.ADMIN, UserRole.SUPER_ADMIN)
   @ApiOperation({ summary: 'Admin list all transactions' })
   @Get('admin/finance/transactions')
-  async adminListTransactions(@Query() query: any) {
+  async adminListTransactions(@Query() query: TransactionFilterDto) {
     return this.billingClient.send(PATTERNS.BILLING.LIST_TRANSACTIONS, query);
   }
 
@@ -40,10 +46,11 @@ export class BillingGatewayController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN, UserRole.SUPER_ADMIN)
   @ApiOperation({ summary: 'Admin process refund' })
+  @ApiBody({ type: ProcessRefundDto })
   @Post('admin/finance/transactions/:id/refund')
   async adminProcessRefund(
     @Param('id') id: string,
-    @Body() body: any,
+    @Body() body: ProcessRefundDto,
     @Req() req: any,
   ) {
     return this.billingClient.send(PATTERNS.BILLING.PROCESS_REFUND, {
@@ -58,7 +65,7 @@ export class BillingGatewayController {
   @Roles(UserRole.ADMIN, UserRole.SUPER_ADMIN)
   @ApiOperation({ summary: 'Admin get financial overview report' })
   @Get('admin/finance/reports')
-  async adminGetReport(@Query() query: any) {
+  async adminGetReport(@Query() query: TransactionFilterDto) {
     return this.billingClient.send(PATTERNS.BILLING.GET_REPORT, query);
   }
 
@@ -78,8 +85,9 @@ export class BillingGatewayController {
   // --- Public Payment Webhooks ---
   @Public()
   @ApiOperation({ summary: 'Payment provider webhook endpoint' })
+  @ApiBody({ type: PatientPaymentDto })
   @Post('payments/webhook/:provider')
-  async paymentWebhook(@Param('provider') provider: string, @Body() body: any) {
+  async paymentWebhook(@Param('provider') provider: string, @Body() body: PatientPaymentDto) {
     return this.billingClient.send(PATTERNS.BILLING.PATIENT_PAY, {
       provider,
       payload: body,

@@ -16,9 +16,15 @@ import {
   ApiOperation,
   ApiResponse,
   ApiTags,
+  ApiBody,
 } from '@nestjs/swagger';
 import { MICROSERVICES, PATTERNS } from '@medcare/contracts';
 import { JwtAuthGuard } from '@medcare/shared';
+import {
+  ChatMessageFilterDto,
+  SendChatMessageDto,
+  StartConversationDto,
+} from '../../../../chat-service/src/chat/dto/chat.dto';
 
 @ApiTags('Chat & Messaging')
 @ApiBearerAuth('JWT-auth')
@@ -35,12 +41,22 @@ export class ChatGatewayController {
     return this.chatClient.send(PATTERNS.CHAT.LIST_CONVERSATIONS, req.user.id);
   }
 
+  @ApiOperation({ summary: 'Start a new conversation' })
+  @ApiBody({ type: StartConversationDto })
+  @Post('conversations')
+  async startConversation(@Req() req: any, @Body() body: StartConversationDto) {
+    return this.chatClient.send(PATTERNS.CHAT.START_CONVERSATION, {
+      userId: req.user.id,
+      dto: body,
+    });
+  }
+
   @ApiOperation({ summary: 'Get messages in a conversation' })
   @Get('conversations/:id/messages')
   async getMessages(
     @Req() req: any,
     @Param('id') id: string,
-    @Query() query: any,
+    @Query() query: ChatMessageFilterDto,
   ) {
     return this.chatClient.send(PATTERNS.CHAT.GET_CONVERSATION_MESSAGES, {
       userId: req.user.id,
@@ -50,8 +66,9 @@ export class ChatGatewayController {
   }
 
   @ApiOperation({ summary: 'Send a message' })
+  @ApiBody({ type: SendChatMessageDto })
   @Post('messages')
-  async sendMessage(@Req() req: any, @Body() body: any) {
+  async sendMessage(@Req() req: any, @Body() body: SendChatMessageDto) {
     return this.chatClient.send(PATTERNS.CHAT.SEND_MESSAGE, {
       userId: req.user.id,
       dto: body,

@@ -16,9 +16,14 @@ import {
   ApiOperation,
   ApiResponse,
   ApiTags,
+  ApiBody,
 } from '@nestjs/swagger';
 import { MICROSERVICES, PATTERNS, UserRole } from '@medcare/contracts';
 import { JwtAuthGuard, RolesGuard, Roles } from '@medcare/shared';
+import {
+  BroadcastNotificationDto,
+  NotificationFilterDto,
+} from '../../../../notification-service/src/notification/dto/notification.dto';
 
 @ApiTags('Notifications & Announcements')
 @Controller()
@@ -34,7 +39,7 @@ export class NotificationGatewayController {
   @Roles(UserRole.ADMIN, UserRole.SUPER_ADMIN)
   @ApiOperation({ summary: 'Admin list all broadcast notifications' })
   @Get('admin/notifications')
-  async adminListNotifications(@Query() query: any) {
+  async adminListNotifications(@Query() query: NotificationFilterDto) {
     return this.notificationClient.send(PATTERNS.NOTIFICATION.LIST, query);
   }
 
@@ -42,8 +47,9 @@ export class NotificationGatewayController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN, UserRole.SUPER_ADMIN)
   @ApiOperation({ summary: 'Admin send broadcast announcement' })
+  @ApiBody({ type: BroadcastNotificationDto })
   @Post('admin/notifications/broadcast')
-  async adminBroadcast(@Body() body: any, @Req() req: any) {
+  async adminBroadcast(@Body() body: BroadcastNotificationDto, @Req() req: any) {
     return this.notificationClient.send(PATTERNS.NOTIFICATION.BROADCAST, {
       dto: body,
       senderId: req.user?.id,

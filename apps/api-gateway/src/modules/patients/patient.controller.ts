@@ -18,9 +18,16 @@ import {
   ApiOperation,
   ApiResponse,
   ApiTags,
+  ApiBody,
 } from '@nestjs/swagger';
 import { MICROSERVICES, PATTERNS, UserRole } from '@medcare/contracts';
 import { JwtAuthGuard, RolesGuard, Roles } from '@medcare/shared';
+import {
+  CreateMedicalRecordDto,
+  PatientFilterDto,
+  UpdatePatientProfileDto,
+  UpdatePatientStatusDto,
+} from '../../../../patient-service/src/patient/dto/patient.dto';
 
 @ApiTags('Patient Portal & Records')
 @Controller()
@@ -35,7 +42,7 @@ export class PatientGatewayController {
   @Roles(UserRole.ADMIN, UserRole.SUPER_ADMIN)
   @ApiOperation({ summary: 'Admin list all patients' })
   @Get('admin/patients')
-  async adminListPatients(@Query() query: any) {
+  async adminListPatients(@Query() query: PatientFilterDto) {
     return this.patientClient.send(PATTERNS.PATIENT.LIST, query);
   }
 
@@ -52,10 +59,11 @@ export class PatientGatewayController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN, UserRole.SUPER_ADMIN)
   @ApiOperation({ summary: 'Admin update patient status' })
+  @ApiBody({ type: UpdatePatientStatusDto })
   @Patch('admin/patients/:id/status')
   async adminUpdateStatus(
     @Param('id') id: string,
-    @Body() body: any,
+    @Body() body: UpdatePatientStatusDto,
     @Req() req: any,
   ) {
     return this.patientClient.send(PATTERNS.PATIENT.UPDATE_STATUS, {
@@ -89,8 +97,9 @@ export class PatientGatewayController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.PATIENT)
   @ApiOperation({ summary: 'Patient update health profile' })
+  @ApiBody({ type: UpdatePatientProfileDto })
   @Put('patient/profile')
-  async patientUpdateProfile(@Req() req: any, @Body() body: any) {
+  async patientUpdateProfile(@Req() req: any, @Body() body: UpdatePatientProfileDto) {
     return this.patientClient.send(PATTERNS.PATIENT.UPDATE_PROFILE, {
       userId: req.user.id,
       dto: body,
@@ -116,8 +125,9 @@ export class PatientGatewayController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.PATIENT)
   @ApiOperation({ summary: 'Patient save diagnostic record' })
+  @ApiBody({ type: CreateMedicalRecordDto })
   @Post('patient/medical-records')
-  async patientCreateRecord(@Req() req: any, @Body() body: any) {
+  async patientCreateRecord(@Req() req: any, @Body() body: CreateMedicalRecordDto) {
     return this.patientClient.send(PATTERNS.PATIENT.CREATE_RECORD, {
       userId: req.user.id,
       dto: body,

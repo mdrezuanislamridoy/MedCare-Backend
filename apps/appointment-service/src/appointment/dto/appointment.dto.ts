@@ -285,6 +285,14 @@ export class ReceptionistUpdateQueueDto {
   @IsNotEmpty()
   @IsEnum(QueueStatus)
   status!: QueueStatus;
+
+  @ApiPropertyOptional({
+    example: 'Room 304',
+    description: 'Consultation room assigned',
+  })
+  @IsOptional()
+  @IsString()
+  roomNumber?: string;
 }
 
 export class ReceptionistWalkInBookingDto {
