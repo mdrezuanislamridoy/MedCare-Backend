@@ -4,5 +4,7 @@ export * from './config/env.validation';
 export * from './utils/file-upload.util';
 export * from './cache/redis/redis.module';
 export * from './cache/redis/redis.service';
+export * from './mail/mail.module';
+export * from './mail/mail.service';
 export * from './events/live-queue-event.service';
 export * from './events/live-support-event.service';

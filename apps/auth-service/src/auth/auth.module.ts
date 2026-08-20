@@ -9,12 +9,14 @@ import { CodeService } from './code.service';
 import { JwtStrategy } from './strategies/jwt.strategy';
 
 import { PrismaModule } from '../prisma/prisma.module';
+import { MailModule, MailService } from '@medcare/common';
 
 @Module({
   imports: [
     ConfigModule,
     PrismaModule,
     PassportModule,
+    MailModule,
     JwtModule.registerAsync({
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
@@ -29,7 +31,7 @@ import { PrismaModule } from '../prisma/prisma.module';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, CodeService, JwtStrategy],
+  providers: [AuthService, CodeService, MailService, JwtStrategy],
   exports: [AuthService],
 })
 export class AuthModule {}

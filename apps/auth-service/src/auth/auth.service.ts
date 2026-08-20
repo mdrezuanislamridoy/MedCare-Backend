@@ -8,6 +8,7 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { OAuth2Client } from 'google-auth-library';
 import type { SignOptions } from 'jsonwebtoken';
+import { MailService } from '@medcare/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { UserRole } from '@medcare/contracts';
 import { CodePurpose } from './code-purpose.enum';
@@ -21,7 +22,7 @@ import { VerifyEmailDto } from './dto/verify-email.dto';
 
 @Injectable()
 export class AuthService {
-  private readonly passwordSaltRounds = 12;
+  private readonly passwordSaltRounds = 10;
   private readonly googleClient = new OAuth2Client();
 
   constructor(
@@ -29,6 +30,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
     private readonly codeService: CodeService,
+    private readonly mailService: MailService,
   ) {}
 
   async register(dto: RegisterDto) {
@@ -52,6 +54,11 @@ export class AuthService {
         name: dto.name?.trim() || 'User',
       },
     });
+
+    // Send welcome email in background
+    this.mailService
+      .sendWelcomeEmail(user.email, user.name, user.role)
+      .catch(() => null);
 
     return this.authResponse(user);
   }
@@ -108,7 +115,16 @@ export class AuthService {
       user.email,
     );
 
+    // Send verification code email
+    await this.mailService.sendVerificationCodeEmail(
+      user.email,
+      user.name,
+      issuedCode.code,
+      Math.round(issuedCode.expiresInSeconds / 60),
+    );
+
     return {
+      message: `Verification code sent to ${user.email}`,
       expiresInSeconds: issuedCode.expiresInSeconds,
       ...(process.env.NODE_ENV === 'production'
         ? {}
@@ -150,7 +166,16 @@ export class AuthService {
       user.email,
     );
 
+    // Send password reset email
+    await this.mailService.sendPasswordResetEmail(
+      user.email,
+      user.name,
+      issuedCode.code,
+      Math.round(issuedCode.expiresInSeconds / 60),
+    );
+
     return {
+      message: `Password reset instructions sent to ${user.email}`,
       expiresInSeconds: issuedCode.expiresInSeconds,
       ...(process.env.NODE_ENV === 'production'
         ? {}
