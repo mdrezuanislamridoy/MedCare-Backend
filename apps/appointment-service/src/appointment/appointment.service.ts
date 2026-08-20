@@ -3,8 +3,10 @@ import {
   ForbiddenException,
   Injectable,
   NotFoundException,
+  Optional,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { LiveQueueEventService } from '@medcare/common';
 import {
   AppointmentFilterDto,
   RescheduleAppointmentDto,
@@ -23,7 +25,10 @@ import {
 
 @Injectable()
 export class AppointmentService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    @Optional() private readonly queueEventService?: LiveQueueEventService,
+  ) {}
 
   async listAppointments(filter: AppointmentFilterDto) {
     const page = Math.max(1, Number(filter.page) || 1);
@@ -234,6 +239,21 @@ export class AppointmentService {
   async patientBookAppointment(userId: string, dto: BookAppointmentDto) {
     const bookingDate = new Date(dto.date);
 
+    const existing = await this.prisma.appointment.findFirst({
+      where: {
+        doctorId: dto.doctorId,
+        date: bookingDate,
+        time: dto.time,
+        status: {
+          notIn: [AppointmentStatus.CANCELLED] as any,
+        },
+      },
+    });
+
+    if (existing) {
+      throw new BadRequestException('Selected time slot is already booked for this doctor');
+    }
+
     const appointmentNumber = `APT-${Date.now().toString().slice(-6)}-${Math.floor(100 + Math.random() * 900)}`;
 
     const appointment = await this.prisma.appointment.create({
@@ -429,7 +449,7 @@ export class AppointmentService {
   }
 
   async receptionistCheckIn(dto: ReceptionistCheckInDto, actorId?: string) {
-    const appointment = await this.prisma.appointment.findUnique({
+    const appointment: any = await this.prisma.appointment.findUnique({
       where: { id: dto.appointmentId },
       include: {
         queue: true,
@@ -438,6 +458,15 @@ export class AppointmentService {
 
     if (!appointment) {
       throw new NotFoundException('Appointment not found');
+    }
+
+    if (
+      appointment.status === AppointmentStatus.CANCELLED ||
+      (appointment.status as any) === 'REJECTED'
+    ) {
+      throw new BadRequestException(
+        `Cannot check in a ${appointment.status.toLowerCase()} appointment`,
+      );
     }
 
     if (appointment.queue) {
@@ -463,17 +492,16 @@ export class AppointmentService {
       599,
     );
 
-    const lastQueue = await this.prisma.patientQueue.findFirst({
+    const lastQueue: any = await this.prisma.patientQueue.findFirst({
       where: {
         doctorId: appointment.doctorId,
         createdAt: { gte: startOfToday, lte: endOfToday },
       },
       orderBy: { tokenNumber: 'desc' },
-      select: { tokenNumber: true },
     });
 
-    const nextTokenNumber = (lastQueue?.tokenNumber || 0) + 1;
-    const roomNumber = dto.roomNumber || 'Room 101';
+    const nextTokenNumber = (lastQueue?.tokenNumber ?? lastQueue?.queueNumber ?? 0) + 1;
+    const roomNumber = dto.roomNumber || appointment.doctor?.roomNumber || 'Room 101';
 
     await this.prisma.appointment.update({
       where: { id: appointment.id },
@@ -491,6 +519,17 @@ export class AppointmentService {
         roomNumber,
         status: QueueStatus.WAITING as any,
       },
+    });
+
+    this.queueEventService?.emit({
+      type: 'CHECKED_IN',
+      queueNumber: nextTokenNumber,
+      roomNumber,
+      patientName: appointment.patientName || appointment.patient?.user?.name || 'Patient',
+      doctorName: appointment.doctorName || appointment.doctor?.user?.name || 'Doctor',
+      clinicId: appointment.clinicId || 'clinic-1',
+      timestamp: new Date().toISOString(),
+      data: queueEntry,
     });
 
     return queueEntry;
@@ -533,7 +572,7 @@ export class AppointmentService {
     status: QueueStatus,
     actorId?: string,
   ) {
-    const queue = await this.prisma.patientQueue.findUnique({
+    const queue: any = await this.prisma.patientQueue.findUnique({
       where: { id: queueId },
       include: {
         appointment: true,
@@ -571,6 +610,17 @@ export class AppointmentService {
         })
         .catch(() => null);
     }
+
+    this.queueEventService?.emit({
+      type: (status as any) || 'CALLED',
+      queueNumber: updatedQueue.queueNumber,
+      roomNumber: updatedQueue.roomNumber,
+      patientName: queue.patientName || queue.appointment?.patientName || queue.appointment?.patient?.user?.name || 'Patient',
+      doctorName: queue.doctorName || queue.appointment?.doctorName || queue.appointment?.doctor?.user?.name || 'Doctor',
+      clinicId: updatedQueue.clinicId,
+      timestamp: new Date().toISOString(),
+      data: updatedQueue,
+    });
 
     return updatedQueue;
   }

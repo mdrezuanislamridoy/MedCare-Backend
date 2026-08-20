@@ -129,6 +129,13 @@
       "^.+\\.(t|j)s$": "ts-jest"
     },
     "moduleNameMapper": {
+      "^@medcare/contracts(|/.*)$": "<rootDir>/libs/contracts/src/$1",
+      "^@medcare/broker(|/.*)$": "<rootDir>/libs/broker/src/$1",
+      "^@medcare/kafka(|/.*)$": "<rootDir>/libs/kafka/src/$1",
+      "^@medcare/auth(|/.*)$": "<rootDir>/libs/auth/src/$1",
+      "^@medcare/logger(|/.*)$": "<rootDir>/libs/logger/src/$1",
+      "^@medcare/common(|/.*)$": "<rootDir>/libs/common/src/$1",
+      "^@medcare/shared(|/.*)$": "<rootDir>/libs/shared/src/$1",
       "^(\\.{1,2}/.*)\\.js$": "$1"
     },
     "collectCoverageFrom": [

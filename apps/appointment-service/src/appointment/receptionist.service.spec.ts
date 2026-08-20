@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AppointmentService } from './appointment.service';
 import { PrismaService } from '../prisma/prisma.service';
-import { LiveQueueEventService } from '../../common/events/live-queue-event.service';
+import { LiveQueueEventService } from '@medcare/common';
 import {
   AppointmentStatus,
   AppointmentType,
