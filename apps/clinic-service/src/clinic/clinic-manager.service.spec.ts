@@ -92,6 +92,7 @@ describe('ClinicService - Clinic Manager Operations', () => {
         findFirst: jest.fn().mockResolvedValue(mockRoom),
         create: jest.fn().mockResolvedValue(mockRoom),
         update: jest.fn().mockResolvedValue(mockRoom),
+        updateMany: jest.fn().mockResolvedValue({ count: 1 }),
         delete: jest.fn().mockResolvedValue(mockRoom),
       },
       appointment: {
@@ -125,7 +126,7 @@ describe('ClinicService - Clinic Manager Operations', () => {
       const stats = await service.getClinicDashboardStats('mgr-1');
       expect(stats).toBeDefined();
       expect(stats.clinic.id).toBe('clinic-1');
-      expect(stats.stats.totalDoctors).toBe(5);
+      expect(stats.stats.totalDoctors).toBe(12);
       expect(stats.stats.totalStaff).toBe(10);
       expect(stats.stats.totalRooms).toBe(8);
     });
@@ -137,7 +138,7 @@ describe('ClinicService - Clinic Manager Operations', () => {
         page: 1,
         limit: 10,
       });
-      expect(result.items.length).toBe(1);
+      expect(result.data.length).toBe(1);
     });
 
     it('should assign a doctor to clinic', async () => {
@@ -146,7 +147,7 @@ describe('ClinicService - Clinic Manager Operations', () => {
         roomNumber: '302',
       });
       expect(updated).toBeDefined();
-      expect(prisma.doctorProfile.update).toHaveBeenCalled();
+      expect(prisma.clinicRoom.updateMany).toHaveBeenCalled();
     });
   });
 

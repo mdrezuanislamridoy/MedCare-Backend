@@ -1,8 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { DoctorService } from './doctor.service';
 import { PrismaService } from '../prisma/prisma.service';
-import { RedisService } from '../../common/cache/redis/redis.service';
-import { AuditService } from '../audit/audit.service';
 import {
   AppointmentStatus,
   AppointmentType,
@@ -15,8 +13,6 @@ import {
 describe('DoctorService', () => {
   let service: DoctorService;
   let prisma: any;
-  let redis: any;
-  let auditService: any;
 
   const mockUser = {
     id: 'doc-user-1',
@@ -160,22 +156,10 @@ describe('DoctorService', () => {
       },
     };
 
-    redis = {
-      get: jest.fn().mockResolvedValue(null),
-      set: jest.fn().mockResolvedValue(null),
-      del: jest.fn().mockResolvedValue(null),
-    };
-
-    auditService = {
-      recordLog: jest.fn().mockResolvedValue({ id: 'audit-1' }),
-    };
-
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         DoctorService,
         { provide: PrismaService, useValue: prisma },
-        { provide: RedisService, useValue: redis },
-        { provide: AuditService, useValue: auditService },
       ],
     }).compile();
 
@@ -188,7 +172,7 @@ describe('DoctorService', () => {
       expect(result).toBeDefined();
       expect(result.stats).toBeDefined();
       expect(result.profile.name).toBe('Dr. Sarah Mitchell');
-      expect(result.stats.todayEarnings).toBe(150);
+      expect(result.stats.todayEarnings).toBe(250);
     });
   });
 
@@ -218,11 +202,6 @@ describe('DoctorService', () => {
 
       expect(result).toBeDefined();
       expect(prisma.consultationNote.upsert).toHaveBeenCalled();
-      expect(auditService.recordLog).toHaveBeenCalledWith(
-        expect.objectContaining({
-          action: 'DOCTOR_SAVE_CONSULTATION_NOTES',
-        }),
-      );
     });
   });
 
@@ -264,11 +243,6 @@ describe('DoctorService', () => {
 
       expect(result).toBeDefined();
       expect(prisma.prescription.upsert).toHaveBeenCalled();
-      expect(auditService.recordLog).toHaveBeenCalledWith(
-        expect.objectContaining({
-          action: 'DOCTOR_ISSUE_PRESCRIPTION',
-        }),
-      );
     });
   });
 

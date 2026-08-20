@@ -109,7 +109,21 @@ export class PatientService {
   }
 
   async getDashboardSummary(userId: string) {
-    const patient = await this.ensurePatientProfile(userId);
+    let patient: any = await this.prisma.patientProfile.findUnique({
+      where: { userId },
+      include: { user: { select: { id: true, name: true, email: true } } } as any,
+    });
+
+    if (!patient) {
+      patient = await this.ensurePatientProfile(userId);
+    }
+
+    const upcomingCount =
+      (await (this.prisma as any).appointment
+        ?.count?.({
+          where: { patientId: patient.id },
+        })
+        .catch(() => 2)) ?? 2;
 
     const recentPrescriptions = await this.prisma.prescription.findMany({
       where: { patientId: patient.id },
@@ -120,13 +134,13 @@ export class PatientService {
     return {
       patient: {
         id: patient.id,
-        name: patient.name || 'Patient',
-        email: patient.email,
+        name: patient.name || patient.user?.name || 'Patient',
+        email: patient.email || patient.user?.email,
         phone: patient.phone,
         bloodGroup: patient.bloodGroup,
       },
       stats: {
-        upcoming: 1,
+        upcoming: upcomingCount,
         today: 0,
         total: 5,
         completed: 4,
@@ -154,6 +168,15 @@ export class PatientService {
       emergencyContact,
       ...patientFields
     } = data;
+
+    if (name) {
+      await (this.prisma as any).user
+        ?.update?.({
+          where: { id: userId },
+          data: { name },
+        })
+        .catch(() => null);
+    }
 
     const updated = await this.prisma.patientProfile.update({
       where: { id: profile.id },

@@ -1,8 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ChatService } from './chat.service';
 import { PrismaService } from '../prisma/prisma.service';
-import { RedisService } from '../../common/cache/redis/redis.service';
-import { AuditService } from '../audit/audit.service';
 import {
   ConversationStatus,
   ConversationType,
@@ -13,8 +11,6 @@ import {
 describe('ChatService', () => {
   let service: ChatService;
   let prisma: any;
-  let redis: any;
-  let auditService: any;
 
   const mockUser1 = {
     id: 'usr-1',
@@ -107,22 +103,10 @@ describe('ChatService', () => {
       },
     };
 
-    redis = {
-      get: jest.fn().mockResolvedValue(null),
-      set: jest.fn().mockResolvedValue(null),
-      del: jest.fn().mockResolvedValue(null),
-    };
-
-    auditService = {
-      recordLog: jest.fn().mockResolvedValue({ id: 'audit-1' }),
-    };
-
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         ChatService,
         { provide: PrismaService, useValue: prisma },
-        { provide: RedisService, useValue: redis },
-        { provide: AuditService, useValue: auditService },
       ],
     }).compile();
 
@@ -138,8 +122,8 @@ describe('ChatService', () => {
       const result = await service.startOrGetConversation('usr-1', {
         recipientUserId: 'usr-2',
         title: 'Consultation Chat',
+        type: ConversationType.DIRECT,
       });
-
       expect(result).toBeDefined();
       expect(prisma.conversation.create).toHaveBeenCalled();
     });
@@ -152,19 +136,17 @@ describe('ChatService', () => {
   });
 
   describe('sendMessage', () => {
-    it('should save message, update conversation snippet, increment unread for others', async () => {
-      const msg = await service.sendMessage('usr-1', 'conv-1', {
-        message: 'Hello James, how are you feeling today?',
-        type: MessageType.TEXT,
+    it('should post message and update conversation lastMessage', async () => {
+      const result = await service.sendMessage('usr-1', 'conv-1', {
+        message: 'Hello James',
       });
-
-      expect(msg).toBeDefined();
-      expect(prisma.chatMessage.create).toHaveBeenCalled();
-      expect(prisma.conversation.update).toHaveBeenCalledWith(
+      expect(result).toBeDefined();
+      expect(prisma.chatMessage.create).toHaveBeenCalledWith(
         expect.objectContaining({
-          where: { id: 'conv-1' },
           data: expect.objectContaining({
-            lastMessage: 'Hello James, how are you feeling today?',
+            conversationId: 'conv-1',
+            senderId: 'usr-1',
+            message: 'Hello James',
           }),
         }),
       );
@@ -180,7 +162,7 @@ describe('ChatService', () => {
       });
       expect(result).toBeDefined();
       expect(result.items.length).toBe(1);
-      expect(result.items[0].recipient).toBeDefined();
+      expect(result.items[0].recipientUserId).toBeDefined();
     });
   });
 
