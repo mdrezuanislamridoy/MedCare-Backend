@@ -111,7 +111,9 @@ export class PatientService {
   async getDashboardSummary(userId: string) {
     let patient: any = await this.prisma.patientProfile.findUnique({
       where: { userId },
-      include: { user: { select: { id: true, name: true, email: true } } } as any,
+      include: {
+        user: { select: { id: true, name: true, email: true } },
+      } as any,
     });
 
     if (!patient) {

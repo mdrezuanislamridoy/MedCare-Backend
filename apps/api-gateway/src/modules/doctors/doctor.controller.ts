@@ -222,7 +222,10 @@ export class DoctorGatewayController {
   @ApiOperation({ summary: 'Doctor issue prescription' })
   @ApiBody({ type: CreateDoctorPrescriptionDto })
   @Post('doctor/prescriptions')
-  async doctorCreatePrescription(@Req() req: any, @Body() body: CreateDoctorPrescriptionDto) {
+  async doctorCreatePrescription(
+    @Req() req: any,
+    @Body() body: CreateDoctorPrescriptionDto,
+  ) {
     return this.doctorClient.send(PATTERNS.DOCTOR.DOCTOR_CREATE_PRESCRIPTION, {
       userId: req.user.id,
       dto: body,
@@ -272,7 +275,10 @@ export class DoctorGatewayController {
   @ApiOperation({ summary: 'Doctor request payout disbursement' })
   @ApiBody({ type: DoctorPayoutRequestDto })
   @Post('doctor/payouts/request')
-  async doctorRequestPayout(@Req() req: any, @Body() body: DoctorPayoutRequestDto) {
+  async doctorRequestPayout(
+    @Req() req: any,
+    @Body() body: DoctorPayoutRequestDto,
+  ) {
     return this.doctorClient.send(PATTERNS.DOCTOR.DOCTOR_REQUEST_PAYOUT, {
       userId: req.user.id,
       dto: body,

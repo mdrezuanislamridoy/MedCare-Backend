@@ -1,5 +1,12 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsEnum, IsInt, IsNotEmpty, IsOptional, IsString, Min } from 'class-validator';
+import {
+  IsEnum,
+  IsInt,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  Min,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class CreateSupportTicketDto {
@@ -29,7 +36,8 @@ export class CreateSupportTicketDto {
   priority?: 'LOW' | 'NORMAL' | 'HIGH' | 'URGENT';
 
   @ApiProperty({
-    example: 'Patient is unable to download PDF prescription for appointment #apt-1001.',
+    example:
+      'Patient is unable to download PDF prescription for appointment #apt-1001.',
     description: 'Issue description',
   })
   @IsNotEmpty()
@@ -64,7 +72,10 @@ export class CreateComplaintDto {
 }
 
 export class SupportFilterDto {
-  @ApiPropertyOptional({ example: 'Prescription', description: 'Search keywords' })
+  @ApiPropertyOptional({
+    example: 'Prescription',
+    description: 'Search keywords',
+  })
   @IsOptional()
   @IsString()
   q?: string;

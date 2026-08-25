@@ -1,8 +1,12 @@
+/* eslint-disable @typescript-eslint/unbound-method */
 import { ExecutionContext, HttpException, HttpStatus } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { ThrottlerStorage } from '@nestjs/throttler';
 import { AppThrottlerGuard } from './throttle.guard';
-import { ApiRateLimitTier, DEFAULT_RATE_LIMIT_CONFIGS } from './rate-limit.types';
+import {
+  ApiRateLimitTier,
+  DEFAULT_RATE_LIMIT_CONFIGS,
+} from './rate-limit.types';
 import {
   RATE_LIMIT_CUSTOM_KEY,
   RATE_LIMIT_SKIP_KEY,
@@ -63,7 +67,7 @@ describe('AppThrottlerGuard', () => {
         isBlocked: false,
         timeToBlockExpire: 0,
       }),
-    } as unknown as jest.Mocked<ThrottlerStorage>;
+    };
 
     guard = new AppThrottlerGuard(
       { throttlers: [{ ttl: 60000, limit: 100 }] },
@@ -104,7 +108,9 @@ describe('AppThrottlerGuard', () => {
 
   describe('Tier Determination & Rate Limiting Enforcement', () => {
     it('should dynamically infer AUTH tier for /auth/login with limit 10', async () => {
-      const { context, res } = createMockExecutionContext({ url: '/auth/login' });
+      const { context, res } = createMockExecutionContext({
+        url: '/auth/login',
+      });
       const result = await guard.canActivate(context);
 
       expect(result).toBe(true);
@@ -138,7 +144,9 @@ describe('AppThrottlerGuard', () => {
     });
 
     it('should respect explicit @RateLimitTier decorator', async () => {
-      const { context, res } = createMockExecutionContext({ url: '/custom/route' });
+      const { context, res } = createMockExecutionContext({
+        url: '/custom/route',
+      });
       jest.spyOn(reflector, 'getAllAndOverride').mockImplementation((key) => {
         if (key === RATE_LIMIT_TIER_KEY) return ApiRateLimitTier.ADMIN;
         return undefined;
@@ -157,7 +165,9 @@ describe('AppThrottlerGuard', () => {
     });
 
     it('should respect custom @ApiRateLimit options', async () => {
-      const { context, res } = createMockExecutionContext({ url: '/custom-limit' });
+      const { context, res } = createMockExecutionContext({
+        url: '/custom-limit',
+      });
       jest.spyOn(reflector, 'getAllAndOverride').mockImplementation((key) => {
         if (key === RATE_LIMIT_CUSTOM_KEY) return { limit: 5, ttl: 30000 };
         return undefined;
@@ -185,7 +195,9 @@ describe('AppThrottlerGuard', () => {
         timeToBlockExpire: 45000,
       });
 
-      const { context, res } = createMockExecutionContext({ url: '/auth/login' });
+      const { context, res } = createMockExecutionContext({
+        url: '/auth/login',
+      });
 
       try {
         await guard.canActivate(context);

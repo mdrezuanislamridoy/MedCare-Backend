@@ -97,7 +97,10 @@ export class BillingGatewayController {
   @ApiOperation({ summary: 'Payment provider webhook endpoint' })
   @ApiBody({ type: PatientPaymentDto })
   @Post('payments/webhook/:provider')
-  async paymentWebhook(@Param('provider') provider: string, @Body() body: PatientPaymentDto) {
+  async paymentWebhook(
+    @Param('provider') provider: string,
+    @Body() body: PatientPaymentDto,
+  ) {
     return this.billingClient.send(PATTERNS.BILLING.PATIENT_PAY, {
       provider,
       payload: body,

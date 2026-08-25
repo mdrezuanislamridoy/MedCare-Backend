@@ -251,7 +251,9 @@ export class AppointmentService {
     });
 
     if (existing) {
-      throw new BadRequestException('Selected time slot is already booked for this doctor');
+      throw new BadRequestException(
+        'Selected time slot is already booked for this doctor',
+      );
     }
 
     const appointmentNumber = `APT-${Date.now().toString().slice(-6)}-${Math.floor(100 + Math.random() * 900)}`;
@@ -462,7 +464,7 @@ export class AppointmentService {
 
     if (
       appointment.status === AppointmentStatus.CANCELLED ||
-      (appointment.status as any) === 'REJECTED'
+      appointment.status === 'REJECTED'
     ) {
       throw new BadRequestException(
         `Cannot check in a ${appointment.status.toLowerCase()} appointment`,
@@ -500,8 +502,10 @@ export class AppointmentService {
       orderBy: { tokenNumber: 'desc' },
     });
 
-    const nextTokenNumber = (lastQueue?.tokenNumber ?? lastQueue?.queueNumber ?? 0) + 1;
-    const roomNumber = dto.roomNumber || appointment.doctor?.roomNumber || 'Room 101';
+    const nextTokenNumber =
+      (lastQueue?.tokenNumber ?? lastQueue?.queueNumber ?? 0) + 1;
+    const roomNumber =
+      dto.roomNumber || appointment.doctor?.roomNumber || 'Room 101';
 
     await this.prisma.appointment.update({
       where: { id: appointment.id },
@@ -525,8 +529,10 @@ export class AppointmentService {
       type: 'CHECKED_IN',
       queueNumber: nextTokenNumber,
       roomNumber,
-      patientName: appointment.patientName || appointment.patient?.user?.name || 'Patient',
-      doctorName: appointment.doctorName || appointment.doctor?.user?.name || 'Doctor',
+      patientName:
+        appointment.patientName || appointment.patient?.user?.name || 'Patient',
+      doctorName:
+        appointment.doctorName || appointment.doctor?.user?.name || 'Doctor',
       clinicId: appointment.clinicId || 'clinic-1',
       timestamp: new Date().toISOString(),
       data: queueEntry,
@@ -615,8 +621,16 @@ export class AppointmentService {
       type: (status as any) || 'CALLED',
       queueNumber: updatedQueue.queueNumber,
       roomNumber: updatedQueue.roomNumber,
-      patientName: queue.patientName || queue.appointment?.patientName || queue.appointment?.patient?.user?.name || 'Patient',
-      doctorName: queue.doctorName || queue.appointment?.doctorName || queue.appointment?.doctor?.user?.name || 'Doctor',
+      patientName:
+        queue.patientName ||
+        queue.appointment?.patientName ||
+        queue.appointment?.patient?.user?.name ||
+        'Patient',
+      doctorName:
+        queue.doctorName ||
+        queue.appointment?.doctorName ||
+        queue.appointment?.doctor?.user?.name ||
+        'Doctor',
       clinicId: updatedQueue.clinicId,
       timestamp: new Date().toISOString(),
       data: updatedQueue,

@@ -88,7 +88,10 @@ export class AppointmentGatewayController {
   @Roles(UserRole.PATIENT)
   @ApiOperation({ summary: 'Patient list appointments' })
   @Get('patient/appointments')
-  async patientListAppointments(@Req() req: any, @Query() query: PatientAppointmentFilterDto) {
+  async patientListAppointments(
+    @Req() req: any,
+    @Query() query: PatientAppointmentFilterDto,
+  ) {
     return this.appointmentClient.send(PATTERNS.APPOINTMENT.PATIENT_LIST, {
       userId: req.user.id,
       filter: query,
@@ -101,7 +104,10 @@ export class AppointmentGatewayController {
   @ApiOperation({ summary: 'Patient book appointment' })
   @ApiBody({ type: BookAppointmentDto })
   @Post('patient/appointments')
-  async patientBookAppointment(@Req() req: any, @Body() body: BookAppointmentDto) {
+  async patientBookAppointment(
+    @Req() req: any,
+    @Body() body: BookAppointmentDto,
+  ) {
     return this.appointmentClient.send(PATTERNS.APPOINTMENT.PATIENT_BOOK, {
       userId: req.user.id,
       dto: body,

@@ -48,7 +48,7 @@ export class AppThrottlerGuard extends ThrottlerGuard {
   /**
    * Determine if the current execution context should be completely exempt from throttling.
    */
-  protected override async shouldSkip(context: ExecutionContext): Promise<boolean> {
+  protected override shouldSkip(context: ExecutionContext): Promise<boolean> {
     const handler = context.getHandler();
     const classRef = context.getClass();
 
@@ -58,12 +58,12 @@ export class AppThrottlerGuard extends ThrottlerGuard {
       [handler, classRef],
     );
     if (isCustomSkipped) {
-      return true;
+      return Promise.resolve(true);
     }
 
     const { req } = this.getRequestResponse(context);
     if (!req) {
-      return false;
+      return Promise.resolve(false);
     }
 
     const path = (req.url || req.path || '').toLowerCase().split('?')[0];
@@ -78,7 +78,7 @@ export class AppThrottlerGuard extends ThrottlerGuard {
       path.includes('webhook') ||
       path.includes('sslcommerz/ipn');
 
-    return isExemptRoute;
+    return Promise.resolve(isExemptRoute);
   }
 
   /**
@@ -94,7 +94,12 @@ export class AppThrottlerGuard extends ThrottlerGuard {
     const { req, res } = this.getRequestResponse(context);
 
     // 1. Resolve effective tier & configuration
-    const { tier, config } = this.resolveTierAndConfig(context, req, handler, classRef);
+    const { tier, config } = this.resolveTierAndConfig(
+      context,
+      req,
+      handler,
+      classRef,
+    );
 
     if (tier === ApiRateLimitTier.EXEMPT || config.limit <= 0) {
       return true;
@@ -131,7 +136,10 @@ export class AppThrottlerGuard extends ThrottlerGuard {
 
     // 5. Handle rate limit exceeded
     if (isBlocked) {
-      const retryAfterSeconds = Math.max(1, Math.ceil(timeToBlockExpire / 1000));
+      const retryAfterSeconds = Math.max(
+        1,
+        Math.ceil(timeToBlockExpire / 1000),
+      );
       if (res && typeof res.header === 'function') {
         res.header('Retry-After', retryAfterSeconds.toString());
       }
@@ -162,12 +170,15 @@ export class AppThrottlerGuard extends ThrottlerGuard {
   /**
    * Resolve client tracker based on Client IP and Authenticated User ID.
    */
-  protected override async getTracker(req: Record<string, any>): Promise<string> {
+  protected override getTracker(req: Record<string, any>): Promise<string> {
     const forwarded = req.headers?.['x-forwarded-for'];
     let ip = '';
 
     if (forwarded) {
-      ip = typeof forwarded === 'string' ? forwarded.split(',')[0].trim() : forwarded[0];
+      ip =
+        typeof forwarded === 'string'
+          ? forwarded.split(',')[0].trim()
+          : forwarded[0];
     }
 
     if (!ip) {
@@ -180,7 +191,7 @@ export class AppThrottlerGuard extends ThrottlerGuard {
     }
 
     const userId = req.user?.id;
-    return userId ? `${ip}#usr_${userId}` : `${ip}#anon`;
+    return Promise.resolve(userId ? `${ip}#usr_${userId}` : `${ip}#anon`);
   }
 
   /**
@@ -202,14 +213,15 @@ export class AppThrottlerGuard extends ThrottlerGuard {
   private resolveTierAndConfig(
     context: ExecutionContext,
     req: Record<string, any>,
-    handler: Function,
-    classRef: Function,
+    handler: any,
+    classRef: any,
   ): { tier: ApiRateLimitTier; config: RateLimitTierConfig } {
     // Check custom options decorator (@ApiRateLimit)
-    const customOptions = this.reflector.getAllAndOverride<CustomRateLimitOptions>(
-      RATE_LIMIT_CUSTOM_KEY,
-      [handler, classRef],
-    );
+    const customOptions =
+      this.reflector.getAllAndOverride<CustomRateLimitOptions>(
+        RATE_LIMIT_CUSTOM_KEY,
+        [handler, classRef],
+      );
 
     if (customOptions) {
       if (customOptions.skip) {

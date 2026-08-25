@@ -49,7 +49,10 @@ export class NotificationGatewayController {
   @ApiOperation({ summary: 'Admin send broadcast announcement' })
   @ApiBody({ type: BroadcastNotificationDto })
   @Post('admin/notifications/broadcast')
-  async adminBroadcast(@Body() body: BroadcastNotificationDto, @Req() req: any) {
+  async adminBroadcast(
+    @Body() body: BroadcastNotificationDto,
+    @Req() req: any,
+  ) {
     return this.notificationClient.send(PATTERNS.NOTIFICATION.BROADCAST, {
       dto: body,
       senderId: req.user?.id,

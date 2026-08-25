@@ -61,7 +61,10 @@ export class AuthGatewayController {
   @Public()
   @ApiOperation({ summary: 'Google OAuth 2.0 Single Sign-On (SSO)' })
   @ApiBody({ type: GoogleAuthDto })
-  @ApiResponse({ status: 200, description: 'Google token verified, user logged in or registered' })
+  @ApiResponse({
+    status: 200,
+    description: 'Google token verified, user logged in or registered',
+  })
   @Post('google')
   async googleAuth(@Body() body: GoogleAuthDto) {
     return this.authClient.send(PATTERNS.AUTH.GOOGLE_AUTH, body);
@@ -97,7 +100,10 @@ export class AuthGatewayController {
   @ApiBearerAuth('JWT-auth')
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Get current authenticated user profile' })
-  @ApiResponse({ status: 200, description: 'Authenticated user profile returned' })
+  @ApiResponse({
+    status: 200,
+    description: 'Authenticated user profile returned',
+  })
   @Get('me')
   async getProfile(@CurrentUser() user: any) {
     return this.authClient.send(PATTERNS.AUTH.GET_PROFILE, { userId: user.id });

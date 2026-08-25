@@ -39,30 +39,33 @@ export interface RateLimitTierConfig {
 /**
  * Default tier rate limit configurations.
  */
-export const DEFAULT_RATE_LIMIT_CONFIGS: Record<ApiRateLimitTier, RateLimitTierConfig> = {
+export const DEFAULT_RATE_LIMIT_CONFIGS: Record<
+  ApiRateLimitTier,
+  RateLimitTierConfig
+> = {
   [ApiRateLimitTier.AUTH]: {
     ttl: 60000, // 1 minute
-    limit: 10,  // 10 req/min
+    limit: 10, // 10 req/min
     blockDuration: 60000,
   },
   [ApiRateLimitTier.PAYMENT]: {
     ttl: 60000, // 1 minute
-    limit: 15,  // 15 req/min
+    limit: 15, // 15 req/min
     blockDuration: 60000,
   },
   [ApiRateLimitTier.CHAT]: {
     ttl: 60000, // 1 minute
-    limit: 60,  // 60 req/min
+    limit: 60, // 60 req/min
     blockDuration: 30000,
   },
   [ApiRateLimitTier.UPLOAD]: {
     ttl: 60000, // 1 minute
-    limit: 20,  // 20 req/min
+    limit: 20, // 20 req/min
     blockDuration: 60000,
   },
   [ApiRateLimitTier.SEARCH]: {
     ttl: 60000, // 1 minute
-    limit: 60,  // 60 req/min
+    limit: 60, // 60 req/min
     blockDuration: 30000,
   },
   [ApiRateLimitTier.PUBLIC]: {
@@ -82,7 +85,7 @@ export const DEFAULT_RATE_LIMIT_CONFIGS: Record<ApiRateLimitTier, RateLimitTierC
   },
   [ApiRateLimitTier.HIGH_FREQUENCY]: {
     ttl: 10000, // 10 seconds
-    limit: 50,  // 50 req/10s
+    limit: 50, // 50 req/10s
     blockDuration: 10000,
   },
   [ApiRateLimitTier.EXEMPT]: {

@@ -9,7 +9,19 @@ import { LiveSupportEventService } from './events/live-support-event.service';
 @Global()
 @Module({
   imports: [RedisModule, MailModule],
-  providers: [PrismaService, MailService, LiveQueueEventService, LiveSupportEventService],
-  exports: [PrismaService, RedisModule, MailModule, MailService, LiveQueueEventService, LiveSupportEventService],
+  providers: [
+    PrismaService,
+    MailService,
+    LiveQueueEventService,
+    LiveSupportEventService,
+  ],
+  exports: [
+    PrismaService,
+    RedisModule,
+    MailModule,
+    MailService,
+    LiveQueueEventService,
+    LiveSupportEventService,
+  ],
 })
 export class CommonModule {}

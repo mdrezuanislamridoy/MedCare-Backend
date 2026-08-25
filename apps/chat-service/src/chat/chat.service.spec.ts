@@ -104,10 +104,7 @@ describe('ChatService', () => {
     };
 
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        ChatService,
-        { provide: PrismaService, useValue: prisma },
-      ],
+      providers: [ChatService, { provide: PrismaService, useValue: prisma }],
     }).compile();
 
     service = module.get<ChatService>(ChatService);

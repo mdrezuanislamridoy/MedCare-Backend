@@ -23,7 +23,8 @@ export class MailService {
     const secure = process.env.SMTP_SECURE === 'true' || port === 465;
 
     this.fromAddress =
-      process.env.SMTP_FROM || 'MedCare Health Platform <noreply@medcare.local>';
+      process.env.SMTP_FROM ||
+      'MedCare Health Platform <noreply@medcare.local>';
 
     this.transporter = nodemailer.createTransport({
       host,
@@ -48,7 +49,9 @@ export class MailService {
         html: options.html,
       });
 
-      this.logger.log(`✉️ Email sent successfully to ${options.to} [MessageId: ${info.messageId}]`);
+      this.logger.log(
+        `✉️ Email sent successfully to ${options.to} [MessageId: ${info.messageId}]`,
+      );
       return true;
     } catch (error: any) {
       this.logger.warn(
@@ -58,7 +61,12 @@ export class MailService {
     }
   }
 
-  async sendVerificationCodeEmail(to: string, name: string, code: string, expiresInMin = 10) {
+  async sendVerificationCodeEmail(
+    to: string,
+    name: string,
+    code: string,
+    expiresInMin = 10,
+  ) {
     const subject = 'MedCare — Verify Your Email Address';
     const html = `
       <!DOCTYPE html>
@@ -124,7 +132,12 @@ export class MailService {
     });
   }
 
-  async sendPasswordResetEmail(to: string, name: string, code: string, expiresInMin = 10) {
+  async sendPasswordResetEmail(
+    to: string,
+    name: string,
+    code: string,
+    expiresInMin = 10,
+  ) {
     const subject = 'MedCare — Password Reset Security Code';
     const html = `
       <!DOCTYPE html>

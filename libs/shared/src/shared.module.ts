@@ -80,7 +80,8 @@ import {
       {
         name: 'high_frequency',
         ttl: DEFAULT_RATE_LIMIT_CONFIGS[ApiRateLimitTier.HIGH_FREQUENCY].ttl,
-        limit: DEFAULT_RATE_LIMIT_CONFIGS[ApiRateLimitTier.HIGH_FREQUENCY].limit,
+        limit:
+          DEFAULT_RATE_LIMIT_CONFIGS[ApiRateLimitTier.HIGH_FREQUENCY].limit,
       },
     ]),
     HealthModule,

@@ -52,7 +52,10 @@ export class SuperAdminGatewayController {
   @ApiOperation({ summary: 'Approve or reject elevated access request' })
   @ApiBody({ type: AccessRequestDecisionDto })
   @Post('rbac/access-requests/:id/decision')
-  async decideAccessRequest(@Param('id') id: string, @Body() body: AccessRequestDecisionDto) {
+  async decideAccessRequest(
+    @Param('id') id: string,
+    @Body() body: AccessRequestDecisionDto,
+  ) {
     return { success: true, id, decision: body.decision, notes: body.notes };
   }
 

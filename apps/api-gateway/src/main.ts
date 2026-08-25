@@ -59,24 +59,78 @@ Bearer <your-access-token>
       },
       'JWT-auth',
     )
-    .addTag('Public Gateway', 'Public directory, landing page aggregations, and stats')
-    .addTag('Patient Portal', 'Patient self-service, bookings, prescriptions, medical records, and video consultations')
-    .addTag('Doctor Portal', 'Doctor clinical workspace, consultation notes, digital prescriptions, schedule management, earnings')
-    .addTag('Chat & Real-Time Messaging', 'Bi-directional real-time messaging, direct patient-doctor threads, file attachments')
-    .addTag('Receptionist Portal', 'Front-desk operations, 6-step check-in wizard, token queues, and doctor schedules')
-    .addTag('Support Staff Portal', 'Helpdesk support tickets, dispute complaints escalation, patient lookup')
-    .addTag('Clinic Manager Portal', 'Clinic branch operations, doctor rosters, staff management, room allocation')
-    .addTag('Admin Analytics', 'Platform-wide analytics, revenue stats, and utilization metrics')
-    .addTag('Admin Doctor Management', 'Doctor accounts, verification queue decisions, and specialties')
-    .addTag('Admin Patient Management', 'Patient directory and account status management')
-    .addTag('Admin Appointments', 'Appointment scheduling, status transitions, and doctor reassignments')
-    .addTag('Admin Finance & Transactions', 'Invoices, transaction history, and refunds')
-    .addTag('Admin Clinic Management', 'Clinic branches, room capacities, and locations')
-    .addTag('Admin Reviews & Ratings', 'Patient review moderation and feedback flags')
-    .addTag('Admin Notifications', 'System notifications, broadcast alerts, and priority messages')
-    .addTag('Admin Audit Logs', 'Immutable security and front-desk audit trail logs')
-    .addTag('Super Admin & RBAC', 'Privileged access requests, role-permission matrix, and platform roles')
-    .addTag('Super Admin System & Health', 'Microservices status, system settings, and database backups')
+    .addTag(
+      'Public Gateway',
+      'Public directory, landing page aggregations, and stats',
+    )
+    .addTag(
+      'Patient Portal',
+      'Patient self-service, bookings, prescriptions, medical records, and video consultations',
+    )
+    .addTag(
+      'Doctor Portal',
+      'Doctor clinical workspace, consultation notes, digital prescriptions, schedule management, earnings',
+    )
+    .addTag(
+      'Chat & Real-Time Messaging',
+      'Bi-directional real-time messaging, direct patient-doctor threads, file attachments',
+    )
+    .addTag(
+      'Receptionist Portal',
+      'Front-desk operations, 6-step check-in wizard, token queues, and doctor schedules',
+    )
+    .addTag(
+      'Support Staff Portal',
+      'Helpdesk support tickets, dispute complaints escalation, patient lookup',
+    )
+    .addTag(
+      'Clinic Manager Portal',
+      'Clinic branch operations, doctor rosters, staff management, room allocation',
+    )
+    .addTag(
+      'Admin Analytics',
+      'Platform-wide analytics, revenue stats, and utilization metrics',
+    )
+    .addTag(
+      'Admin Doctor Management',
+      'Doctor accounts, verification queue decisions, and specialties',
+    )
+    .addTag(
+      'Admin Patient Management',
+      'Patient directory and account status management',
+    )
+    .addTag(
+      'Admin Appointments',
+      'Appointment scheduling, status transitions, and doctor reassignments',
+    )
+    .addTag(
+      'Admin Finance & Transactions',
+      'Invoices, transaction history, and refunds',
+    )
+    .addTag(
+      'Admin Clinic Management',
+      'Clinic branches, room capacities, and locations',
+    )
+    .addTag(
+      'Admin Reviews & Ratings',
+      'Patient review moderation and feedback flags',
+    )
+    .addTag(
+      'Admin Notifications',
+      'System notifications, broadcast alerts, and priority messages',
+    )
+    .addTag(
+      'Admin Audit Logs',
+      'Immutable security and front-desk audit trail logs',
+    )
+    .addTag(
+      'Super Admin & RBAC',
+      'Privileged access requests, role-permission matrix, and platform roles',
+    )
+    .addTag(
+      'Super Admin System & Health',
+      'Microservices status, system settings, and database backups',
+    )
     .addTag('Public Payments & Webhooks', 'Payment gateway webhook receivers')
     .build();
 

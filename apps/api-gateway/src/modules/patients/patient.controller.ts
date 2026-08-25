@@ -99,7 +99,10 @@ export class PatientGatewayController {
   @ApiOperation({ summary: 'Patient update health profile' })
   @ApiBody({ type: UpdatePatientProfileDto })
   @Put('patient/profile')
-  async patientUpdateProfile(@Req() req: any, @Body() body: UpdatePatientProfileDto) {
+  async patientUpdateProfile(
+    @Req() req: any,
+    @Body() body: UpdatePatientProfileDto,
+  ) {
     return this.patientClient.send(PATTERNS.PATIENT.UPDATE_PROFILE, {
       userId: req.user.id,
       dto: body,
@@ -127,7 +130,10 @@ export class PatientGatewayController {
   @ApiOperation({ summary: 'Patient save diagnostic record' })
   @ApiBody({ type: CreateMedicalRecordDto })
   @Post('patient/medical-records')
-  async patientCreateRecord(@Req() req: any, @Body() body: CreateMedicalRecordDto) {
+  async patientCreateRecord(
+    @Req() req: any,
+    @Body() body: CreateMedicalRecordDto,
+  ) {
     return this.patientClient.send(PATTERNS.PATIENT.CREATE_RECORD, {
       userId: req.user.id,
       dto: body,

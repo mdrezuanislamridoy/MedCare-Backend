@@ -93,7 +93,9 @@ export class DoctorService {
   async doctorGetWorkspace(userId: string, appointmentId: string) {
     const doctor = await this.getDoctorByUserId(userId);
 
-    const appointment: any = await (this.prisma as any).appointment?.findUnique?.({
+    const appointment: any = await (
+      this.prisma as any
+    ).appointment?.findUnique?.({
       where: { id: appointmentId },
     });
 
@@ -104,7 +106,10 @@ export class DoctorService {
     const patientObj = appointment?.patient
       ? {
           ...appointment.patient,
-          name: appointment.patient.name || appointment.patient.user?.name || 'James Harrington',
+          name:
+            appointment.patient.name ||
+            appointment.patient.user?.name ||
+            'James Harrington',
         }
       : { name: 'James Harrington', bloodGroup: 'A+' };
 
@@ -176,27 +181,37 @@ export class DoctorService {
         ? appointmentIdOrDto
         : appointmentIdOrDto?.appointmentId;
 
-    await (this.prisma as any).appointment?.update?.({
-      where: { id: appointmentId },
-      data: { status: AppointmentStatus.COMPLETED as any },
-    }).catch(() => null);
+    await (this.prisma as any).appointment
+      ?.update?.({
+        where: { id: appointmentId },
+        data: { status: AppointmentStatus.COMPLETED as any },
+      })
+      .catch(() => null);
 
-    await (this.prisma as any).patientQueue?.update?.({
-      where: { appointmentId },
-      data: { status: QueueStatus.COMPLETED as any },
-    }).catch(() => null);
+    await (this.prisma as any).patientQueue
+      ?.update?.({
+        where: { appointmentId },
+        data: { status: QueueStatus.COMPLETED as any },
+      })
+      .catch(() => null);
 
-    await (this.prisma as any).transaction?.create?.({
-      data: {
-        appointmentId,
-        amount: 150,
-        status: TransactionStatus.COMPLETED as any,
-      },
-    }).catch(() => null);
+    await (this.prisma as any).transaction
+      ?.create?.({
+        data: {
+          appointmentId,
+          amount: 150,
+          status: TransactionStatus.COMPLETED as any,
+        },
+      })
+      .catch(() => null);
 
-    const body = dto || (typeof appointmentIdOrDto === 'object' ? appointmentIdOrDto : undefined);
+    const body =
+      dto ||
+      (typeof appointmentIdOrDto === 'object' ? appointmentIdOrDto : undefined);
     if (body) {
-      await this.doctorSaveConsultationNotes(userId, appointmentId, body).catch(() => null);
+      await this.doctorSaveConsultationNotes(userId, appointmentId, body).catch(
+        () => null,
+      );
     }
 
     return {
@@ -220,17 +235,19 @@ export class DoctorService {
         : appointmentIdOrDto?.appointmentId;
     const body = dto || appointmentIdOrDto;
 
-    await (this.prisma as any).prescription?.upsert?.({
-      where: { appointmentId },
-      create: {
-        appointmentId,
-        doctorId: doctor.id,
-        medicines: body?.medicines || [],
-      },
-      update: {
-        medicines: body?.medicines || [],
-      },
-    }).catch(() => null);
+    await (this.prisma as any).prescription
+      ?.upsert?.({
+        where: { appointmentId },
+        create: {
+          appointmentId,
+          doctorId: doctor.id,
+          medicines: body?.medicines || [],
+        },
+        update: {
+          medicines: body?.medicines || [],
+        },
+      })
+      .catch(() => null);
 
     return {
       id: `rx-${Date.now()}`,
@@ -294,7 +311,9 @@ export class DoctorService {
 
   async doctorGetVideoToken(userId: string, appointmentId: string) {
     const doctor = await this.getDoctorByUserId(userId);
-    const appointment: any = await (this.prisma as any).appointment?.findUnique?.({
+    const appointment: any = await (
+      this.prisma as any
+    ).appointment?.findUnique?.({
       where: { id: appointmentId },
     });
 
@@ -302,7 +321,8 @@ export class DoctorService {
       token: `tok_${Date.now()}`,
       room: `consult_${appointmentId}`,
       channelName: `medcare-call-${appointment?.appointmentNumber || appointmentId}`,
-      doctorName: doctor?.name || (doctor as any).user?.name || 'Dr. Sarah Mitchell',
+      doctorName:
+        doctor?.name || (doctor as any).user?.name || 'Dr. Sarah Mitchell',
     };
   }
 
@@ -375,8 +395,24 @@ export class DoctorService {
         const dayOfWeekNum =
           typeof s.dayOfWeek === 'number'
             ? s.dayOfWeek
-            : ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'].indexOf(s.dayOfWeek) >= 0
-              ? ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'].indexOf(s.dayOfWeek)
+            : [
+                  'Sunday',
+                  'Monday',
+                  'Tuesday',
+                  'Wednesday',
+                  'Thursday',
+                  'Friday',
+                  'Saturday',
+                ].indexOf(s.dayOfWeek) >= 0
+              ? [
+                  'Sunday',
+                  'Monday',
+                  'Tuesday',
+                  'Wednesday',
+                  'Thursday',
+                  'Friday',
+                  'Saturday',
+                ].indexOf(s.dayOfWeek)
               : 1;
 
         await this.prisma.doctorSchedule.upsert({
@@ -392,13 +428,23 @@ export class DoctorService {
             startTime: s.startTime || '09:00',
             endTime: s.endTime || '17:00',
             slotDuration: s.slotDuration || s.slotDurationMin || 30,
-            isAvailable: s.isEnabled !== undefined ? s.isEnabled : s.isAvailable !== undefined ? s.isAvailable : true,
+            isAvailable:
+              s.isEnabled !== undefined
+                ? s.isEnabled
+                : s.isAvailable !== undefined
+                  ? s.isAvailable
+                  : true,
           },
           update: {
             startTime: s.startTime || '09:00',
             endTime: s.endTime || '17:00',
             slotDuration: s.slotDuration || s.slotDurationMin || 30,
-            isAvailable: s.isEnabled !== undefined ? s.isEnabled : s.isAvailable !== undefined ? s.isAvailable : true,
+            isAvailable:
+              s.isEnabled !== undefined
+                ? s.isEnabled
+                : s.isAvailable !== undefined
+                  ? s.isAvailable
+                  : true,
           },
         });
       }

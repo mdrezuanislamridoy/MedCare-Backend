@@ -112,7 +112,12 @@ export class ReceptionistGatewayController {
   ) {
     return this.appointmentClient.send(
       PATTERNS.APPOINTMENT.RECEPTIONIST_UPDATE_QUEUE,
-      { queueId: id, status: body.status, roomNumber: body.roomNumber, actorId: req.user?.id },
+      {
+        queueId: id,
+        status: body.status,
+        roomNumber: body.roomNumber,
+        actorId: req.user?.id,
+      },
     );
   }
 
@@ -127,7 +132,10 @@ export class ReceptionistGatewayController {
   @ApiOperation({ summary: 'Receptionist walk-in appointment booking' })
   @ApiBody({ type: ReceptionistWalkInBookingDto })
   @Post('walk-in')
-  async walkInBooking(@Body() body: ReceptionistWalkInBookingDto, @Req() req: any) {
+  async walkInBooking(
+    @Body() body: ReceptionistWalkInBookingDto,
+    @Req() req: any,
+  ) {
     return this.appointmentClient.send(
       PATTERNS.APPOINTMENT.RECEPTIONIST_WALK_IN,
       { dto: body, actorId: req.user?.id },

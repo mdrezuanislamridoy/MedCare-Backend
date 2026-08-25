@@ -69,7 +69,10 @@ export class ClinicGatewayController {
   @ApiOperation({ summary: 'Admin update clinic details' })
   @ApiBody({ type: UpdateClinicDto })
   @Put('admin/clinics/:id')
-  async adminUpdateClinic(@Param('id') id: string, @Body() body: UpdateClinicDto) {
+  async adminUpdateClinic(
+    @Param('id') id: string,
+    @Body() body: UpdateClinicDto,
+  ) {
     return this.clinicClient.send(PATTERNS.CLINIC.UPDATE, { id, dto: body });
   }
 

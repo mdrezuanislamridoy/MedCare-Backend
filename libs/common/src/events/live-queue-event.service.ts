@@ -3,12 +3,7 @@ import { Subject, Observable } from 'rxjs';
 
 export interface QueueEventPayload {
   type:
-    | 'CHECKED_IN'
-    | 'CALLED'
-    | 'IN_ROOM'
-    | 'COMPLETED'
-    | 'NO_SHOW'
-    | 'WALK_IN';
+    'CHECKED_IN' | 'CALLED' | 'IN_ROOM' | 'COMPLETED' | 'NO_SHOW' | 'WALK_IN';
   queueNumber: number;
   roomNumber?: string;
   patientName: string;
