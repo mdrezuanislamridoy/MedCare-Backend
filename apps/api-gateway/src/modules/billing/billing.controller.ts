@@ -18,7 +18,15 @@ import {
   ApiBody,
 } from '@nestjs/swagger';
 import { MICROSERVICES, PATTERNS, UserRole } from '@medcare/contracts';
-import { JwtAuthGuard, RolesGuard, Roles, Public } from '@medcare/shared';
+import {
+  JwtAuthGuard,
+  RolesGuard,
+  Roles,
+  Public,
+  RateLimitTier,
+  ApiRateLimitTier,
+  SkipRateLimit,
+} from '@medcare/shared';
 import {
   PatientPaymentDto,
   ProcessRefundDto,
@@ -45,6 +53,7 @@ export class BillingGatewayController {
   @ApiBearerAuth('JWT-auth')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN, UserRole.SUPER_ADMIN)
+  @RateLimitTier(ApiRateLimitTier.PAYMENT)
   @ApiOperation({ summary: 'Admin process refund' })
   @ApiBody({ type: ProcessRefundDto })
   @Post('admin/finance/transactions/:id/refund')
@@ -84,6 +93,7 @@ export class BillingGatewayController {
 
   // --- Public Payment Webhooks ---
   @Public()
+  @SkipRateLimit()
   @ApiOperation({ summary: 'Payment provider webhook endpoint' })
   @ApiBody({ type: PatientPaymentDto })
   @Post('payments/webhook/:provider')

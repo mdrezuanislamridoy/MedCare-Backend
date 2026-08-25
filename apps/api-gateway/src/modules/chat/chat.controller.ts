@@ -19,7 +19,7 @@ import {
   ApiBody,
 } from '@nestjs/swagger';
 import { MICROSERVICES, PATTERNS } from '@medcare/contracts';
-import { JwtAuthGuard } from '@medcare/shared';
+import { JwtAuthGuard, RateLimitTier, ApiRateLimitTier } from '@medcare/shared';
 import {
   ChatMessageFilterDto,
   SendChatMessageDto,
@@ -29,6 +29,7 @@ import {
 @ApiTags('Chat & Messaging')
 @ApiBearerAuth('JWT-auth')
 @UseGuards(JwtAuthGuard)
+@RateLimitTier(ApiRateLimitTier.CHAT)
 @Controller('chat')
 export class ChatGatewayController {
   constructor(

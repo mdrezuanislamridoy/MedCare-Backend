@@ -20,7 +20,13 @@ import {
   ApiBody,
 } from '@nestjs/swagger';
 import { MICROSERVICES, PATTERNS, UserRole } from '@medcare/contracts';
-import { JwtAuthGuard, RolesGuard, Roles } from '@medcare/shared';
+import {
+  JwtAuthGuard,
+  RolesGuard,
+  Roles,
+  RateLimitTier,
+  ApiRateLimitTier,
+} from '@medcare/shared';
 import {
   AccessRequestDecisionDto,
   UpdatePlatformSettingsDto,
@@ -30,6 +36,7 @@ import {
 @ApiBearerAuth('JWT-auth')
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(UserRole.SUPER_ADMIN)
+@RateLimitTier(ApiRateLimitTier.ADMIN)
 @Controller('super-admin')
 export class SuperAdminGatewayController {
   constructor(

@@ -16,7 +16,13 @@ import {
   ApiBody,
 } from '@nestjs/swagger';
 import { MICROSERVICES, PATTERNS } from '@medcare/contracts';
-import { JwtAuthGuard, Public, CurrentUser } from '@medcare/shared';
+import {
+  JwtAuthGuard,
+  Public,
+  CurrentUser,
+  RateLimitTier,
+  ApiRateLimitTier,
+} from '@medcare/shared';
 import {
   ForgotPasswordDto,
   GoogleAuthDto,
@@ -27,6 +33,7 @@ import {
 } from './dto/auth.dto';
 
 @ApiTags('Authentication & Identity')
+@RateLimitTier(ApiRateLimitTier.AUTH)
 @Controller('auth')
 export class AuthGatewayController {
   constructor(
