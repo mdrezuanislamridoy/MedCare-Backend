@@ -3,8 +3,9 @@
 // Guards, Interceptors, Filters, Health, DTOs
 // ==========================================
 
-// Guards
+// Guards & Rate Limiting
 export * from './guards/throttle.guard';
+export * from './guards/rate-limit.types';
 export * from './guards/jwt-auth.guard';
 export * from './guards/roles.guard';
 

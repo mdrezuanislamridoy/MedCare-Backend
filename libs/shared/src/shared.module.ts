@@ -23,24 +23,64 @@ import { HealthModule } from './health/health.module';
  *
  * Usage: Import SharedModule in any microservice's AppModule.
  */
+import {
+  ApiRateLimitTier,
+  DEFAULT_RATE_LIMIT_CONFIGS,
+} from './guards/rate-limit.types';
+
 @Global()
 @Module({
   imports: [
     ThrottlerModule.forRoot([
       {
-        name: 'short',
-        ttl: 1000, // 1 second
-        limit: 3,
+        name: 'default',
+        ttl: DEFAULT_RATE_LIMIT_CONFIGS[ApiRateLimitTier.STANDARD].ttl,
+        limit: DEFAULT_RATE_LIMIT_CONFIGS[ApiRateLimitTier.STANDARD].limit,
       },
       {
-        name: 'medium',
-        ttl: 10000, // 10 seconds
-        limit: 20,
+        name: 'auth',
+        ttl: DEFAULT_RATE_LIMIT_CONFIGS[ApiRateLimitTier.AUTH].ttl,
+        limit: DEFAULT_RATE_LIMIT_CONFIGS[ApiRateLimitTier.AUTH].limit,
       },
       {
-        name: 'long',
-        ttl: 60000, // 1 minute
-        limit: 100,
+        name: 'payment',
+        ttl: DEFAULT_RATE_LIMIT_CONFIGS[ApiRateLimitTier.PAYMENT].ttl,
+        limit: DEFAULT_RATE_LIMIT_CONFIGS[ApiRateLimitTier.PAYMENT].limit,
+      },
+      {
+        name: 'chat',
+        ttl: DEFAULT_RATE_LIMIT_CONFIGS[ApiRateLimitTier.CHAT].ttl,
+        limit: DEFAULT_RATE_LIMIT_CONFIGS[ApiRateLimitTier.CHAT].limit,
+      },
+      {
+        name: 'upload',
+        ttl: DEFAULT_RATE_LIMIT_CONFIGS[ApiRateLimitTier.UPLOAD].ttl,
+        limit: DEFAULT_RATE_LIMIT_CONFIGS[ApiRateLimitTier.UPLOAD].limit,
+      },
+      {
+        name: 'search',
+        ttl: DEFAULT_RATE_LIMIT_CONFIGS[ApiRateLimitTier.SEARCH].ttl,
+        limit: DEFAULT_RATE_LIMIT_CONFIGS[ApiRateLimitTier.SEARCH].limit,
+      },
+      {
+        name: 'public',
+        ttl: DEFAULT_RATE_LIMIT_CONFIGS[ApiRateLimitTier.PUBLIC].ttl,
+        limit: DEFAULT_RATE_LIMIT_CONFIGS[ApiRateLimitTier.PUBLIC].limit,
+      },
+      {
+        name: 'standard',
+        ttl: DEFAULT_RATE_LIMIT_CONFIGS[ApiRateLimitTier.STANDARD].ttl,
+        limit: DEFAULT_RATE_LIMIT_CONFIGS[ApiRateLimitTier.STANDARD].limit,
+      },
+      {
+        name: 'admin',
+        ttl: DEFAULT_RATE_LIMIT_CONFIGS[ApiRateLimitTier.ADMIN].ttl,
+        limit: DEFAULT_RATE_LIMIT_CONFIGS[ApiRateLimitTier.ADMIN].limit,
+      },
+      {
+        name: 'high_frequency',
+        ttl: DEFAULT_RATE_LIMIT_CONFIGS[ApiRateLimitTier.HIGH_FREQUENCY].ttl,
+        limit: DEFAULT_RATE_LIMIT_CONFIGS[ApiRateLimitTier.HIGH_FREQUENCY].limit,
       },
     ]),
     HealthModule,
@@ -70,8 +110,9 @@ import { HealthModule } from './health/health.module';
       provide: APP_GUARD,
       useClass: AppThrottlerGuard,
     },
+    AppThrottlerGuard,
   ],
-  exports: [HealthModule],
+  exports: [HealthModule, ThrottlerModule, AppThrottlerGuard],
 })
 export class SharedModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
