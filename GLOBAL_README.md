@@ -9,8 +9,8 @@ MedCare is a distributed, high-throughput healthcare platform built on NestJS 11
 
 ```mermaid
 flowchart TD
-    Client["Clients (Web / iOS / Android)"] -->|HTTPS / WSS| Caddy["Caddy Reverse Proxy (:80 / :443)"]
-    Caddy --> Gateway["API Gateway (:3000)\n• Ingress / Swagger\n• JWT Guards & RBAC\n• Rate Limiting"]
+    Client["Clients (Web / iOS / Android)"] -->|HTTP / WS| Nginx["Nginx Reverse Proxy (:80)"]
+    Nginx --> Gateway["API Gateway (:3000)\n• Ingress / Swagger\n• JWT Guards & RBAC\n• Rate Limiting"]
 
     Gateway -->|TCP / Redis RPC| AuthSvc["Auth Service (:3001)\nauth_db"]
     Gateway -->|TCP / Redis RPC| DoctorSvc["Doctor Service (:3002)\ndoctor_db"]

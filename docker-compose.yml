@@ -1,18 +1,15 @@
 services:
   # ==========================================
-  # 0. CADDY (Edge Reverse Proxy, HTTPS & Ingress)
+  # 0. NGINX (Edge Reverse Proxy & Ingress)
   # ==========================================
-  medcare-caddy:
-    image: caddy:2-alpine
-    container_name: medcare-caddy
+  medcare-nginx:
+    image: nginx:1.27-alpine
+    container_name: medcare-nginx
     restart: unless-stopped
     ports:
       - "80:80"
-      - "443:443"
     volumes:
-      - ./infrastructure/caddy/Caddyfile:/etc/caddy/Caddyfile:ro
-      - medcare_caddy_data:/data
-      - medcare_caddy_config:/config
+      - ./infrastructure/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
     depends_on:
       - medcare-api-gateway
     networks:
@@ -382,10 +379,6 @@ volumes:
     name: medcare_redisdata
   medcare_uploads:
     name: medcare_uploads
-  medcare_caddy_data:
-    name: medcare_caddy_data
-  medcare_caddy_config:
-    name: medcare_caddy_config
 
 networks:
   medcare-net:

@@ -9,7 +9,7 @@
 [![Prisma](https://img.shields.io/badge/Prisma-7.x-2D3748?style=for-the-badge&logo=prisma)](https://www.prisma.io/)
 [![Redis](https://img.shields.io/badge/Redis-Broker%20%26%20Cache-DC382D?style=for-the-badge&logo=redis)](https://redis.io/)
 [![Docker](https://img.shields.io/badge/Docker-Multi--Container-2496ED?style=for-the-badge&logo=docker)](https://www.docker.com/)
-[![Caddy](https://img.shields.io/badge/Caddy-Reverse%20Proxy-1F88C0?style=for-the-badge&logo=caddy)](https://caddyserver.com/)
+[![Nginx](https://img.shields.io/badge/Nginx-Reverse%20Proxy-009639?style=for-the-badge&logo=nginx)](https://nginx.org/)
 
 <p align="center">
   A high-throughput, fault-tolerant, <b>Database-per-Service Microservices Platform</b> designed for hospitals, polyclinics, telemedicine providers, and multi-tenant healthcare networks.
@@ -40,8 +40,8 @@ MedCare is engineered with a **pure decoupled microservices architecture**. The 
 
 ```mermaid
 flowchart TD
-    Client["Client Web / Mobile App"] -->|HTTPS / WSS| Caddy["Caddy Edge Reverse Proxy (:80 / :443)"]
-    Caddy -->|Load Balanced| Gateway["API Gateway (:3000)\n• JWT Auth Guard\n• Swagger Ingress\n• Rate Limiting"]
+    Client["Client Web / Mobile App"] -->|HTTP / WS| Nginx["Nginx Edge Reverse Proxy (:80)"]
+    Nginx -->|Load Balanced| Gateway["API Gateway (:3000)\n• JWT Auth Guard\n• Swagger Ingress\n• Rate Limiting"]
 
     Gateway -->|TCP / Redis RPC| AuthSvc["Auth Service (:3001)\nauth_db"]
     Gateway -->|TCP / Redis RPC| DoctorSvc["Doctor Service (:3002)\ndoctor_db"]
@@ -143,7 +143,7 @@ The API Gateway forwards client requests to internal microservices via NestJS `C
 - **Database Engine**: [PostgreSQL 16](https://www.postgresql.org/) (Multi-Database Provisioning)
 - **ORM & Driver**: [Prisma 7.9](https://www.prisma.io/) with `@prisma/adapter-pg`
 - **Broker & Cache**: [Redis 7](https://redis.io/) (Pub/Sub & TCP ClientProxy) / [Apache Kafka](https://kafka.apache.org/)
-- **Ingress Proxy**: [Caddy 2](https://caddyserver.com/) (Automated SSL, Gzip/Zstd Compression, SSE non-buffering)
+- **Ingress Proxy**: [Nginx](https://nginx.org/) (Reverse proxy, gzip compression, WebSocket support, SSE non-buffering)
 - **Containerization**: [Docker & Docker Compose](https://www.docker.com/) (Multi-Stage Builds on `node:22-alpine`)
 - **Documentation**: [Swagger / OpenAPI 3.0](https://swagger.io/)
 - **Testing**: [Jest](https://jestjs.io/) & Supertest
