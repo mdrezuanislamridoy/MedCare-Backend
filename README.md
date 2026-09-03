@@ -43,16 +43,16 @@ flowchart TD
     Client["Client Web / Mobile App"] -->|HTTP / WS| Nginx["Nginx Edge Reverse Proxy (:80)"]
     Nginx -->|Load Balanced| Gateway["API Gateway (:3000)\n• JWT Auth Guard\n• Swagger Ingress\n• Rate Limiting"]
 
-    Gateway -->|TCP / Redis RPC| AuthSvc["Auth Service (:3001)\nauth_db"]
-    Gateway -->|TCP / Redis RPC| DoctorSvc["Doctor Service (:3002)\ndoctor_db"]
-    Gateway -->|TCP / Redis RPC| PatientSvc["Patient Service (:3003)\npatient_db"]
-    Gateway -->|TCP / Redis RPC| ApptSvc["Appointment Service (:3004)\nappointment_db"]
-    Gateway -->|TCP / Redis RPC| ClinicSvc["Clinic Service (:3005)\nclinic_db"]
-    Gateway -->|TCP / Redis RPC| BillingSvc["Billing Service (:3006)\nbilling_db"]
-    Gateway -->|TCP / Redis RPC| NotifSvc["Notification Service (:3007)\nnotification_db"]
-    Gateway -->|TCP / Redis RPC| AuditSvc["Audit Service (:3008)\naudit_db"]
-    Gateway -->|TCP / Redis RPC| ChatSvc["Chat Service (:3009)\nchat_db"]
-    Gateway -->|TCP / Redis RPC| AnalyticsSvc["Analytics Service (:3010)"]
+    Gateway -->|gRPC| AuthSvc["Auth Service (:3015)\nauth_db"]
+    Gateway -->|gRPC| DoctorSvc["Doctor Service (:3002)\ndoctor_db"]
+    Gateway -->|gRPC| PatientSvc["Patient Service (:3003)\npatient_db"]
+    Gateway -->|gRPC| ApptSvc["Appointment Service (:3004)\nappointment_db"]
+    Gateway -->|gRPC| ClinicSvc["Clinic Service (:3005)\nclinic_db"]
+    Gateway -->|gRPC| BillingSvc["Billing Service (:3006)\nbilling_db"]
+    Gateway -->|gRPC| NotifSvc["Notification Service (:3007)\nnotification_db"]
+    Gateway -->|gRPC| AuditSvc["Audit Service (:3008)\naudit_db"]
+    Gateway -->|gRPC| ChatSvc["Chat Service (:3014)\nchat_db"]
+    Gateway -->|gRPC| AnalyticsSvc["Analytics Service (:3010)"]
 
     ApptSvc -.->|Pub/Sub Event: appointment.booked| RedisBroker[("Redis Event Broker\n& Apache Kafka")]
     BillingSvc -.->|Pub/Sub Event: payment.succeeded| RedisBroker
@@ -142,7 +142,8 @@ The API Gateway forwards client requests to internal microservices via NestJS `C
 - **Language**: [TypeScript 5](https://www.typescriptlang.org/)
 - **Database Engine**: [PostgreSQL 16](https://www.postgresql.org/) (Multi-Database Provisioning)
 - **ORM & Driver**: [Prisma 7.9](https://www.prisma.io/) with `@prisma/adapter-pg`
-- **Broker & Cache**: [Redis 7](https://redis.io/) (Pub/Sub & TCP ClientProxy) / [Apache Kafka](https://kafka.apache.org/)
+- **RPC**: [gRPC](https://grpc.io/) over HTTP/2 with a shared protobuf envelope
+- **Cache**: [Redis 7](https://redis.io/)
 - **Ingress Proxy**: [Nginx](https://nginx.org/) (Reverse proxy, gzip compression, WebSocket support, SSE non-buffering)
 - **Containerization**: [Docker & Docker Compose](https://www.docker.com/) (Multi-Stage Builds on `node:22-alpine`)
 - **Documentation**: [Swagger / OpenAPI 3.0](https://swagger.io/)

@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package medcare;
+
+service MedCareRpc {
+  rpc Call (RpcRequest) returns (RpcResponse);
+}
+
+message RpcRequest {
+  string pattern = 1;
+  string payload_json = 2;
+  bool event = 3;
+}
+
+message RpcResponse {
+  string payload_json = 1;
+  string error = 2;
+}

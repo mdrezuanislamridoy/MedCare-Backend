@@ -104,7 +104,17 @@ services:
       - REDIS_URL=redis://redis:6379
       - REDIS_HOST=redis
       - REDIS_PORT=6379
-      - MICROSERVICE_TRANSPORT=REDIS
+      - MICROSERVICE_TRANSPORT=GRPC
+      - GRPC_AUTH_SERVICE_URL=auth-service:3015
+      - GRPC_DOCTOR_SERVICE_URL=doctor-service:3002
+      - GRPC_PATIENT_SERVICE_URL=patient-service:3003
+      - GRPC_APPOINTMENT_SERVICE_URL=appointment-service:3004
+      - GRPC_CLINIC_SERVICE_URL=clinic-service:3005
+      - GRPC_BILLING_SERVICE_URL=billing-service:3006
+      - GRPC_NOTIFICATION_SERVICE_URL=notification-service:3007
+      - GRPC_AUDIT_SERVICE_URL=audit-service:3008
+      - GRPC_ANALYTICS_SERVICE_URL=analytics-service:3010
+      - GRPC_CHAT_SERVICE_URL=chat-service:3014
       - JWT_SECRET=${JWT_SECRET:-medcare_enterprise_super_secret_jwt_key_2026}
       - JWT_EXPIRES_IN=${JWT_EXPIRES_IN:-1d}
     volumes:
@@ -136,7 +146,7 @@ services:
       - DATABASE_URL=postgresql://${POSTGRES_USER:-medcare}:${POSTGRES_PASSWORD:-medcare_secure_pass}@postgres:5432/auth_db?schema=public
       - REDIS_HOST=redis
       - REDIS_PORT=6379
-      - MICROSERVICE_TRANSPORT=REDIS
+      - MICROSERVICE_TRANSPORT=GRPC
       - JWT_SECRET=${JWT_SECRET:-medcare_enterprise_super_secret_jwt_key_2026}
     volumes:
       - .:/app
@@ -167,7 +177,7 @@ services:
       - DATABASE_URL=postgresql://${POSTGRES_USER:-medcare}:${POSTGRES_PASSWORD:-medcare_secure_pass}@postgres:5432/doctor_db?schema=public
       - REDIS_HOST=redis
       - REDIS_PORT=6379
-      - MICROSERVICE_TRANSPORT=REDIS
+      - MICROSERVICE_TRANSPORT=GRPC
     volumes:
       - .:/app
       - /app/node_modules
@@ -197,7 +207,7 @@ services:
       - DATABASE_URL=postgresql://${POSTGRES_USER:-medcare}:${POSTGRES_PASSWORD:-medcare_secure_pass}@postgres:5432/patient_db?schema=public
       - REDIS_HOST=redis
       - REDIS_PORT=6379
-      - MICROSERVICE_TRANSPORT=REDIS
+      - MICROSERVICE_TRANSPORT=GRPC
     volumes:
       - .:/app
       - /app/node_modules
@@ -227,7 +237,7 @@ services:
       - DATABASE_URL=postgresql://${POSTGRES_USER:-medcare}:${POSTGRES_PASSWORD:-medcare_secure_pass}@postgres:5432/appointment_db?schema=public
       - REDIS_HOST=redis
       - REDIS_PORT=6379
-      - MICROSERVICE_TRANSPORT=REDIS
+      - MICROSERVICE_TRANSPORT=GRPC
     volumes:
       - .:/app
       - /app/node_modules
@@ -257,7 +267,7 @@ services:
       - DATABASE_URL=postgresql://${POSTGRES_USER:-medcare}:${POSTGRES_PASSWORD:-medcare_secure_pass}@postgres:5432/clinic_db?schema=public
       - REDIS_HOST=redis
       - REDIS_PORT=6379
-      - MICROSERVICE_TRANSPORT=REDIS
+      - MICROSERVICE_TRANSPORT=GRPC
     volumes:
       - .:/app
       - /app/node_modules
@@ -287,7 +297,7 @@ services:
       - DATABASE_URL=postgresql://${POSTGRES_USER:-medcare}:${POSTGRES_PASSWORD:-medcare_secure_pass}@postgres:5432/billing_db?schema=public
       - REDIS_HOST=redis
       - REDIS_PORT=6379
-      - MICROSERVICE_TRANSPORT=REDIS
+      - MICROSERVICE_TRANSPORT=GRPC
     volumes:
       - .:/app
       - /app/node_modules
@@ -317,7 +327,7 @@ services:
       - DATABASE_URL=postgresql://${POSTGRES_USER:-medcare}:${POSTGRES_PASSWORD:-medcare_secure_pass}@postgres:5432/notification_db?schema=public
       - REDIS_HOST=redis
       - REDIS_PORT=6379
-      - MICROSERVICE_TRANSPORT=REDIS
+      - MICROSERVICE_TRANSPORT=GRPC
     volumes:
       - .:/app
       - /app/node_modules
@@ -347,7 +357,7 @@ services:
       - DATABASE_URL=postgresql://${POSTGRES_USER:-medcare}:${POSTGRES_PASSWORD:-medcare_secure_pass}@postgres:5432/audit_db?schema=public
       - REDIS_HOST=redis
       - REDIS_PORT=6379
-      - MICROSERVICE_TRANSPORT=REDIS
+      - MICROSERVICE_TRANSPORT=GRPC
     volumes:
       - .:/app
       - /app/node_modules
@@ -377,7 +387,7 @@ services:
       - DATABASE_URL=postgresql://${POSTGRES_USER:-medcare}:${POSTGRES_PASSWORD:-medcare_secure_pass}@postgres:5432/chat_db?schema=public
       - REDIS_HOST=redis
       - REDIS_PORT=6379
-      - MICROSERVICE_TRANSPORT=REDIS
+      - MICROSERVICE_TRANSPORT=GRPC
     volumes:
       - .:/app
       - /app/node_modules
@@ -406,7 +416,7 @@ services:
       - NODE_ENV=development
       - REDIS_HOST=redis
       - REDIS_PORT=6379
-      - MICROSERVICE_TRANSPORT=REDIS
+      - MICROSERVICE_TRANSPORT=GRPC
     volumes:
       - .:/app
       - /app/node_modules

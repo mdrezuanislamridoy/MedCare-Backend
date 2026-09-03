@@ -58,6 +58,8 @@
     "docker:dev:logs": "docker compose -f docker-compose.dev.yml logs -f"
   },
   "dependencies": {
+    "@grpc/grpc-js": "^1.13.4",
+    "@grpc/proto-loader": "^0.7.13",
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^4.0.4",
     "@nestjs/core": "^11.0.1",

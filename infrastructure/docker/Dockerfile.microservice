@@ -30,5 +30,6 @@ ENV APP_NAME=${APP_NAME}
 COPY --from=builder /app/package.json ./
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/libs/broker/proto ./libs/broker/proto
 
 CMD node dist/apps/${APP_NAME}/src/main.js
