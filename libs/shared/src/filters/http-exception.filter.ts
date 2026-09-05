@@ -42,10 +42,25 @@ export class GlobalExceptionFilter implements ExceptionFilter {
 
       if (typeof exceptionResponse === 'string') {
         message = exceptionResponse;
-      } else if (typeof exceptionResponse === 'object') {
-        message = (exceptionResponse as any).message || message;
-        errors = (exceptionResponse as any).errors;
+      } else if (
+        typeof exceptionResponse === 'object' &&
+        exceptionResponse !== null
+      ) {
+        const respMsg = (exceptionResponse as any).message;
+        if (Array.isArray(respMsg)) {
+          errors = respMsg;
+          message = respMsg.join(', ');
+        } else if (typeof respMsg === 'string') {
+          message = respMsg;
+        } else {
+          message = (exceptionResponse as any).error || message;
+        }
+        errors = errors || (exceptionResponse as any).errors;
       }
+    } else if (typeof (exception as any)?.details === 'string') {
+      message = (exception as any).details;
+    } else if (typeof (exception as any)?.error === 'string') {
+      message = (exception as any).error;
     } else if (exception instanceof Error) {
       message = exception.message;
     }

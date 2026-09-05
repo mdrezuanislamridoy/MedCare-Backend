@@ -5,7 +5,6 @@ import {
   CallHandler,
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
-import { tap } from 'rxjs/operators';
 import { randomUUID } from 'crypto';
 
 export const CORRELATION_ID_HEADER = 'x-correlation-id';
@@ -13,7 +12,18 @@ export const CORRELATION_ID_HEADER = 'x-correlation-id';
 @Injectable()
 export class CorrelationIdInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
-    const request = context.switchToHttp().getRequest();
+    if (context.getType() !== 'http') {
+      return next.handle();
+    }
+
+    const http = context.switchToHttp();
+    const request = http.getRequest();
+    const response = http.getResponse();
+
+    if (!request || !request.headers) {
+      return next.handle();
+    }
+
     const correlationId =
       request.headers[CORRELATION_ID_HEADER] || randomUUID();
 
@@ -21,13 +31,10 @@ export class CorrelationIdInterceptor implements NestInterceptor {
     request.correlationId = correlationId;
 
     // Attach to response for client tracing
-    const response = context.switchToHttp().getResponse();
-    response.setHeader(CORRELATION_ID_HEADER, correlationId);
+    if (response && typeof response.setHeader === 'function') {
+      response.setHeader(CORRELATION_ID_HEADER, correlationId);
+    }
 
-    return next.handle().pipe(
-      tap(() => {
-        // Response already has the header set
-      }),
-    );
+    return next.handle();
   }
 }
