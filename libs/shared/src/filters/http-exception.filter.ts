@@ -79,8 +79,10 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       } else if (message.includes('Record to update not found') || message.includes('Record to delete does not exist')) {
         status = HttpStatus.NOT_FOUND;
         message = 'The requested record was not found.';
-      } else if (message.includes("Can't reach database server") || message.includes('ECONNREFUSED')) {
+      } else if (message.includes("Can't reach database server")) {
         message = 'Database service is currently unreachable. Please check database configuration.';
+      } else if (message.includes('ECONNREFUSED')) {
+        message = 'The requested microservice is currently starting up or temporarily unavailable.';
       } else if (message.includes('Invalid `prisma.')) {
         // Strip out Prisma stack trace lines and only keep clean text
         const cleanMsg = message.split('\n').filter((l) => l.trim() && !l.includes('-->') && !l.includes('prisma.')).pop();

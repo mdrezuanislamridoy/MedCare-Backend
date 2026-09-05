@@ -16,8 +16,8 @@ if [ -n "$DATABASE_URL" ]; then
 fi
 
 # 3. Start core services with memory capping to stay safely within Render's 512MB limit
-# Default core services: auth, doctor, patient, appointment (can be overridden via ENABLED_SERVICES)
-SERVICES="${ENABLED_SERVICES:-auth-service doctor-service patient-service appointment-service}"
+# Default core services: auth, doctor, patient, appointment, clinic, billing, notification
+SERVICES="${ENABLED_SERVICES:-auth-service doctor-service patient-service appointment-service clinic-service billing-service notification-service}"
 
 echo "⚙️ Starting backend microservices: $SERVICES"
 for svc in $SERVICES; do
