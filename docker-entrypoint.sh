@@ -1,25 +1,26 @@
 #!/bin/sh
 set -e
 
-echo "🏥 Starting MedCare All-In-One Container..."
+echo "🏥 Starting MedCare Container..."
 
-# 1. Start local Redis server
+# 1. Start local Redis server with lightweight memory footprint
 echo "🚀 Starting local Redis server..."
-redis-server --daemonize yes --port 6379 || echo "Redis already running or skipped"
+redis-server --daemonize yes --port 6379 --maxmemory 32mb --maxmemory-policy allkeys-lru || echo "Redis already running or skipped"
 
-# 2. Start background microservices on localhost ports
-echo "⚙️ Starting backend microservices..."
-SERVICES="auth-service doctor-service patient-service appointment-service clinic-service billing-service notification-service audit-service chat-service analytics-service"
+# 2. Start core services with memory capping to stay safely within Render's 512MB limit
+# Default core services: auth, doctor, patient, appointment (can be overridden via ENABLED_SERVICES)
+SERVICES="${ENABLED_SERVICES:-auth-service doctor-service patient-service appointment-service}"
 
+echo "⚙️ Starting backend microservices: $SERVICES"
 for svc in $SERVICES; do
   if [ -f "dist/apps/$svc/src/main.js" ]; then
-    echo "  -> Starting $svc..."
-    APP_NAME=$svc node dist/apps/$svc/src/main.js &
+    echo "  -> Starting $svc (max 45MB RAM)..."
+    APP_NAME=$svc node --max-old-space-size=45 dist/apps/$svc/src/main.js &
   fi
 done
 
-# Wait 2 seconds for microservices to bind ports
+# Wait briefly for microservices to bind ports
 sleep 2
 
 echo "🚀 Launching API Gateway..."
-exec "$@"
+exec node --max-old-space-size=120 dist/apps/api-gateway/src/main.js
