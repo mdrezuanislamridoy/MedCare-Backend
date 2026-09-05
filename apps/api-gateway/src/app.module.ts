@@ -18,15 +18,20 @@ import { ReceptionistGatewayController } from './modules/receptionist/receptioni
 import { SuperAdminGatewayController } from './modules/super-admin/super-admin.controller';
 import { SupportStaffGatewayController } from './modules/support/support.controller';
 
+import { PassportModule } from '@nestjs/passport';
+import { JwtStrategy } from './strategies/jwt.strategy';
+
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
     }),
+    PassportModule.register({ defaultStrategy: 'jwt' }),
     // Gateway routes to ALL microservices, so register all clients
     BrokerClientModule.forAll(),
     SharedModule,
   ],
+  providers: [JwtStrategy],
   controllers: [
     AuthGatewayController,
     DoctorGatewayController,
