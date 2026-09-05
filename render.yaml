@@ -1,0 +1,458 @@
+# ==============================================================================
+# MedCare Enterprise Microservices — Render Blueprint (render.yaml)
+# Documentation: https://render.com/docs/blueprint-spec
+# ==============================================================================
+
+services:
+  # ============================================================================
+  # 1. API GATEWAY (Public Ingress Web Service)
+  # ============================================================================
+  - type: web
+    name: medcare-api-gateway
+    runtime: docker
+    dockerfilePath: infrastructure/docker/Dockerfile.gateway
+    dockerContext: .
+    plan: starter
+    region: oregon
+    healthCheckPath: /api/docs
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3000
+      - key: MICROSERVICE_TRANSPORT
+        value: GRPC
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: 1d
+      - key: REDIS_HOST
+        fromService:
+          type: redis
+          name: medcare-redis
+          property: host
+      - key: REDIS_PORT
+        fromService:
+          type: redis
+          name: medcare-redis
+          property: port
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: medcare-redis
+          property: connectionString
+      - key: GRPC_AUTH_SERVICE_URL
+        value: medcare-auth-service:3015
+      - key: GRPC_DOCTOR_SERVICE_URL
+        value: medcare-doctor-service:3002
+      - key: GRPC_PATIENT_SERVICE_URL
+        value: medcare-patient-service:3003
+      - key: GRPC_APPOINTMENT_SERVICE_URL
+        value: medcare-appointment-service:3004
+      - key: GRPC_CLINIC_SERVICE_URL
+        value: medcare-clinic-service:3005
+      - key: GRPC_BILLING_SERVICE_URL
+        value: medcare-billing-service:3006
+      - key: GRPC_NOTIFICATION_SERVICE_URL
+        value: medcare-notification-service:3007
+      - key: GRPC_AUDIT_SERVICE_URL
+        value: medcare-audit-service:3008
+      - key: GRPC_CHAT_SERVICE_URL
+        value: medcare-chat-service:3014
+      - key: GRPC_ANALYTICS_SERVICE_URL
+        value: medcare-analytics-service:3010
+
+  # ============================================================================
+  # 2. AUTH MICROSERVICE (Private Service)
+  # ============================================================================
+  - type: pserv
+    name: medcare-auth-service
+    runtime: docker
+    dockerfilePath: infrastructure/docker/Dockerfile.microservice
+    dockerContext: .
+    dockerBuildArgs:
+      - key: APP_NAME
+        value: auth-service
+    plan: starter
+    region: oregon
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MICROSERVICE_TRANSPORT
+        value: GRPC
+      - key: JWT_SECRET
+        fromService:
+          type: web
+          name: medcare-api-gateway
+          envVarKey: JWT_SECRET
+      - key: DATABASE_URL
+        fromDatabase:
+          name: medcare-postgres
+          property: connectionString
+      - key: REDIS_HOST
+        fromService:
+          type: redis
+          name: medcare-redis
+          property: host
+      - key: REDIS_PORT
+        fromService:
+          type: redis
+          name: medcare-redis
+          property: port
+
+  # ============================================================================
+  # 3. DOCTOR MICROSERVICE (Private Service)
+  # ============================================================================
+  - type: pserv
+    name: medcare-doctor-service
+    runtime: docker
+    dockerfilePath: infrastructure/docker/Dockerfile.microservice
+    dockerContext: .
+    dockerBuildArgs:
+      - key: APP_NAME
+        value: doctor-service
+    plan: starter
+    region: oregon
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MICROSERVICE_TRANSPORT
+        value: GRPC
+      - key: JWT_SECRET
+        fromService:
+          type: web
+          name: medcare-api-gateway
+          envVarKey: JWT_SECRET
+      - key: DATABASE_URL
+        fromDatabase:
+          name: medcare-postgres
+          property: connectionString
+      - key: REDIS_HOST
+        fromService:
+          type: redis
+          name: medcare-redis
+          property: host
+      - key: REDIS_PORT
+        fromService:
+          type: redis
+          name: medcare-redis
+          property: port
+
+  # ============================================================================
+  # 4. PATIENT MICROSERVICE (Private Service)
+  # ============================================================================
+  - type: pserv
+    name: medcare-patient-service
+    runtime: docker
+    dockerfilePath: infrastructure/docker/Dockerfile.microservice
+    dockerContext: .
+    dockerBuildArgs:
+      - key: APP_NAME
+        value: patient-service
+    plan: starter
+    region: oregon
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MICROSERVICE_TRANSPORT
+        value: GRPC
+      - key: JWT_SECRET
+        fromService:
+          type: web
+          name: medcare-api-gateway
+          envVarKey: JWT_SECRET
+      - key: DATABASE_URL
+        fromDatabase:
+          name: medcare-postgres
+          property: connectionString
+      - key: REDIS_HOST
+        fromService:
+          type: redis
+          name: medcare-redis
+          property: host
+      - key: REDIS_PORT
+        fromService:
+          type: redis
+          name: medcare-redis
+          property: port
+
+  # ============================================================================
+  # 5. APPOINTMENT MICROSERVICE (Private Service)
+  # ============================================================================
+  - type: pserv
+    name: medcare-appointment-service
+    runtime: docker
+    dockerfilePath: infrastructure/docker/Dockerfile.microservice
+    dockerContext: .
+    dockerBuildArgs:
+      - key: APP_NAME
+        value: appointment-service
+    plan: starter
+    region: oregon
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MICROSERVICE_TRANSPORT
+        value: GRPC
+      - key: JWT_SECRET
+        fromService:
+          type: web
+          name: medcare-api-gateway
+          envVarKey: JWT_SECRET
+      - key: DATABASE_URL
+        fromDatabase:
+          name: medcare-postgres
+          property: connectionString
+      - key: REDIS_HOST
+        fromService:
+          type: redis
+          name: medcare-redis
+          property: host
+      - key: REDIS_PORT
+        fromService:
+          type: redis
+          name: medcare-redis
+          property: port
+
+  # ============================================================================
+  # 6. CLINIC MICROSERVICE (Private Service)
+  # ============================================================================
+  - type: pserv
+    name: medcare-clinic-service
+    runtime: docker
+    dockerfilePath: infrastructure/docker/Dockerfile.microservice
+    dockerContext: .
+    dockerBuildArgs:
+      - key: APP_NAME
+        value: clinic-service
+    plan: starter
+    region: oregon
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MICROSERVICE_TRANSPORT
+        value: GRPC
+      - key: JWT_SECRET
+        fromService:
+          type: web
+          name: medcare-api-gateway
+          envVarKey: JWT_SECRET
+      - key: DATABASE_URL
+        fromDatabase:
+          name: medcare-postgres
+          property: connectionString
+      - key: REDIS_HOST
+        fromService:
+          type: redis
+          name: medcare-redis
+          property: host
+      - key: REDIS_PORT
+        fromService:
+          type: redis
+          name: medcare-redis
+          property: port
+
+  # ============================================================================
+  # 7. BILLING MICROSERVICE (Private Service)
+  # ============================================================================
+  - type: pserv
+    name: medcare-billing-service
+    runtime: docker
+    dockerfilePath: infrastructure/docker/Dockerfile.microservice
+    dockerContext: .
+    dockerBuildArgs:
+      - key: APP_NAME
+        value: billing-service
+    plan: starter
+    region: oregon
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MICROSERVICE_TRANSPORT
+        value: GRPC
+      - key: JWT_SECRET
+        fromService:
+          type: web
+          name: medcare-api-gateway
+          envVarKey: JWT_SECRET
+      - key: DATABASE_URL
+        fromDatabase:
+          name: medcare-postgres
+          property: connectionString
+      - key: REDIS_HOST
+        fromService:
+          type: redis
+          name: medcare-redis
+          property: host
+      - key: REDIS_PORT
+        fromService:
+          type: redis
+          name: medcare-redis
+          property: port
+
+  # ============================================================================
+  # 8. NOTIFICATION MICROSERVICE (Private Service)
+  # ============================================================================
+  - type: pserv
+    name: medcare-notification-service
+    runtime: docker
+    dockerfilePath: infrastructure/docker/Dockerfile.microservice
+    dockerContext: .
+    dockerBuildArgs:
+      - key: APP_NAME
+        value: notification-service
+    plan: starter
+    region: oregon
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MICROSERVICE_TRANSPORT
+        value: GRPC
+      - key: JWT_SECRET
+        fromService:
+          type: web
+          name: medcare-api-gateway
+          envVarKey: JWT_SECRET
+      - key: DATABASE_URL
+        fromDatabase:
+          name: medcare-postgres
+          property: connectionString
+      - key: REDIS_HOST
+        fromService:
+          type: redis
+          name: medcare-redis
+          property: host
+      - key: REDIS_PORT
+        fromService:
+          type: redis
+          name: medcare-redis
+          property: port
+
+  # ============================================================================
+  # 9. AUDIT MICROSERVICE (Private Service)
+  # ============================================================================
+  - type: pserv
+    name: medcare-audit-service
+    runtime: docker
+    dockerfilePath: infrastructure/docker/Dockerfile.microservice
+    dockerContext: .
+    dockerBuildArgs:
+      - key: APP_NAME
+        value: audit-service
+    plan: starter
+    region: oregon
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MICROSERVICE_TRANSPORT
+        value: GRPC
+      - key: JWT_SECRET
+        fromService:
+          type: web
+          name: medcare-api-gateway
+          envVarKey: JWT_SECRET
+      - key: DATABASE_URL
+        fromDatabase:
+          name: medcare-postgres
+          property: connectionString
+      - key: REDIS_HOST
+        fromService:
+          type: redis
+          name: medcare-redis
+          property: host
+      - key: REDIS_PORT
+        fromService:
+          type: redis
+          name: medcare-redis
+          property: port
+
+  # ============================================================================
+  # 10. CHAT MICROSERVICE (Private Service)
+  # ============================================================================
+  - type: pserv
+    name: medcare-chat-service
+    runtime: docker
+    dockerfilePath: infrastructure/docker/Dockerfile.microservice
+    dockerContext: .
+    dockerBuildArgs:
+      - key: APP_NAME
+        value: chat-service
+    plan: starter
+    region: oregon
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MICROSERVICE_TRANSPORT
+        value: GRPC
+      - key: JWT_SECRET
+        fromService:
+          type: web
+          name: medcare-api-gateway
+          envVarKey: JWT_SECRET
+      - key: DATABASE_URL
+        fromDatabase:
+          name: medcare-postgres
+          property: connectionString
+      - key: REDIS_HOST
+        fromService:
+          type: redis
+          name: medcare-redis
+          property: host
+      - key: REDIS_PORT
+        fromService:
+          type: redis
+          name: medcare-redis
+          property: port
+
+  # ============================================================================
+  # 11. ANALYTICS MICROSERVICE (Private Service)
+  # ============================================================================
+  - type: pserv
+    name: medcare-analytics-service
+    runtime: docker
+    dockerfilePath: infrastructure/docker/Dockerfile.microservice
+    dockerContext: .
+    dockerBuildArgs:
+      - key: APP_NAME
+        value: analytics-service
+    plan: starter
+    region: oregon
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MICROSERVICE_TRANSPORT
+        value: GRPC
+      - key: JWT_SECRET
+        fromService:
+          type: web
+          name: medcare-api-gateway
+          envVarKey: JWT_SECRET
+      - key: REDIS_HOST
+        fromService:
+          type: redis
+          name: medcare-redis
+          property: host
+      - key: REDIS_PORT
+        fromService:
+          type: redis
+          name: medcare-redis
+          property: port
+
+  # ============================================================================
+  # 12. REDIS EVENT BROKER & CACHE
+  # ============================================================================
+  - type: redis
+    name: medcare-redis
+    plan: starter
+    region: oregon
+    ipAllowList: []
+
+# ==============================================================================
+# MANAGED POSTGRESQL DATABASE CLUSTER
+# ==============================================================================
+databases:
+  - name: medcare-postgres
+    databaseName: medcare_db
+    user: medcare
+    plan: starter
+    region: oregon

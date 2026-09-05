@@ -2,7 +2,10 @@
 # MedCare Generic Microservice Dockerfile
 # Usage: docker build --build-arg APP_NAME=doctor-service -f infrastructure/docker/Dockerfile.microservice .
 # ==========================================
+ARG APP_NAME=doctor-service
+
 FROM node:22-alpine AS builder
+ARG APP_NAME
 
 WORKDIR /app
 
@@ -14,7 +17,7 @@ RUN npm install
 COPY . .
 
 RUN npm run prisma:generate:all
-RUN npm run build
+RUN npx nest build ${APP_NAME}
 
 # ==========================================
 # Production Runtime Image
