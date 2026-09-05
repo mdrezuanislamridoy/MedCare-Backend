@@ -65,6 +65,31 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       message = exception.message;
     }
 
+    // Clean and sanitize raw database or Prisma error strings
+    if (typeof message === 'string') {
+      if (message.includes('does not exist in the current database')) {
+        const tableMatch = message.match(/The table `([^`]+)` does not exist/);
+        const tableName = tableMatch ? tableMatch[1] : 'Database table';
+        message = `${tableName} is not yet initialized in the database. Please ensure migrations/push have run.`;
+      } else if (message.includes('Unique constraint failed')) {
+        const fieldMatch = message.match(/fields: \(`?([^`)]+)`?\)/);
+        const field = fieldMatch ? fieldMatch[1] : 'value';
+        status = HttpStatus.CONFLICT;
+        message = `A record with this ${field} already exists.`;
+      } else if (message.includes('Record to update not found') || message.includes('Record to delete does not exist')) {
+        status = HttpStatus.NOT_FOUND;
+        message = 'The requested record was not found.';
+      } else if (message.includes("Can't reach database server") || message.includes('ECONNREFUSED')) {
+        message = 'Database service is currently unreachable. Please check database configuration.';
+      } else if (message.includes('Invalid `prisma.')) {
+        // Strip out Prisma stack trace lines and only keep clean text
+        const cleanMsg = message.split('\n').filter((l) => l.trim() && !l.includes('-->') && !l.includes('prisma.')).pop();
+        if (cleanMsg) {
+          message = cleanMsg.trim();
+        }
+      }
+    }
+
     const errorResponse = {
       statusCode: status,
       message,

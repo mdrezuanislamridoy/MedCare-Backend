@@ -28,5 +28,8 @@ export * from './filters/http-exception.filter';
 export * from './health/health.controller';
 export * from './health/health.module';
 
+// Database / Prisma Adapter
+export * from './prisma/prisma-adapter';
+
 // Module
 export * from './shared.module';

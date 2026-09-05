@@ -85,7 +85,7 @@ export class AppThrottlerGuard extends ThrottlerGuard {
    * Core request activation and rate limit enforcement.
    */
   override async canActivate(context: ExecutionContext): Promise<boolean> {
-    if (context.getType() !== 'http') {
+    if (typeof context.getType === 'function' && context.getType() !== 'http') {
       return true;
     }
     if (await this.shouldSkip(context)) {

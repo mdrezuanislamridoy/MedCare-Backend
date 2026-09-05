@@ -21,6 +21,9 @@ import { SupportStaffGatewayController } from './modules/support/support.control
 import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from './strategies/jwt.strategy';
 
+import { KeepAliveService } from './cron/keep-alive.service';
+import { KeepAliveController } from './cron/keep-alive.controller';
+
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -31,8 +34,9 @@ import { JwtStrategy } from './strategies/jwt.strategy';
     BrokerClientModule.forAll(),
     SharedModule,
   ],
-  providers: [JwtStrategy],
+  providers: [JwtStrategy, KeepAliveService],
   controllers: [
+    KeepAliveController,
     AuthGatewayController,
     DoctorGatewayController,
     PatientGatewayController,
