@@ -70,12 +70,11 @@ services:
     runtime: docker
     dockerfilePath: infrastructure/docker/Dockerfile.microservice
     dockerContext: .
-    dockerBuildArgs:
-      - key: APP_NAME
-        value: auth-service
     plan: starter
     region: oregon
     envVars:
+      - key: APP_NAME
+        value: auth-service
       - key: NODE_ENV
         value: production
       - key: MICROSERVICE_TRANSPORT
@@ -108,12 +107,11 @@ services:
     runtime: docker
     dockerfilePath: infrastructure/docker/Dockerfile.microservice
     dockerContext: .
-    dockerBuildArgs:
-      - key: APP_NAME
-        value: doctor-service
     plan: starter
     region: oregon
     envVars:
+      - key: APP_NAME
+        value: doctor-service
       - key: NODE_ENV
         value: production
       - key: MICROSERVICE_TRANSPORT
@@ -146,12 +144,11 @@ services:
     runtime: docker
     dockerfilePath: infrastructure/docker/Dockerfile.microservice
     dockerContext: .
-    dockerBuildArgs:
-      - key: APP_NAME
-        value: patient-service
     plan: starter
     region: oregon
     envVars:
+      - key: APP_NAME
+        value: patient-service
       - key: NODE_ENV
         value: production
       - key: MICROSERVICE_TRANSPORT
@@ -184,12 +181,11 @@ services:
     runtime: docker
     dockerfilePath: infrastructure/docker/Dockerfile.microservice
     dockerContext: .
-    dockerBuildArgs:
-      - key: APP_NAME
-        value: appointment-service
     plan: starter
     region: oregon
     envVars:
+      - key: APP_NAME
+        value: appointment-service
       - key: NODE_ENV
         value: production
       - key: MICROSERVICE_TRANSPORT
@@ -222,12 +218,11 @@ services:
     runtime: docker
     dockerfilePath: infrastructure/docker/Dockerfile.microservice
     dockerContext: .
-    dockerBuildArgs:
-      - key: APP_NAME
-        value: clinic-service
     plan: starter
     region: oregon
     envVars:
+      - key: APP_NAME
+        value: clinic-service
       - key: NODE_ENV
         value: production
       - key: MICROSERVICE_TRANSPORT
@@ -260,12 +255,11 @@ services:
     runtime: docker
     dockerfilePath: infrastructure/docker/Dockerfile.microservice
     dockerContext: .
-    dockerBuildArgs:
-      - key: APP_NAME
-        value: billing-service
     plan: starter
     region: oregon
     envVars:
+      - key: APP_NAME
+        value: billing-service
       - key: NODE_ENV
         value: production
       - key: MICROSERVICE_TRANSPORT
@@ -298,12 +292,11 @@ services:
     runtime: docker
     dockerfilePath: infrastructure/docker/Dockerfile.microservice
     dockerContext: .
-    dockerBuildArgs:
-      - key: APP_NAME
-        value: notification-service
     plan: starter
     region: oregon
     envVars:
+      - key: APP_NAME
+        value: notification-service
       - key: NODE_ENV
         value: production
       - key: MICROSERVICE_TRANSPORT
@@ -336,12 +329,11 @@ services:
     runtime: docker
     dockerfilePath: infrastructure/docker/Dockerfile.microservice
     dockerContext: .
-    dockerBuildArgs:
-      - key: APP_NAME
-        value: audit-service
     plan: starter
     region: oregon
     envVars:
+      - key: APP_NAME
+        value: audit-service
       - key: NODE_ENV
         value: production
       - key: MICROSERVICE_TRANSPORT
@@ -374,12 +366,11 @@ services:
     runtime: docker
     dockerfilePath: infrastructure/docker/Dockerfile.microservice
     dockerContext: .
-    dockerBuildArgs:
-      - key: APP_NAME
-        value: chat-service
     plan: starter
     region: oregon
     envVars:
+      - key: APP_NAME
+        value: chat-service
       - key: NODE_ENV
         value: production
       - key: MICROSERVICE_TRANSPORT
@@ -412,12 +403,11 @@ services:
     runtime: docker
     dockerfilePath: infrastructure/docker/Dockerfile.microservice
     dockerContext: .
-    dockerBuildArgs:
-      - key: APP_NAME
-        value: analytics-service
     plan: starter
     region: oregon
     envVars:
+      - key: APP_NAME
+        value: analytics-service
       - key: NODE_ENV
         value: production
       - key: MICROSERVICE_TRANSPORT
