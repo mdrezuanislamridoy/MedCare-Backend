@@ -8,8 +8,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import { AuthGuard } from '@nestjs/passport';
-import { Roles, CurrentUser, RolesGuard } from '@medcare/shared';
+import { Roles, CurrentUser, RolesGuard, JwtAuthGuard } from '@medcare/shared';
 import { PATTERNS, UserRole } from '@medcare/contracts';
 import type { AuthUser } from './strategies/jwt.strategy';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
@@ -20,8 +19,6 @@ import { ResetPasswordDto } from './dto/reset-password.dto';
 import { UpdateUserRoleDto } from './dto/update-user-role.dto';
 import { VerifyEmailDto } from './dto/verify-email.dto';
 import { AuthService } from './auth.service';
-
-const JwtGuard = AuthGuard('jwt');
 
 @Controller('auth')
 export class AuthController {
@@ -58,27 +55,27 @@ export class AuthController {
   }
 
   @MessagePattern(PATTERNS.AUTH.GET_PROFILE)
-  @UseGuards(JwtGuard)
+  @UseGuards(JwtAuthGuard)
   @Get('me')
-  me(@CurrentUser() user: AuthUser, @Payload() payload?: any) {
-    const userId = user?.id || payload?.userId || payload?.id;
+  me(@Payload() payload: any, @CurrentUser() user?: AuthUser) {
+    const userId = payload?.userId || payload?.id || user?.id;
     return this.authService.getProfile(userId);
   }
 
-  @UseGuards(JwtGuard)
+  @UseGuards(JwtAuthGuard)
   @Post('email/verification-code')
   issueEmailVerificationCode(@CurrentUser() user: AuthUser) {
     return this.authService.issueEmailVerificationCode(user.id);
   }
 
-  @UseGuards(JwtGuard)
+  @UseGuards(JwtAuthGuard)
   @Post('email/verify')
   verifyEmail(@CurrentUser() user: AuthUser, @Body() dto: VerifyEmailDto) {
     return this.authService.verifyEmail(user.id, dto);
   }
 
   @MessagePattern(PATTERNS.AUTH.UPDATE_ROLE)
-  @UseGuards(JwtGuard, RolesGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.SUPER_ADMIN)
   @Patch('users/:id/role')
   updateUserRole(
