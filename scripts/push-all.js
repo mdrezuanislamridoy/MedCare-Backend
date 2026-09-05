@@ -2,16 +2,20 @@ require('dotenv').config();
 const { execSync } = require('child_process');
 const path = require('path');
 
+const defaultDbUrl =
+  process.env.DATABASE_URL ||
+  'postgresql://medcare:medcare_secure_pass@localhost:5435/medcare_db?schema=public';
+
 const services = [
-  { name: 'auth-service', url: process.env.DATABASE_URL_AUTH || 'postgresql://medcare:medcare_secure_pass@localhost:5435/auth_db?schema=public' },
-  { name: 'doctor-service', url: process.env.DATABASE_URL_DOCTOR || 'postgresql://medcare:medcare_secure_pass@localhost:5435/doctor_db?schema=public' },
-  { name: 'patient-service', url: process.env.DATABASE_URL_PATIENT || 'postgresql://medcare:medcare_secure_pass@localhost:5435/patient_db?schema=public' },
-  { name: 'appointment-service', url: process.env.DATABASE_URL_APPOINTMENT || 'postgresql://medcare:medcare_secure_pass@localhost:5435/appointment_db?schema=public' },
-  { name: 'clinic-service', url: process.env.DATABASE_URL_CLINIC || 'postgresql://medcare:medcare_secure_pass@localhost:5435/clinic_db?schema=public' },
-  { name: 'billing-service', url: process.env.DATABASE_URL_BILLING || 'postgresql://medcare:medcare_secure_pass@localhost:5435/billing_db?schema=public' },
-  { name: 'notification-service', url: process.env.DATABASE_URL_NOTIFICATION || 'postgresql://medcare:medcare_secure_pass@localhost:5435/notification_db?schema=public' },
-  { name: 'audit-service', url: process.env.DATABASE_URL_AUDIT || 'postgresql://medcare:medcare_secure_pass@localhost:5435/audit_db?schema=public' },
-  { name: 'chat-service', url: process.env.DATABASE_URL_CHAT || 'postgresql://medcare:medcare_secure_pass@localhost:5435/chat_db?schema=public' },
+  { name: 'auth-service', url: process.env.DATABASE_URL_AUTH || defaultDbUrl },
+  { name: 'doctor-service', url: process.env.DATABASE_URL_DOCTOR || defaultDbUrl },
+  { name: 'patient-service', url: process.env.DATABASE_URL_PATIENT || defaultDbUrl },
+  { name: 'appointment-service', url: process.env.DATABASE_URL_APPOINTMENT || defaultDbUrl },
+  { name: 'clinic-service', url: process.env.DATABASE_URL_CLINIC || defaultDbUrl },
+  { name: 'billing-service', url: process.env.DATABASE_URL_BILLING || defaultDbUrl },
+  { name: 'notification-service', url: process.env.DATABASE_URL_NOTIFICATION || defaultDbUrl },
+  { name: 'audit-service', url: process.env.DATABASE_URL_AUDIT || defaultDbUrl },
+  { name: 'chat-service', url: process.env.DATABASE_URL_CHAT || defaultDbUrl },
 ];
 
 console.log('🚀 Pushing schemas to dedicated microservice databases...\n');

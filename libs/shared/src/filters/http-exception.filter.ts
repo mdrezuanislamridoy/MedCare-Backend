@@ -13,9 +13,23 @@ export class GlobalExceptionFilter implements ExceptionFilter {
   private readonly logger = new Logger('ExceptionFilter');
 
   catch(exception: unknown, host: ArgumentsHost) {
+    if (host.getType() !== 'http') {
+      const errorMsg =
+        exception instanceof Error ? exception.message : String(exception);
+      this.logger.error(
+        `[RPC Exception] ${errorMsg}`,
+        exception instanceof Error ? exception.stack : undefined,
+      );
+      throw exception;
+    }
+
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
     const request = ctx.getRequest<Request>();
+
+    if (!response || typeof response.status !== 'function') {
+      throw exception;
+    }
     const correlationId = request['correlationId'] || '';
 
     let status = HttpStatus.INTERNAL_SERVER_ERROR;

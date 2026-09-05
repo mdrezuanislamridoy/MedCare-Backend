@@ -7,7 +7,13 @@ echo "🏥 Starting MedCare Container..."
 echo "🚀 Starting local Redis server..."
 redis-server --daemonize yes --port 6379 --maxmemory 32mb --maxmemory-policy allkeys-lru || echo "Redis already running or skipped"
 
-# 2. Start core services with memory capping to stay safely within Render's 512MB limit
+# 2. Push Prisma database schemas if DATABASE_URL is available
+if [ -n "$DATABASE_URL" ]; then
+  echo "📦 Syncing Prisma database schemas..."
+  node scripts/push-all.js || echo "⚠️ Database sync warning (continuing startup)"
+fi
+
+# 3. Start core services with memory capping to stay safely within Render's 512MB limit
 # Default core services: auth, doctor, patient, appointment (can be overridden via ENABLED_SERVICES)
 SERVICES="${ENABLED_SERVICES:-auth-service doctor-service patient-service appointment-service}"
 
