@@ -56,7 +56,9 @@ export class DoctorGatewayController {
   @ApiOperation({ summary: 'Public get doctor details' })
   @Get('public/doctors/:id')
   async publicGetDoctor(@Param('id') id: string) {
-    return this.doctorClient.send(PATTERNS.DOCTOR.PATIENT_GET_DETAILS, id);
+    return this.doctorClient.send(PATTERNS.DOCTOR.PATIENT_GET_DETAILS, {
+      id,
+    });
   }
 
   @Public()
@@ -67,7 +69,7 @@ export class DoctorGatewayController {
     @Query('date') date: string,
   ) {
     return this.doctorClient.send(PATTERNS.DOCTOR.PATIENT_GET_SLOTS, {
-      id,
+      doctorId: id,
       date,
     });
   }
@@ -172,7 +174,7 @@ export class DoctorGatewayController {
   async doctorGetDashboard(@Req() req: any) {
     return this.doctorClient.send(
       PATTERNS.DOCTOR.DOCTOR_GET_DASHBOARD,
-      req.user.id,
+      { userId: req.user.id },
     );
   }
 
@@ -184,7 +186,7 @@ export class DoctorGatewayController {
   async doctorGetProfile(@Req() req: any) {
     return this.doctorClient.send(
       PATTERNS.DOCTOR.DOCTOR_GET_PROFILE,
-      req.user.id,
+      { userId: req.user.id },
     );
   }
 
@@ -277,7 +279,7 @@ export class DoctorGatewayController {
   async doctorGetSchedule(@Req() req: any) {
     return this.doctorClient.send(
       PATTERNS.DOCTOR.DOCTOR_GET_SCHEDULE,
-      req.user.id,
+      { userId: req.user.id },
     );
   }
 
@@ -302,7 +304,7 @@ export class DoctorGatewayController {
   async doctorGetEarnings(@Req() req: any) {
     return this.doctorClient.send(
       PATTERNS.DOCTOR.DOCTOR_GET_EARNINGS,
-      req.user.id,
+      { userId: req.user.id },
     );
   }
 
