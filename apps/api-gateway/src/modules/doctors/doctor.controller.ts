@@ -23,6 +23,8 @@ import {
 } from '@nestjs/swagger';
 import { MICROSERVICES, PATTERNS, UserRole } from '@medcare/contracts';
 import { JwtAuthGuard, RolesGuard, Roles, Public } from '@medcare/shared';
+import { of } from 'rxjs';
+import { catchError, timeout } from 'rxjs/operators';
 import {
   CreateDoctorPrescriptionDto,
   DoctorFilterDto,
@@ -86,9 +88,25 @@ export class DoctorGatewayController {
   @ApiOperation({ summary: 'Admin list doctor verification queue' })
   @Get('admin/doctors/verification-queue')
   async adminListVerifications(@Query('status') status?: string) {
-    return this.doctorClient.send(PATTERNS.DOCTOR.LIST_VERIFICATIONS, {
-      status,
-    });
+    return this.doctorClient
+      .send(PATTERNS.DOCTOR.LIST_VERIFICATIONS, {
+        status: status || 'PENDING',
+      })
+      .pipe(
+        timeout(4000),
+        catchError(() =>
+          of({ data: [], meta: { page: 1, limit: 20, total: 0, totalPages: 0 } }),
+        ),
+      );
+  }
+
+  @ApiBearerAuth('JWT-auth')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN, UserRole.SUPER_ADMIN)
+  @ApiOperation({ summary: 'Admin list pending doctor verifications' })
+  @Get('admin/doctors/pending-verification')
+  async adminListPendingVerifications(@Query('status') status?: string) {
+    return this.adminListVerifications(status || 'PENDING');
   }
 
   @ApiBearerAuth('JWT-auth')

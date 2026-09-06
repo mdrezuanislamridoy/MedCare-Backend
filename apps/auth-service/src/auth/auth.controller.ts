@@ -87,4 +87,9 @@ export class AuthController {
     const role = dto?.role || payload?.role;
     return this.authService.updateUserRole(targetId, role);
   }
+
+  @MessagePattern('auth.users.list')
+  listUsers(@Payload() payload: any) {
+    return this.authService.listUsers(payload);
+  }
 }

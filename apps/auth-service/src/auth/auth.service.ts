@@ -321,6 +321,29 @@ export class AuthService {
     );
   }
 
+  async listUsers(filter?: { roles?: string[]; role?: string; search?: string }) {
+    const where: any = {};
+    if (filter?.roles && filter.roles.length > 0) {
+      where.role = { in: filter.roles };
+    } else if (filter?.role) {
+      where.role = filter.role;
+    }
+    if (filter?.search) {
+      where.OR = [
+        { name: { contains: filter.search, mode: 'insensitive' } },
+        { email: { contains: filter.search, mode: 'insensitive' } },
+      ];
+    }
+    const users = await this.prisma.user.findMany({
+      where,
+      orderBy: { createdAt: 'desc' },
+    });
+    return {
+      data: users.map((u) => this.serializeUser(u)),
+      meta: { page: 1, limit: 50, total: users.length, totalPages: 1 },
+    };
+  }
+
   private serializeUser(user: any) {
     return {
       id: user.id,
