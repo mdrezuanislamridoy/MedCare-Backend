@@ -50,16 +50,35 @@ export class DoctorService {
   async doctorGetDashboard(userId: string) {
     const doctor = await this.getDoctorByUserId(userId);
 
-    const payouts = await this.prisma.doctorPayout.findMany({
-      where: { doctorId: doctor.id },
-    });
+    const today = new Date();
+    const startOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    const endOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59, 999);
+
+    const [payouts, todayAppointments, completedToday, pendingToday, totalPatients, todayEarnings] =
+      await Promise.all([
+        this.prisma.doctorPayout.findMany({ where: { doctorId: doctor.id } }),
+        (this.prisma as any).appointment?.count?.({
+          where: { doctorId: doctor.id, date: { gte: startOfToday, lte: endOfToday } },
+        }).catch(() => 0) ?? 0,
+        (this.prisma as any).appointment?.count?.({
+          where: { doctorId: doctor.id, status: AppointmentStatus.COMPLETED, date: { gte: startOfToday, lte: endOfToday } },
+        }).catch(() => 0) ?? 0,
+        (this.prisma as any).appointment?.count?.({
+          where: { doctorId: doctor.id, status: { in: ['PENDING', 'CONFIRMED', 'SCHEDULED'] }, date: { gte: startOfToday, lte: endOfToday } },
+        }).catch(() => 0) ?? 0,
+        (this.prisma as any).appointment?.findMany?.({
+          where: { doctorId: doctor.id },
+          select: { patientId: true },
+          distinct: ['patientId'],
+        }).then((r: any[]) => r.length).catch(() => 0) ?? 0,
+        (this.prisma as any).transaction?.aggregate?.({
+          where: { doctorId: doctor.id, createdAt: { gte: startOfToday, lte: endOfToday }, status: 'COMPLETED' },
+          _sum: { amount: true },
+        }).then((r: any) => r?._sum?.amount ?? 0).catch(() => 0) ?? 0,
+      ]);
 
     const totalEarnings = payouts
-      .filter(
-        (p) =>
-          (p.status as any) === PayoutStatus.PROCESSED ||
-          (p.status as any) === PayoutStatus.PAID,
-      )
+      .filter((p) => (p.status as any) === PayoutStatus.PROCESSED || (p.status as any) === PayoutStatus.PAID)
       .reduce((acc, curr) => acc + curr.amount, 0);
 
     return {
@@ -76,12 +95,12 @@ export class DoctorService {
         clinicName: 'MedCare Main Clinic',
       },
       stats: {
-        todayAppointments: 8,
-        completedToday: 5,
-        pendingToday: 3,
-        todayEarnings: 250,
+        todayAppointments,
+        completedToday,
+        pendingToday,
+        todayEarnings,
         totalEarnings,
-        totalPatients: 42,
+        totalPatients,
         rating: doctor.rating,
       },
     };

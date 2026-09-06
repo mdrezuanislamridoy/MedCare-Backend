@@ -79,47 +79,47 @@ export class AnalyticsGatewayController {
     const cancelledCount = appointmentsList.filter((a) => ['CANCELLED', 'NO_SHOW'].includes(a.status)).length;
 
     const statusDistribution = [
-      { name: 'Completed', value: completedCount || 780, color: '#0d9488' },
-      { name: 'Pending', value: pendingCount || 222, color: '#f59e0b' },
-      { name: 'Cancelled', value: cancelledCount || 108, color: '#ef4444' },
-      { name: 'No Show', value: 51, color: '#94a3b8' },
+      { name: 'Completed', value: completedCount, color: '#0d9488' },
+      { name: 'Pending', value: pendingCount, color: '#f59e0b' },
+      { name: 'Cancelled', value: cancelledCount, color: '#ef4444' },
+      { name: 'No Show', value: appointmentsList.filter((a) => a.status === 'NO_SHOW').length, color: '#94a3b8' },
     ];
 
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'];
     const revenueTrends = months.map((m, idx) => ({
       month: m,
-      revenue: totalRevenue > 0 ? Math.round((totalRevenue / 8) * (0.8 + idx * 0.05)) : 38000 + idx * 4500,
-      payouts: totalRevenue > 0 ? Math.round((totalRevenue / 8) * (0.8 + idx * 0.05) * 0.7) : 26000 + idx * 3200,
+      revenue: totalRevenue > 0 ? Math.round((totalRevenue / 8) * (0.8 + idx * 0.05)) : 0,
+      payouts: totalRevenue > 0 ? Math.round((totalRevenue / 8) * (0.8 + idx * 0.05) * 0.7) : 0,
     }));
 
     const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
     const appointmentTrends = days.map((day) => ({
       day,
-      completed: Math.max(1, Math.round((completedCount || 35) / 7)),
-      cancelled: Math.max(0, Math.round((cancelledCount || 7) / 7)),
-      pending: Math.max(1, Math.round((pendingCount || 15) / 7)),
+      completed: completedCount > 0 ? Math.round(completedCount / 7) : 0,
+      cancelled: cancelledCount > 0 ? Math.round(cancelledCount / 7) : 0,
+      pending: pendingCount > 0 ? Math.round(pendingCount / 7) : 0,
     }));
 
     return {
-      totalUsers: (totalDoctors || 541) + (totalPatients || 11320) + 1,
-      totalDoctors: totalDoctors || 541,
-      totalPatients: totalPatients || 11320,
-      totalClinics: totalClinics || 183,
-      totalAppointments: totalAppointments || 284,
-      todayAppointments: todayAppointments || 24,
-      upcomingAppointments: upcomingAppointments || 18,
-      totalRevenue: totalRevenue || 81400,
-      platformCommission: platformCommission || 12210,
-      pendingVerifications: pendingVerifications || 6,
+      totalUsers: totalDoctors + totalPatients + 1,
+      totalDoctors,
+      totalPatients,
+      totalClinics,
+      totalAppointments,
+      todayAppointments,
+      upcomingAppointments,
+      totalRevenue,
+      platformCommission,
+      pendingVerifications,
       kpis: {
-        totalDoctors: totalDoctors || 541,
-        totalPatients: totalPatients || 11320,
-        totalClinics: totalClinics || 183,
-        todayAppointments: todayAppointments || 24,
-        upcomingAppointments: upcomingAppointments || 18,
-        pendingVerifications: pendingVerifications || 6,
-        totalRevenue: totalRevenue || 81400,
-        platformCommission: platformCommission || 12210,
+        totalDoctors,
+        totalPatients,
+        totalClinics,
+        todayAppointments,
+        upcomingAppointments,
+        pendingVerifications,
+        totalRevenue,
+        platformCommission,
       },
       statusDistribution,
       appointmentTrends,

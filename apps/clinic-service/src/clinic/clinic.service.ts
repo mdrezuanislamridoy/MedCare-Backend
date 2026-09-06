@@ -222,6 +222,33 @@ export class ClinicService {
 
     const availableRooms = Math.max(0, totalRooms - roomsOccupied);
 
+    const today = new Date();
+    const startOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    const endOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59, 999);
+
+    const [totalDoctors, todayAppointments, completedToday, activeQueueCount, revenueResult] =
+      await Promise.all([
+        (this.prisma as any).doctorProfile?.count?.({ where: { clinicId: clinic.id } }).catch(() => 0) ?? 0,
+        (this.prisma as any).appointment?.count?.({
+          where: { clinicId: clinic.id, date: { gte: startOfToday, lte: endOfToday } },
+        }).catch(() => 0) ?? 0,
+        (this.prisma as any).appointment?.count?.({
+          where: { clinicId: clinic.id, status: 'COMPLETED', date: { gte: startOfToday, lte: endOfToday } },
+        }).catch(() => 0) ?? 0,
+        (this.prisma as any).patientQueue?.count?.({
+          where: { clinicId: clinic.id, status: { in: ['WAITING', 'CALLED', 'IN_ROOM'] } },
+        }).catch(() => 0) ?? 0,
+        (this.prisma as any).transaction?.aggregate?.({
+          where: { clinicId: clinic.id, status: 'COMPLETED', createdAt: { gte: startOfToday, lte: endOfToday } },
+          _sum: { amount: true },
+        }).catch(() => null),
+      ]);
+
+    const estimatedDailyRevenue = revenueResult?._sum?.amount ?? 0;
+    const doctorsAvailableToday = await (this.prisma as any).doctorProfile?.count?.({
+      where: { clinicId: clinic.id, isAvailableToday: true },
+    }).catch(() => 0) ?? 0;
+
     return {
       clinic: {
         id: clinic.id,
@@ -233,17 +260,17 @@ export class ClinicService {
         status: clinic.status,
       },
       stats: {
-        totalDoctors: 12,
-        doctorsAvailableToday: 8,
+        totalDoctors,
+        doctorsAvailableToday,
         totalStaff,
         staffOnDuty,
         totalRooms,
         availableRooms,
         roomsOccupied,
-        todayAppointments: 24,
-        completedToday: 18,
-        activeQueueCount: 6,
-        estimatedDailyRevenue: 2700,
+        todayAppointments,
+        completedToday,
+        activeQueueCount,
+        estimatedDailyRevenue,
       },
     };
   }

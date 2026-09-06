@@ -436,6 +436,13 @@ export class AppointmentService {
       }),
     ]);
 
+    const availableDoctorsCount = await (this.prisma as any).doctorProfile?.count?.({
+      where: {
+        isAvailableToday: true,
+        ...(clinicId && { clinicId }),
+      },
+    }).catch(() => 0) ?? 0;
+
     return {
       stats: {
         todayAppointments: todayTotal,
@@ -443,7 +450,7 @@ export class AppointmentService {
         checkedIn: checkedInCount,
         completedVisits: completedCount,
         cancelled: cancelledCount,
-        availableDoctors: 8,
+        availableDoctors: availableDoctorsCount,
       },
       timeline: todayTimeline,
       liveQueue: activeQueue,
