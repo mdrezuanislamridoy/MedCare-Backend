@@ -25,6 +25,7 @@
     "prisma:generate:chat": "prisma generate --schema=apps/chat-service/prisma/schema.prisma",
     "prisma:push:all": "node scripts/push-all.js",
     "seed:admin": "node scripts/seed-admin.js",
+    "seed:roles": "node scripts/seed-roles.js",
     "prisma:migrate:auth": "prisma migrate dev --schema=apps/auth-service/prisma/schema.prisma",
     "prisma:migrate:doctor": "prisma migrate dev --schema=apps/doctor-service/prisma/schema.prisma",
     "prisma:migrate:patient": "prisma migrate dev --schema=apps/patient-service/prisma/schema.prisma",

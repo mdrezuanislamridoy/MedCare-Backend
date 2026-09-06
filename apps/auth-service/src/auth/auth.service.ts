@@ -47,11 +47,29 @@ export class AuthService {
       dto.password,
       this.passwordSaltRounds,
     );
+    let userRole: any = undefined;
+    if (dto.role) {
+      const upper = dto.role.toUpperCase().replace('-', '_');
+      const validRoles = [
+        'SUPER_ADMIN',
+        'ADMIN',
+        'DOCTOR',
+        'PATIENT',
+        'RECEPTIONIST',
+        'CLINIC_MANAGER',
+        'SUPPORT_STAFF',
+      ];
+      if (validRoles.includes(upper)) {
+        userRole = upper;
+      }
+    }
+
     const user = await this.prisma.user.create({
       data: {
         email,
         passwordHash,
         name: dto.name?.trim() || 'User',
+        ...(userRole ? { role: userRole } : {}),
       },
     });
 

@@ -31,6 +31,14 @@ export class RegisterDto {
   @IsOptional()
   @IsString()
   name?: string;
+
+  @ApiPropertyOptional({
+    example: 'DOCTOR',
+    description: 'Requested user role (PATIENT, DOCTOR, RECEPTIONIST, CLINIC_MANAGER, ADMIN, SUPER_ADMIN, SUPPORT_STAFF)',
+  })
+  @IsOptional()
+  @IsString()
+  role?: string;
 }
 
 export class LoginDto {

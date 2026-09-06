@@ -22,4 +22,9 @@ export class RegisterDto {
   @IsOptional()
   @IsString()
   name?: string;
+
+  @ApiPropertyOptional({ example: 'PATIENT', description: 'User role' })
+  @IsOptional()
+  @IsString()
+  role?: string;
 }

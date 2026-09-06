@@ -7,12 +7,12 @@ echo "🏥 Starting MedCare Container..."
 echo "🚀 Starting local Redis server..."
 redis-server --daemonize yes --port 6379 --maxmemory 32mb --maxmemory-policy allkeys-lru || echo "Redis already running or skipped"
 
-# 2. Push Prisma database schemas and seed default admin if DATABASE_URL is available
+# 2. Push Prisma database schemas and seed default role accounts if DATABASE_URL is available
 if [ -n "$DATABASE_URL" ]; then
   echo "📦 Syncing Prisma database schemas..."
   node scripts/push-all.js || echo "⚠️ Database sync warning (continuing startup)"
-  echo "🌱 Seeding default super admin account..."
-  node scripts/seed-admin.js || echo "⚠️ Admin seed notice (continuing startup)"
+  echo "🌱 Seeding default role accounts (Super Admin, Doctor, Patient, Staff, etc.)..."
+  node scripts/seed-roles.js || echo "⚠️ Role seed notice (continuing startup)"
 fi
 
 # 3. Start core services with memory capping to stay safely within Render's 512MB limit
