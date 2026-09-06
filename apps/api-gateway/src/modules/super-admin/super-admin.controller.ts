@@ -57,17 +57,8 @@ export class SuperAdminGatewayController {
         timeout(4000),
         catchError(() =>
           of({
-            data: [
-              {
-                id: 'admin-1',
-                name: 'System Administrator',
-                email: 'admin@medcare.com',
-                role: 'ADMIN',
-                status: 'ACTIVE',
-                createdAt: new Date().toISOString(),
-              },
-            ],
-            meta: { page: 1, limit: 20, total: 1, totalPages: 1 },
+            data: [],
+            meta: { page: 1, limit: 20, total: 0, totalPages: 0 },
           }),
         ),
       );

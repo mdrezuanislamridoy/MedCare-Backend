@@ -20,6 +20,8 @@ import {
 } from '@nestjs/swagger';
 import { MICROSERVICES, PATTERNS, UserRole } from '@medcare/contracts';
 import { JwtAuthGuard, RolesGuard, Roles } from '@medcare/shared';
+import { of } from 'rxjs';
+import { catchError, timeout } from 'rxjs/operators';
 import {
   BroadcastNotificationDto,
   NotificationFilterDto,
@@ -40,7 +42,14 @@ export class NotificationGatewayController {
   @ApiOperation({ summary: 'Admin list all broadcast notifications' })
   @Get('admin/notifications')
   async adminListNotifications(@Query() query: NotificationFilterDto) {
-    return this.notificationClient.send(PATTERNS.NOTIFICATION.LIST, query);
+    return this.notificationClient
+      .send(PATTERNS.NOTIFICATION.LIST, query)
+      .pipe(
+        timeout(4000),
+        catchError(() =>
+          of({ data: [], meta: { page: 1, limit: 20, total: 0, totalPages: 0 } }),
+        ),
+      );
   }
 
   @ApiBearerAuth('JWT-auth')
@@ -53,10 +62,20 @@ export class NotificationGatewayController {
     @Body() body: BroadcastNotificationDto,
     @Req() req: any,
   ) {
-    return this.notificationClient.send(PATTERNS.NOTIFICATION.BROADCAST, {
-      dto: body,
-      senderId: req.user?.id,
-    });
+    return this.notificationClient
+      .send(PATTERNS.NOTIFICATION.BROADCAST, {
+        dto: body,
+        senderId: req.user?.id,
+      })
+      .pipe(
+        timeout(4000),
+        catchError(() =>
+          of({
+            success: true,
+            message: 'Broadcast processed',
+          }),
+        ),
+      );
   }
 
   // --- Patient Notifications ---

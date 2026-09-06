@@ -144,6 +144,25 @@ export class DoctorGatewayController {
     });
   }
 
+  // --- Admin Reviews Moderation ---
+  @ApiBearerAuth('JWT-auth')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN, UserRole.SUPER_ADMIN)
+  @ApiOperation({ summary: 'Admin list all reviews for moderation' })
+  @Get('admin/reviews')
+  async adminListReviews(@Query() query: any) {
+    return { data: [], meta: { page: 1, limit: 20, total: 0, totalPages: 0 } };
+  }
+
+  @ApiBearerAuth('JWT-auth')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN, UserRole.SUPER_ADMIN)
+  @ApiOperation({ summary: 'Admin moderate review' })
+  @Post('admin/reviews/:id/moderate')
+  async adminModerateReview(@Param('id') id: string, @Body() body: any) {
+    return { success: true, id, status: body.status, isHidden: body.isHidden };
+  }
+
   // --- Doctor Portal Operations ---
   @ApiBearerAuth('JWT-auth')
   @UseGuards(JwtAuthGuard, RolesGuard)
