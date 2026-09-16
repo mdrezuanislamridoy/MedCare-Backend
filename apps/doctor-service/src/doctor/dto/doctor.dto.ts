@@ -1,5 +1,14 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
+  IsIn,
+  IsInt,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  Max,
+  Min,
+} from 'class-validator';
+import {
   AccountStatus,
   VerificationStatus,
   AppointmentStatus,
@@ -364,7 +373,48 @@ export class DoctorReplyReviewDto {
   @ApiProperty({
     example: 'Thank you for your valuable feedback! Wishing you good health.',
   })
+  @IsString()
+  @IsNotEmpty()
   reply!: string;
+}
+
+export class SubmitReviewDto {
+  @ApiProperty({ example: 'apt_123', description: 'Completed appointment being reviewed' })
+  @IsString()
+  @IsNotEmpty()
+  appointmentId!: string;
+
+  @ApiProperty({ example: 5, minimum: 1, maximum: 5 })
+  @IsInt()
+  @Min(1)
+  @Max(5)
+  rating!: number;
+
+  @ApiPropertyOptional({ example: 'Dr. Smith was thorough and attentive.' })
+  @IsOptional()
+  @IsString()
+  comment?: string;
+}
+
+export class AdminReviewFilterDto {
+  @ApiPropertyOptional({ example: 1, default: 1 })
+  @IsOptional()
+  page?: number;
+
+  @ApiPropertyOptional({ example: 20, default: 20 })
+  @IsOptional()
+  limit?: number;
+
+  @ApiPropertyOptional({ example: 'VISIBLE', enum: ['VISIBLE', 'HIDDEN'] })
+  @IsOptional()
+  @IsIn(['VISIBLE', 'HIDDEN'])
+  status?: string;
+}
+
+export class AdminModerateReviewDto {
+  @ApiProperty({ example: 'HIDDEN', enum: ['VISIBLE', 'HIDDEN'] })
+  @IsIn(['VISIBLE', 'HIDDEN'])
+  status!: string;
 }
 
 export class UpdateDoctorProfileDto {

@@ -21,6 +21,11 @@ enum PayoutStatus {
   REJECTED
 }
 
+enum ReviewStatus {
+  VISIBLE
+  HIDDEN
+}
+
 model DoctorProfile {
   id                 String             @id @default(uuid())
   userId             String             @unique
@@ -47,6 +52,7 @@ model DoctorProfile {
   schedules          DoctorSchedule[]
   consultationNotes  ConsultationNote[]
   payouts            DoctorPayout[]
+  reviews            Review[]
 }
 
 model DoctorSchedule {
@@ -92,4 +98,23 @@ model DoctorPayout {
   transactionRef String?
   requestedAt    DateTime      @default(now())
   processedAt    DateTime?
+}
+
+model Review {
+  id            String        @id @default(uuid())
+  doctorId      String
+  doctor        DoctorProfile @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+  patientId     String
+  patientName   String
+  appointmentId String        @unique
+  rating        Int
+  comment       String?
+  status        ReviewStatus  @default(VISIBLE)
+  reply         String?
+  repliedAt     DateTime?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  @@index([doctorId, status])
+  @@index([patientId])
 }

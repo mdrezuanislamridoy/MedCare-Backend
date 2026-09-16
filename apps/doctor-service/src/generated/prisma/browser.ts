@@ -37,3 +37,8 @@ export type ConsultationNote = Prisma.ConsultationNoteModel
  * 
  */
 export type DoctorPayout = Prisma.DoctorPayoutModel
+/**
+ * Model Review
+ * 
+ */
+export type Review = Prisma.ReviewModel

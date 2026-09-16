@@ -63,6 +63,11 @@ export enum PaymentStatus {
   FAILED = 'FAILED',
 }
 
+export enum ReviewStatus {
+  VISIBLE = 'VISIBLE',
+  HIDDEN = 'HIDDEN',
+}
+
 export enum QueueStatus {
   WAITING = 'WAITING',
   CALLED = 'CALLED',

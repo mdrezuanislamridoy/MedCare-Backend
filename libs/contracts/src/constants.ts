@@ -61,6 +61,12 @@ export const PATTERNS = {
     DOCTOR_REPLY_REVIEW: 'doctor.reviews.reply',
     DOCTOR_GET_PROFILE: 'doctor.profile.get',
     DOCTOR_UPDATE_PROFILE: 'doctor.profile.update',
+    SUBMIT_REVIEW: 'patient.reviews.submit',
+    PATIENT_LIST_REVIEWS: 'patient.reviews.list',
+    ADMIN_LIST_REVIEWS: 'admin.reviews.list',
+    ADMIN_MODERATE_REVIEW: 'admin.reviews.moderate',
+    PUBLIC_LIST_TESTIMONIALS: 'public.reviews.testimonials',
+    PUBLIC_SPECIALTIES: 'public.doctors.specialties',
   },
   PATIENT: {
     LIST: 'admin.patients.list',

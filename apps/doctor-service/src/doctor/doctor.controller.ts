@@ -13,6 +13,9 @@ import {
   DoctorAppointmentFilterDto,
   DoctorPayoutRequestDto,
   UpdateDoctorProfileDto,
+  SubmitReviewDto,
+  AdminReviewFilterDto,
+  AdminModerateReviewDto,
 } from './dto/doctor.dto';
 
 @Controller()
@@ -67,6 +70,51 @@ export class DoctorController {
   @MessagePattern(PATTERNS.DOCTOR.PATIENT_GET_DETAILS)
   async patientGetDetails(@Payload() payload: { id: string }) {
     return this.doctorService.patientGetDoctorDetails(payload.id);
+  }
+
+  @MessagePattern(PATTERNS.DOCTOR.PUBLIC_SPECIALTIES)
+  async publicSpecialties() {
+    return this.doctorService.publicListSpecialties();
+  }
+
+  @MessagePattern(PATTERNS.DOCTOR.PUBLIC_LIST_TESTIMONIALS)
+  async publicTestimonials(@Payload() query: { limit?: number }) {
+    return this.doctorService.publicListTestimonials(query);
+  }
+
+  @MessagePattern(PATTERNS.DOCTOR.SUBMIT_REVIEW)
+  async submitReview(
+    @Payload()
+    payload: {
+      patientId: string;
+      patientName: string;
+      doctorId: string;
+      dto: SubmitReviewDto;
+    },
+  ) {
+    return this.doctorService.patientSubmitReview(
+      payload.patientId,
+      payload.patientName,
+      payload.doctorId,
+      payload.dto,
+    );
+  }
+
+  @MessagePattern(PATTERNS.DOCTOR.PATIENT_LIST_REVIEWS)
+  async patientListReviews(@Payload() payload: { patientId: string }) {
+    return this.doctorService.patientListReviews(payload.patientId);
+  }
+
+  @MessagePattern(PATTERNS.DOCTOR.ADMIN_LIST_REVIEWS)
+  async adminListReviews(@Payload() query: AdminReviewFilterDto) {
+    return this.doctorService.adminListReviews(query);
+  }
+
+  @MessagePattern(PATTERNS.DOCTOR.ADMIN_MODERATE_REVIEW)
+  async adminModerateReview(
+    @Payload() payload: { id: string; dto: AdminModerateReviewDto },
+  ) {
+    return this.doctorService.adminModerateReview(payload.id, payload.dto);
   }
 
   @MessagePattern(PATTERNS.DOCTOR.PATIENT_GET_SLOTS)

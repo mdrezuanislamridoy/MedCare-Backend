@@ -12,6 +12,7 @@ import {
   AppointmentStatus,
   QueueStatus,
   TransactionStatus,
+  ReviewStatus,
 } from '@medcare/contracts';
 import {
   DoctorFilterDto,
@@ -23,6 +24,9 @@ import {
   DoctorAppointmentFilterDto,
   DoctorPayoutRequestDto,
   UpdateDoctorProfileDto,
+  SubmitReviewDto,
+  AdminReviewFilterDto,
+  AdminModerateReviewDto,
 } from './dto/doctor.dto';
 
 @Injectable()
@@ -524,30 +528,217 @@ export class DoctorService {
   // ==========================================
   // 8. REVIEWS & RATINGS
   // ==========================================
+  private async recalculateDoctorRating(doctorId: string) {
+    const agg = await this.prisma.review.aggregate({
+      where: { doctorId, status: ReviewStatus.VISIBLE as any },
+      _avg: { rating: true },
+      _count: { rating: true },
+    });
+
+    await this.prisma.doctorProfile.update({
+      where: { id: doctorId },
+      data: {
+        rating: agg._count.rating > 0 ? Number(agg._avg.rating!.toFixed(2)) : 4.8,
+        reviewCount: agg._count.rating,
+      },
+    });
+  }
+
+  async patientSubmitReview(
+    patientId: string,
+    patientName: string,
+    doctorId: string,
+    dto: SubmitReviewDto,
+  ) {
+    const doctor = await this.prisma.doctorProfile.findUnique({
+      where: { id: doctorId },
+    });
+    if (!doctor) {
+      throw new NotFoundException('Doctor not found');
+    }
+
+    if (dto.rating < 1 || dto.rating > 5) {
+      throw new BadRequestException('Rating must be between 1 and 5');
+    }
+
+    const existing = await this.prisma.review.findUnique({
+      where: { appointmentId: dto.appointmentId },
+    });
+    if (existing) {
+      throw new BadRequestException(
+        'A review has already been submitted for this appointment',
+      );
+    }
+
+    const review = await this.prisma.review.create({
+      data: {
+        doctorId,
+        patientId,
+        patientName: patientName || 'Anonymous Patient',
+        appointmentId: dto.appointmentId,
+        rating: dto.rating,
+        comment: dto.comment,
+      },
+    });
+
+    await this.recalculateDoctorRating(doctorId);
+
+    return review;
+  }
+
+  async patientListReviews(patientId: string) {
+    const reviews = await this.prisma.review.findMany({
+      where: { patientId },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    const doctorIds = [...new Set(reviews.map((r) => r.doctorId))];
+    const doctors = await this.prisma.doctorProfile.findMany({
+      where: { id: { in: doctorIds } },
+    });
+    const doctorMap = new Map(doctors.map((d) => [d.id, d]));
+
+    return reviews.map((r) => ({
+      ...r,
+      doctorName: doctorMap.get(r.doctorId)?.name || 'Doctor',
+      doctorSpecialty: doctorMap.get(r.doctorId)?.specialty,
+    }));
+  }
+
   async doctorListReviews(
     userId: string,
     filter: { page?: number; limit?: number },
   ) {
     const doctor = await this.getDoctorByUserId(userId);
+    const page = Math.max(1, Number(filter?.page) || 1);
+    const limit = Math.min(50, Math.max(1, Number(filter?.limit) || 20));
+    const skip = (page - 1) * limit;
+
+    const where = { doctorId: doctor.id };
+    const [data, total] = await Promise.all([
+      this.prisma.review.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: { createdAt: 'desc' },
+      }),
+      this.prisma.review.count({ where }),
+    ]);
+
     return {
-      data: [],
+      data,
       meta: {
-        page: 1,
-        limit: 20,
-        total: 0,
-        totalPages: 0,
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
         averageRating: doctor.rating,
       },
     };
   }
 
   async doctorReplyReview(userId: string, reviewId: string, reply: string) {
+    const doctor = await this.getDoctorByUserId(userId);
+    const review = await this.prisma.review.findUnique({
+      where: { id: reviewId },
+    });
+
+    if (!review || review.doctorId !== doctor.id) {
+      throw new NotFoundException('Review not found');
+    }
+
+    const updated = await this.prisma.review.update({
+      where: { id: reviewId },
+      data: { reply, repliedAt: new Date() },
+    });
+
     return {
       success: true,
       message: 'Reply submitted successfully',
-      reviewId,
-      reply,
+      review: updated,
     };
+  }
+
+  async adminListReviews(filter: AdminReviewFilterDto) {
+    const page = Math.max(1, Number(filter?.page) || 1);
+    const limit = Math.min(100, Math.max(1, Number(filter?.limit) || 20));
+    const skip = (page - 1) * limit;
+
+    const where: any = {};
+    if (filter?.status) {
+      where.status = filter.status;
+    }
+
+    const [reviews, total] = await Promise.all([
+      this.prisma.review.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: { createdAt: 'desc' },
+      }),
+      this.prisma.review.count({ where }),
+    ]);
+
+    const doctorIds = [...new Set(reviews.map((r) => r.doctorId))];
+    const doctors = await this.prisma.doctorProfile.findMany({
+      where: { id: { in: doctorIds } },
+    });
+    const doctorMap = new Map(doctors.map((d) => [d.id, d]));
+
+    return {
+      data: reviews.map((r) => ({
+        ...r,
+        doctorName: doctorMap.get(r.doctorId)?.name || 'Doctor',
+        doctorSpecialty: doctorMap.get(r.doctorId)?.specialty,
+      })),
+      meta: { page, limit, total, totalPages: Math.ceil(total / limit) },
+    };
+  }
+
+  async adminModerateReview(id: string, dto: AdminModerateReviewDto) {
+    const review = await this.prisma.review.findUnique({ where: { id } });
+    if (!review) {
+      throw new NotFoundException('Review not found');
+    }
+
+    const updated = await this.prisma.review.update({
+      where: { id },
+      data: { status: dto.status as any },
+    });
+
+    await this.recalculateDoctorRating(review.doctorId);
+
+    return { success: true, review: updated };
+  }
+
+  async publicListTestimonials(query: { limit?: number }) {
+    const limit = Math.min(50, Math.max(1, Number(query?.limit) || 12));
+
+    const reviews = await this.prisma.review.findMany({
+      where: {
+        status: ReviewStatus.VISIBLE as any,
+        rating: { gte: 4 },
+        comment: { not: null },
+      },
+      orderBy: [{ rating: 'desc' }, { createdAt: 'desc' }],
+      take: limit,
+    });
+
+    const doctorIds = [...new Set(reviews.map((r) => r.doctorId))];
+    const doctors = await this.prisma.doctorProfile.findMany({
+      where: { id: { in: doctorIds } },
+    });
+    const doctorMap = new Map(doctors.map((d) => [d.id, d]));
+
+    return reviews.map((r) => ({
+      id: r.id,
+      patientName: r.patientName,
+      rating: r.rating,
+      comment: r.comment,
+      doctorName: doctorMap.get(r.doctorId)?.name,
+      doctorSpecialty: doctorMap.get(r.doctorId)?.specialty,
+      createdAt: r.createdAt,
+    }));
   }
 
   // ==========================================
@@ -742,6 +933,20 @@ export class DoctorService {
         totalPages: Math.ceil(total / limit),
       },
     };
+  }
+
+  async publicListSpecialties() {
+    const grouped = await this.prisma.doctorProfile.groupBy({
+      by: ['specialty'],
+      where: { verificationStatus: VerificationStatus.VERIFIED as any },
+      _count: { specialty: true },
+      orderBy: { _count: { specialty: 'desc' } },
+    });
+
+    return grouped.map((g) => ({
+      name: g.specialty,
+      doctorCount: g._count.specialty,
+    }));
   }
 
   async patientGetDoctorDetails(id: string) {

@@ -74,6 +74,28 @@ export class DoctorGatewayController {
     });
   }
 
+  @Public()
+  @ApiOperation({ summary: 'Public list medical specialties with live doctor counts' })
+  @Get('public/specialties')
+  async publicListSpecialties() {
+    return this.doctorClient.send(PATTERNS.DOCTOR.PUBLIC_SPECIALTIES, {}).pipe(
+      timeout(4000),
+      catchError(() => of([])),
+    );
+  }
+
+  @Public()
+  @ApiOperation({ summary: 'Public list featured patient testimonials' })
+  @Get('public/testimonials')
+  async publicListTestimonials(@Query() query: any) {
+    return this.doctorClient
+      .send(PATTERNS.DOCTOR.PUBLIC_LIST_TESTIMONIALS, query)
+      .pipe(
+        timeout(4000),
+        catchError(() => of([])),
+      );
+  }
+
   // --- Admin Doctor Management ---
   @ApiBearerAuth('JWT-auth')
   @UseGuards(JwtAuthGuard, RolesGuard)
@@ -153,7 +175,7 @@ export class DoctorGatewayController {
   @ApiOperation({ summary: 'Admin list all reviews for moderation' })
   @Get('admin/reviews')
   async adminListReviews(@Query() query: any) {
-    return { data: [], meta: { page: 1, limit: 20, total: 0, totalPages: 0 } };
+    return this.doctorClient.send(PATTERNS.DOCTOR.ADMIN_LIST_REVIEWS, query);
   }
 
   @ApiBearerAuth('JWT-auth')
@@ -162,7 +184,10 @@ export class DoctorGatewayController {
   @ApiOperation({ summary: 'Admin moderate review' })
   @Post('admin/reviews/:id/moderate')
   async adminModerateReview(@Param('id') id: string, @Body() body: any) {
-    return { success: true, id, status: body.status, isHidden: body.isHidden };
+    return this.doctorClient.send(PATTERNS.DOCTOR.ADMIN_MODERATE_REVIEW, {
+      id,
+      dto: body,
+    });
   }
 
   // --- Doctor Portal Operations ---
@@ -321,6 +346,36 @@ export class DoctorGatewayController {
     return this.doctorClient.send(PATTERNS.DOCTOR.DOCTOR_REQUEST_PAYOUT, {
       userId: req.user.id,
       dto: body,
+    });
+  }
+
+  @ApiBearerAuth('JWT-auth')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.DOCTOR)
+  @ApiOperation({ summary: 'Doctor list reviews received' })
+  @Get('doctor/reviews')
+  async doctorListReviews(@Req() req: any, @Query() query: any) {
+    return this.doctorClient.send(PATTERNS.DOCTOR.DOCTOR_LIST_REVIEWS, {
+      userId: req.user.id,
+      query,
+    });
+  }
+
+  @ApiBearerAuth('JWT-auth')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.DOCTOR)
+  @ApiOperation({ summary: 'Doctor reply to a review' })
+  @ApiBody({ type: DoctorReplyReviewDto })
+  @Post('doctor/reviews/:id/reply')
+  async doctorReplyReview(
+    @Req() req: any,
+    @Param('id') id: string,
+    @Body() body: DoctorReplyReviewDto,
+  ) {
+    return this.doctorClient.send(PATTERNS.DOCTOR.DOCTOR_REPLY_REVIEW, {
+      userId: req.user.id,
+      reviewId: id,
+      reply: body.reply,
     });
   }
 }

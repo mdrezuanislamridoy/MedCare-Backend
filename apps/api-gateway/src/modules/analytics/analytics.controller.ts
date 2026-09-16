@@ -49,6 +49,23 @@ export class AnalyticsGatewayController {
     const doctorsList = Array.isArray(doctorsRes?.data) ? doctorsRes.data : [];
     const totalDoctors = doctorsRes?.meta?.total ?? doctorsList.length;
 
+    const totalReviews = doctorsList.reduce(
+      (acc: number, d: any) => acc + (Number(d.reviewCount) || 0),
+      0,
+    );
+    const ratingAverage =
+      totalReviews > 0
+        ? Number(
+            (
+              doctorsList.reduce(
+                (acc: number, d: any) =>
+                  acc + (Number(d.rating) || 0) * (Number(d.reviewCount) || 0),
+                0,
+              ) / totalReviews
+            ).toFixed(2),
+          )
+        : 4.9;
+
     const verificationsList = Array.isArray(verificationsRes?.data) ? verificationsRes.data : (Array.isArray(verificationsRes) ? verificationsRes : []);
     const pendingVerifications = verificationsList.length;
 
@@ -111,6 +128,8 @@ export class AnalyticsGatewayController {
       totalRevenue,
       platformCommission,
       pendingVerifications,
+      ratingAverage,
+      totalReviews,
       kpis: {
         totalDoctors,
         totalPatients,
