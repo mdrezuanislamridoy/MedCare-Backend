@@ -54,7 +54,8 @@ export const ModelName = {
   DoctorProfile: 'DoctorProfile',
   DoctorSchedule: 'DoctorSchedule',
   ConsultationNote: 'ConsultationNote',
-  DoctorPayout: 'DoctorPayout'
+  DoctorPayout: 'DoctorPayout',
+  Review: 'Review'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -147,6 +148,24 @@ export const DoctorPayoutScalarFieldEnum = {
 } as const
 
 export type DoctorPayoutScalarFieldEnum = (typeof DoctorPayoutScalarFieldEnum)[keyof typeof DoctorPayoutScalarFieldEnum]
+
+
+export const ReviewScalarFieldEnum = {
+  id: 'id',
+  doctorId: 'doctorId',
+  patientId: 'patientId',
+  patientName: 'patientName',
+  appointmentId: 'appointmentId',
+  rating: 'rating',
+  comment: 'comment',
+  status: 'status',
+  reply: 'reply',
+  repliedAt: 'repliedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ReviewScalarFieldEnum = (typeof ReviewScalarFieldEnum)[keyof typeof ReviewScalarFieldEnum]
 
 
 export const SortOrder = {

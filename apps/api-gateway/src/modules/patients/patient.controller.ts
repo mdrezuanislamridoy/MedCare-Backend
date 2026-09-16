@@ -1,7 +1,9 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
+  ForbiddenException,
   Get,
   Inject,
   Param,
@@ -13,6 +15,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
+import { firstValueFrom, timeout } from 'rxjs';
 import {
   ApiBearerAuth,
   ApiOperation,
@@ -28,12 +31,16 @@ import {
   UpdatePatientProfileDto,
   UpdatePatientStatusDto,
 } from '../../../../patient-service/src/patient/dto/patient.dto';
+import { SubmitReviewDto } from '../../../../doctor-service/src/doctor/dto/doctor.dto';
 
 @ApiTags('Patient Portal & Records')
 @Controller()
 export class PatientGatewayController {
   constructor(
     @Inject(MICROSERVICES.PATIENT) private readonly patientClient: ClientProxy,
+    @Inject(MICROSERVICES.DOCTOR) private readonly doctorClient: ClientProxy,
+    @Inject(MICROSERVICES.APPOINTMENT)
+    private readonly appointmentClient: ClientProxy,
   ) {}
 
   // --- Admin Patient Management ---
@@ -173,6 +180,50 @@ export class PatientGatewayController {
     return this.patientClient.send(PATTERNS.PATIENT.GET_PRESCRIPTION, {
       userId: req.user.id,
       prescriptionId: id,
+    });
+  }
+
+  @ApiBearerAuth('JWT-auth')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.PATIENT)
+  @ApiOperation({ summary: 'Patient list reviews they have submitted' })
+  @Get('patient/reviews')
+  async patientListReviews(@Req() req: any) {
+    return this.doctorClient.send(PATTERNS.DOCTOR.PATIENT_LIST_REVIEWS, {
+      patientId: req.user.id,
+    });
+  }
+
+  @ApiBearerAuth('JWT-auth')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.PATIENT)
+  @ApiOperation({ summary: 'Patient submit a review for a completed appointment' })
+  @ApiBody({ type: SubmitReviewDto })
+  @Post('patient/reviews')
+  async patientSubmitReview(@Req() req: any, @Body() body: SubmitReviewDto) {
+    const appointment: any = await firstValueFrom(
+      this.appointmentClient
+        .send(PATTERNS.APPOINTMENT.PATIENT_GET_BY_ID, {
+          userId: req.user.id,
+          appointmentId: body.appointmentId,
+        })
+        .pipe(timeout(5000)),
+    );
+
+    if (!appointment || appointment.patientId !== req.user.id) {
+      throw new ForbiddenException('You can only review your own appointments');
+    }
+    if (appointment.status !== 'COMPLETED') {
+      throw new BadRequestException(
+        'You can only review appointments that have been completed',
+      );
+    }
+
+    return this.doctorClient.send(PATTERNS.DOCTOR.SUBMIT_REVIEW, {
+      patientId: req.user.id,
+      patientName: appointment.patientName || 'Anonymous Patient',
+      doctorId: appointment.doctorId,
+      dto: body,
     });
   }
 }
